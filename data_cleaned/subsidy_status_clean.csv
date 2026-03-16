@@ -1,0 +1,30 @@
+statuses,count,difference
+1. Redeemed till date,2201654.0,0.0
+2. Released till date,2108104.0,93550.0
+3. Subsidy released till date,165646172053.2,0.0
+4. On Hold,885.0,0.0
+5. Return to consumer /discom,21091.0,0.0
+6. Pending for verification at maker,20407.0,0.0
+7. Pending for verification at checker,91.0,0.0
+8. Maker and checker approved ,51076.0,0.0
+,0.0,0.0
+Bifurcation of maker and checker approved records,0.0,0.0
+8.1 Sent to digigov for Payment,37959.0,0.0
+8.2. Sent to Digigov for payment  and ACK Rejected at digigov - Reviewed manually for processing,54.0,0.0
+8.3.Not sent to digigov for payment due to technical non compliance- Reviewed manually for processing,3620.0,0.0
+8.4. To be pushed for account validation  in next scheduler,1.0,0.0
+8.5. Sent to Digigov for account validation and ACK\NACK awaited,0.0,0.0
+8.6. Sent to Digigov  for account validation - ACK received and Ben Id awaited,0.0,0.0
+8.7. Beneficiary id received and payment file to be generated in next scheduler,9344.0,0.0
+8.8. rejected by PFMS during account validation and Sent back to consumer for correction,2.0,0.0
+8.9. Initial validation is failed while generating account validation file-Reviewed manually for processing,0.0,0.0
+8.10. Subsidy auto released with 0 amount,96.0,0.0
+,51076.0,0.0
+,0.0,0.0
+Return reason,0.0,0.0
+Returned Consumer under Installation (21),2454.0,0.0
+Returned to Consumer by PFMS,944.0,0.0
+Returned to Consumer of Bank Detail correction (22),17316.0,0.0
+Returned to Consumer under EB,0.0,0.0
+Returned to DISCOM,377.0,0.0
+,21091.0,0.0
