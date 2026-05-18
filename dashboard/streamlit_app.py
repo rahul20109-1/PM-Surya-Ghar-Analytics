@@ -105,15 +105,32 @@ if page == "Overview":
     # OVERVIEW PAGE - Main Dashboard
     # ========================================================================
 
+    st.write(
+        """
+    This page gives a quick snapshot of program scale, progress, and movement through the main stages.
+    """
+    )
+
+    total_apps = int(kpi_national["total_applications"].values[0])
+    total_installs = int(kpi_national["total_installations"].values[0])
+    total_inspections = int(kpi_national["total_inspections"].values[0])
+    total_subsidy_redeemed = int(kpi_national["total_subsidy_redeemed"].values[0])
+    app_to_install_rate = float(kpi_national["conversion_rate_app_to_install"].values[0])
+    install_to_inspection_rate = float(
+        kpi_national["conversion_rate_install_to_inspection"].values[0]
+    )
+    app_to_subsidy_rate = float(kpi_national["conversion_rate_app_to_subsidy"].values[0])
+    apps_not_installed = max(total_apps - total_installs, 0)
+
     st.markdown("---")
 
-    # Row 1: Key National Metrics
+    # Row 1: Core volume metrics
     col1, col2, col3, col4 = st.columns(4)
 
     with col1:
         kpi_card(
             title="Applications recorded",
-            value=int(kpi_national["total_applications"].values[0]),
+            value=total_apps,
             delta=None,
             format_type="number",
         )
@@ -121,36 +138,73 @@ if page == "Overview":
     with col2:
         kpi_card(
             title="Installations completed",
-            value=int(kpi_national["total_installations"].values[0]),
+            value=total_installs,
             delta=None,
             format_type="number",
         )
 
     with col3:
         kpi_card(
-            title="Application to installation rate",
-            value=float(kpi_national["conversion_rate_app_to_install"].values[0]),
+            title="Inspections approved",
+            value=total_inspections,
             delta=None,
-            format_type="percent",
+            format_type="number",
         )
 
     with col4:
         kpi_card(
-            title="States covered",
-            value=int(kpi_national["total_states"].values[0]),
+            title="Subsidy redeemed",
+            value=total_subsidy_redeemed,
             delta=None,
             format_type="number",
         )
 
     st.markdown("---")
 
-    # Row 2: Additional Metrics
+    # Row 2: Core rates and backlog
     col1, col2, col3, col4 = st.columns(4)
 
     with col1:
         kpi_card(
-            title="Inspections approved",
-            value=int(kpi_national["total_inspections"].values[0]),
+            title="Application to installation rate",
+            value=app_to_install_rate,
+            delta=None,
+            format_type="percent",
+        )
+
+    with col2:
+        kpi_card(
+            title="Installation to inspection rate",
+            value=install_to_inspection_rate,
+            delta=None,
+            format_type="percent",
+        )
+
+    with col3:
+        kpi_card(
+            title="Application to subsidy rate",
+            value=app_to_subsidy_rate,
+            delta=None,
+            format_type="percent",
+        )
+
+    with col4:
+        kpi_card(
+            title="Applications not yet installed",
+            value=apps_not_installed,
+            delta=None,
+            format_type="number",
+        )
+
+    st.markdown("---")
+
+    # Row 3: Coverage
+    col1, col2, col3 = st.columns(3)
+
+    with col1:
+        kpi_card(
+            title="States covered",
+            value=int(kpi_national["total_states"].values[0]),
             delta=None,
             format_type="number",
         )
@@ -165,40 +219,23 @@ if page == "Overview":
 
     with col3:
         kpi_card(
-            title="Residential share",
-            value=float(kpi_national["residential_percentage"].values[0]),
+            title="DISCOMs covered",
+            value=int(kpi_national["total_discoms"].values[0]),
             delta=None,
-            format_type="percent",
-        )
-
-    with col4:
-        kpi_card(
-            title="Average system size",
-            value=float(kpi_national["average_system_size_kw"].values[0]),
-            delta=None,
-            format_type="decimal",
-            suffix=" kW",
+            format_type="number",
         )
 
     st.markdown("---")
 
-    # Row 3: Charts
-    col1, col2 = st.columns(2)
-
-    with col1:
-        st.subheader("Applications and installations over time")
-        fig = create_adoption_trend(datewise)
-        st.plotly_chart(fig, use_container_width=True)
-
-    with col2:
-        st.subheader("Top 10 states by applications recorded")
-        fig = create_state_ranking_chart(kpi_state.head(10))
-        st.plotly_chart(fig, use_container_width=True)
+    # Row 4: Trend
+    st.subheader("Applications and installations over time")
+    fig = create_adoption_trend(datewise)
+    st.plotly_chart(fig, use_container_width=True)
 
     st.markdown("---")
 
-    # Row 4: Conversion Funnel
-    st.subheader("How applications move through the program")
+    # Row 5: Conversion Funnel
+    st.subheader("How applications move through the main stages in the data")
 
     funnel_data = {
         "Stage": [
@@ -221,28 +258,6 @@ if page == "Overview":
 
     fig = create_conversion_funnel(funnel_data)
     st.plotly_chart(fig, use_container_width=True)
-
-    st.markdown("---")
-
-    # Row 5: National Statistics
-    st.subheader("National totals and value measures")
-
-    stat_col1, stat_col2, stat_col3 = st.columns(3)
-
-    with stat_col1:
-        st.metric(
-            "Installed capacity",
-            f"{int(kpi_national['total_capacity_installed_kw'].values[0]):,} kW",
-        )
-
-    with stat_col2:
-        st.metric("DISCOMs covered", int(kpi_national["total_discoms"].values[0]))
-
-    with stat_col3:
-        st.metric(
-            "Average subsidy per installation",
-            f"₹{int(kpi_national['subsidy_per_installation'].values[0]):,}",
-        )
 
 elif page == "State Analysis":
     st.header("State comparison")
