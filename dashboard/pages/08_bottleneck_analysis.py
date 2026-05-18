@@ -21,6 +21,7 @@ project_root = Path(__file__).parent.parent.parent
 sys.path.insert(0, str(project_root))
 
 from dashboard.utils.data_loader import load_data
+from dashboard.utils.charts import filter_all_zero_rows
 
 # Configure page
 st.set_page_config(page_title="Bottleneck Analysis", layout="wide")
@@ -161,44 +162,56 @@ col1, col2 = st.columns(2)
 with col1:
     st.subheader("Stage flow chart")
 
-    fig = go.Figure(
-        go.Funnel(
-            y=funnel_stages["Stage"],
-            x=funnel_stages["Count"],
-            marker=dict(
-                color=["#1f77b4", "#1f77b4", "#ff7f0e", "#ff7f0e", "#d62728", "#2ca02c"]
-            ),
-            text=[
-                f"{count:,}<br>({pct:.1f}%)"
-                for count, pct in zip(funnel_stages["Count"], funnel_df["Cumulative %"])
-            ],
-            textposition="inside",
-        )
+    funnel_chart_df = filter_all_zero_rows(
+        funnel_df[["Stage", "Count", "Cumulative %"]].copy(), ["Count"]
     )
+    if funnel_chart_df.empty:
+        st.info("No non-zero stage data available for this chart.")
+    else:
+        fig = go.Figure(
+            go.Funnel(
+                y=funnel_chart_df["Stage"],
+                x=funnel_chart_df["Count"],
+                marker=dict(
+                    color=["#1f77b4", "#1f77b4", "#ff7f0e", "#ff7f0e", "#d62728", "#2ca02c"]
+                ),
+                text=[
+                    f"{count:,}<br>({pct:.1f}%)"
+                    for count, pct in zip(
+                        funnel_chart_df["Count"], funnel_chart_df["Cumulative %"]
+                    )
+                ],
+                textposition="inside",
+            )
+        )
 
-    fig.update_layout(height=500, template="plotly_white")
-    st.plotly_chart(fig, use_container_width=True)
+        fig.update_layout(height=500, template="plotly_white")
+        st.plotly_chart(fig, use_container_width=True)
 
 with col2:
     st.subheader("Drop-off rate by stage")
 
     # Remove first stage (no prior stage)
-    dropout_data = funnel_df.iloc[1:].copy()
+    dropout_data = funnel_df.iloc[1:][["Stage", "Stage Dropout %"]].copy()
+    dropout_data = filter_all_zero_rows(dropout_data, ["Stage Dropout %"])
 
-    fig = px.bar(
-        dropout_data,
-        x="Stage",
-        y="Stage Dropout %",
-        title="",
-        color="Stage Dropout %",
-        color_continuous_scale=["#2ca02c", "#ff7f0e", "#d62728"],
-        text="Stage Dropout %",
-    )
+    if dropout_data.empty:
+        st.info("No non-zero drop-off data available for this chart.")
+    else:
+        fig = px.bar(
+            dropout_data,
+            x="Stage",
+            y="Stage Dropout %",
+            title="",
+            color="Stage Dropout %",
+            color_continuous_scale=["#2ca02c", "#ff7f0e", "#d62728"],
+            text="Stage Dropout %",
+        )
 
-    fig.update_traces(texttemplate="%{text:.1f}%", textposition="outside")
-    fig.update_layout(height=500, showlegend=False, xaxis_tickangle=-45)
-    fig.update_xaxes(tickfont=dict(size=10))
-    st.plotly_chart(fig, use_container_width=True)
+        fig.update_traces(texttemplate="%{text:.1f}%", textposition="outside")
+        fig.update_layout(height=500, showlegend=False, xaxis_tickangle=-45)
+        fig.update_xaxes(tickfont=dict(size=10))
+        st.plotly_chart(fig, use_container_width=True)
 
 # Critical insight
 st.markdown(
@@ -282,39 +295,47 @@ col1, col2 = st.columns(2)
 
 with col1:
     st.subheader("Applications waiting at each stage")
+    pending_chart_df = pending_df[["Stage", "Pending", "Pending %"]].copy()
+    pending_chart_df = filter_all_zero_rows(pending_chart_df, ["Pending", "Pending %"])
 
-    fig = px.bar(
-        pending_df.sort_values("Pending", ascending=True),
-        y="Stage",
-        x="Pending",
-        orientation="h",
-        title="",
-        color="Pending %",
-        color_continuous_scale=["#2ca02c", "#ff7f0e", "#d62728"],
-        text="Pending",
-    )
+    if pending_chart_df.empty:
+        st.info("No non-zero waiting data available for this chart.")
+    else:
+        fig = px.bar(
+            pending_chart_df.sort_values("Pending", ascending=True),
+            y="Stage",
+            x="Pending",
+            orientation="h",
+            title="",
+            color="Pending %",
+            color_continuous_scale=["#2ca02c", "#ff7f0e", "#d62728"],
+            text="Pending",
+        )
 
-    fig.update_traces(texttemplate="%{text:,.0f}", textposition="outside")
-    fig.update_layout(height=400, showlegend=False)
-    st.plotly_chart(fig, use_container_width=True)
+        fig.update_traces(texttemplate="%{text:,.0f}", textposition="outside")
+        fig.update_layout(height=400, showlegend=False)
+        st.plotly_chart(fig, use_container_width=True)
 
 with col2:
     st.subheader("Waiting share by stage")
 
-    fig = px.bar(
-        pending_df.sort_values("Pending %", ascending=True),
-        y="Stage",
-        x="Pending %",
-        orientation="h",
-        title="",
-        color="Pending %",
-        color_continuous_scale=["#2ca02c", "#ff7f0e", "#d62728"],
-        text="Pending %",
-    )
+    if pending_chart_df.empty:
+        st.info("No non-zero waiting share data available for this chart.")
+    else:
+        fig = px.bar(
+            pending_chart_df.sort_values("Pending %", ascending=True),
+            y="Stage",
+            x="Pending %",
+            orientation="h",
+            title="",
+            color="Pending %",
+            color_continuous_scale=["#2ca02c", "#ff7f0e", "#d62728"],
+            text="Pending %",
+        )
 
-    fig.update_traces(texttemplate="%{text:.1f}%", textposition="outside")
-    fig.update_layout(height=400, showlegend=False)
-    st.plotly_chart(fig, use_container_width=True)
+        fig.update_traces(texttemplate="%{text:.1f}%", textposition="outside")
+        fig.update_layout(height=400, showlegend=False)
+        st.plotly_chart(fig, use_container_width=True)
 
 st.markdown("---")
 
@@ -427,8 +448,9 @@ st.markdown("---")
 st.header("4. Processing speed over time")
 
 # Analyze daily throughput
-datewise_analysis = datewise.copy()
-datewise_analysis = datewise_analysis.sort_values("rptdate")
+throughput_df = datewise[["rptdate", "applications", "installations"]].copy()
+throughput_df = filter_all_zero_rows(throughput_df, ["applications", "installations"])
+datewise_analysis = throughput_df.sort_values("rptdate")
 datewise_analysis["rptdate"] = pd.to_datetime(datewise_analysis["rptdate"])
 
 # Calculate rolling averages
@@ -550,6 +572,11 @@ state_approval = (
         }
     )
     .reset_index()
+)
+
+state_approval = filter_all_zero_rows(
+    state_approval,
+    ["feasibility_approved", "vendor_selected", "installation", "inspection_approved"],
 )
 
 state_approval["feasibility_approval_rate"] = (

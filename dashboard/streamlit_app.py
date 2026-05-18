@@ -23,7 +23,11 @@ sys.path.insert(0, str(project_root))
 # Import utility modules
 from dashboard.utils.data_loader import load_data
 from dashboard.utils.components import kpi_card, create_conversion_funnel
-from dashboard.utils.charts import create_adoption_trend, create_state_ranking_chart
+from dashboard.utils.charts import (
+    create_adoption_trend,
+    create_state_ranking_chart,
+    filter_all_zero_rows,
+)
 
 # Configure Streamlit
 st.set_page_config(
@@ -256,8 +260,17 @@ if page == "Overview":
         ],
     }
 
-    fig = create_conversion_funnel(funnel_data)
-    st.plotly_chart(fig, use_container_width=True)
+    funnel_df = pd.DataFrame(funnel_data)
+    funnel_df = filter_all_zero_rows(funnel_df, ["Count"])
+    if funnel_df.empty:
+        st.info("No non-zero stage data available for this period.")
+    else:
+        cleaned_funnel = {
+            "Stage": funnel_df["Stage"].tolist(),
+            "Count": funnel_df["Count"].tolist(),
+        }
+        fig = create_conversion_funnel(cleaned_funnel)
+        st.plotly_chart(fig, use_container_width=True)
 
 elif page == "State Analysis":
     st.header("State comparison")
@@ -280,13 +293,23 @@ elif page == "State Analysis":
     with col2:
         show_top = st.slider("Number of states to show:", 5, 36, 10)
 
+    state_base_df = kpi_state[
+        [
+            "state",
+            "applications",
+            "installations",
+            "conversion_rate_app_to_install_pct",
+        ]
+    ].copy()
+    state_base_df = filter_all_zero_rows(state_base_df, ["applications", "installations"])
+
     # Prepare sorted data
     if sort_by == "Applications recorded":
-        state_data = kpi_state.nlargest(show_top, "applications")
+        state_data = state_base_df.nlargest(show_top, "applications")
     elif sort_by == "Installations completed":
-        state_data = kpi_state.nlargest(show_top, "installations")
+        state_data = state_base_df.nlargest(show_top, "installations")
     else:
-        state_data = kpi_state.nlargest(show_top, "conversion_rate_app_to_install_pct")
+        state_data = state_base_df.nlargest(show_top, "conversion_rate_app_to_install_pct")
 
     # Display table
     st.subheader(f"Top {show_top} states")
@@ -408,8 +431,9 @@ elif page == "Trends":
     """
     )
 
-    # Prepare datewise data
-    datewise_sorted = datewise.sort_values("rptdate")
+    trend_df = datewise[["rptdate", "applications", "installations"]].copy()
+    trend_df = filter_all_zero_rows(trend_df, ["applications", "installations"])
+    datewise_sorted = trend_df.sort_values("rptdate")
     datewise_sorted["rptdate"] = pd.to_datetime(datewise_sorted["rptdate"])
     datewise_sorted["cum_applications"] = datewise_sorted["applications"].cumsum()
     datewise_sorted["cum_installations"] = datewise_sorted["installations"].cumsum()
@@ -540,16 +564,21 @@ elif page == "Capacity Metrics":
                 float(kpi_national["rwa_percentage"].values[0]),
             ],
         }
+        adoption_df = pd.DataFrame(adoption_data)
+        adoption_df = filter_all_zero_rows(adoption_df, ["Percentage"])
 
         import plotly.express as px
 
-        fig = px.pie(
-            adoption_data,
-            values="Percentage",
-            names="Type",
-            color_discrete_sequence=["#1f77b4", "#ff7f0e"],
-        )
-        st.plotly_chart(fig, use_container_width=True)
+        if adoption_df.empty:
+            st.info("No non-zero adoption share data available.")
+        else:
+            fig = px.pie(
+                adoption_df,
+                values="Percentage",
+                names="Type",
+                color_discrete_sequence=["#1f77b4", "#ff7f0e"],
+            )
+            st.plotly_chart(fig, use_container_width=True)
 
     with col2:
         st.subheader("Systems up to 10 kW and above 10 kW")
@@ -562,19 +591,24 @@ elif page == "Capacity Metrics":
             "Size": ["Up to 10 kW", "Above 10 kW"],
             "Count": [int(upto_10kw), int(above_10kw)],
         }
+        capacity_df = pd.DataFrame(capacity_data)
+        capacity_df = filter_all_zero_rows(capacity_df, ["Count"])
 
         import plotly.express as px
 
-        fig = px.bar(
-            capacity_data,
-            x="Size",
-            y="Count",
-            color="Size",
-            color_discrete_sequence=["#2ca02c", "#d62728"],
-            title="System size counts",
-        )
-        fig.update_layout(showlegend=False, height=400)
-        st.plotly_chart(fig, use_container_width=True)
+        if capacity_df.empty:
+            st.info("No non-zero system size data available.")
+        else:
+            fig = px.bar(
+                capacity_df,
+                x="Size",
+                y="Count",
+                color="Size",
+                color_discrete_sequence=["#2ca02c", "#d62728"],
+                title="System size counts",
+            )
+            fig.update_layout(showlegend=False, height=400)
+            st.plotly_chart(fig, use_container_width=True)
 
 elif page == "About":
     st.header("About this dashboard")

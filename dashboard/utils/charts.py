@@ -9,6 +9,23 @@ import plotly.express as px
 import pandas as pd
 
 
+def filter_all_zero_rows(df, metric_cols):
+    """
+    Remove rows where all metric columns are zero.
+
+    Args:
+        df (pd.DataFrame): Source data.
+        metric_cols (list[str]): Numeric columns to evaluate.
+
+    Returns:
+        pd.DataFrame: Filtered data.
+    """
+
+    metrics = df[metric_cols].apply(pd.to_numeric, errors="coerce").fillna(0)
+    all_zero = (metrics == 0).all(axis=1)
+    return df.loc[~all_zero].copy()
+
+
 def create_adoption_trend(datewise_df):
     """
     Create cumulative adoption trend chart.
@@ -21,7 +38,8 @@ def create_adoption_trend(datewise_df):
     """
 
     # Prepare data
-    df = datewise_df.copy()
+    df = datewise_df[["rptdate", "applications", "installations"]].copy()
+    df = filter_all_zero_rows(df, ["applications", "installations"])
     df["rptdate"] = pd.to_datetime(df["rptdate"])
     df = df.sort_values("rptdate")
     df["cum_applications"] = df["applications"].cumsum()
@@ -79,7 +97,8 @@ def create_state_ranking_chart(state_data_df):
         go.Figure: Plotly figure object
     """
 
-    df = state_data_df.copy()
+    df = state_data_df[["state", "applications", "installations"]].copy()
+    df = filter_all_zero_rows(df, ["applications", "installations"])
 
     # Create grouped bar chart
     fig = go.Figure()
@@ -128,7 +147,11 @@ def create_conversion_rate_chart(state_data_df):
         go.Figure: Plotly figure object
     """
 
-    df = state_data_df.sort_values("conversion_rate_app_to_install_pct", ascending=True)
+    df = state_data_df[
+        ["state", "applications", "installations", "conversion_rate_app_to_install_pct"]
+    ].copy()
+    df = filter_all_zero_rows(df, ["applications", "installations"])
+    df = df.sort_values("conversion_rate_app_to_install_pct", ascending=True)
 
     fig = go.Figure(
         go.Bar(
@@ -167,8 +190,12 @@ def create_district_heatmap(district_data_df):
     """
 
     # Aggregate by state
+    base_df = district_data_df[
+        ["state", "application_status", "installation"]
+    ].copy()
+    base_df = filter_all_zero_rows(base_df, ["application_status", "installation"])
     state_summary = (
-        district_data_df.groupby("state")
+        base_df.groupby("state")
         .agg({"application_status": "sum", "installation": "sum"})
         .reset_index()
     )
