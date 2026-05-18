@@ -35,6 +35,13 @@ def load_data():
         if not datewise_path.exists():
             datewise_path = data_dir / 'datewise_clean.csv'
         datewise = pd.read_csv(datewise_path)
+        if "rptdate" in datewise.columns:
+            launch_date = pd.Timestamp("2024-02-13")
+            date_series = pd.to_datetime(datewise["rptdate"], errors="coerce")
+            datewise = datewise.loc[date_series >= launch_date].copy()
+            datewise["rptdate"] = date_series.loc[date_series >= launch_date].dt.strftime(
+                "%Y-%m-%d"
+            )
         state_master = pd.read_csv(data_dir / 'state_master_clean.csv')
         district = pd.read_csv(data_dir / 'district_clean.csv')
         
