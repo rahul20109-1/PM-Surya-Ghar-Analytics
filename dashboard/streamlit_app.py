@@ -61,27 +61,27 @@ st.markdown(
 
 # Header
 st.markdown(
-    '<div class="main-header">☀️ PM Surya Ghar Analytics Dashboard</div>',
+    '<div class="main-header">PM Surya Ghar Program Dashboard</div>',
     unsafe_allow_html=True,
 )
 st.markdown(
-    '<div class="sub-header">Comprehensive Analysis of India\'s Solar Rooftop Subsidy Program</div>',
+    '<div class="sub-header">Simple view of the scheme data, the main numbers, and where the process slows down</div>',
     unsafe_allow_html=True,
 )
 
 # Sidebar - Navigation
-st.sidebar.title("Navigation")
-page = st.sidebar.radio(
-    "Select Page:",
-    [
-        "Overview",
-        "State Analysis",
-        "District Analysis",
-        "Trends",
-        "Capacity Metrics",
-        "About",
-    ],
-)
+st.sidebar.title("Pages")
+page_options = {
+    "Program snapshot": "Overview",
+    "State comparison": "State Analysis",
+    "District comparison": "District Analysis",
+    "Trend over time": "Trends",
+    "Capacity and system size": "Capacity Metrics",
+    "About this dashboard": "About",
+}
+page = page_options[
+    st.sidebar.radio("Choose a page:", list(page_options.keys()))
+]
 
 
 # Load data with caching
@@ -112,7 +112,7 @@ if page == "Overview":
 
     with col1:
         kpi_card(
-            title="Total Applications",
+            title="Applications recorded",
             value=int(kpi_national["total_applications"].values[0]),
             delta=None,
             format_type="number",
@@ -120,7 +120,7 @@ if page == "Overview":
 
     with col2:
         kpi_card(
-            title="Total Installations",
+            title="Installations completed",
             value=int(kpi_national["total_installations"].values[0]),
             delta=None,
             format_type="number",
@@ -128,7 +128,7 @@ if page == "Overview":
 
     with col3:
         kpi_card(
-            title="App → Installation",
+            title="Application to installation rate",
             value=float(kpi_national["conversion_rate_app_to_install"].values[0]),
             delta=None,
             format_type="percent",
@@ -136,7 +136,7 @@ if page == "Overview":
 
     with col4:
         kpi_card(
-            title="Total States",
+            title="States covered",
             value=int(kpi_national["total_states"].values[0]),
             delta=None,
             format_type="number",
@@ -149,7 +149,7 @@ if page == "Overview":
 
     with col1:
         kpi_card(
-            title="Total Inspections",
+            title="Inspections approved",
             value=int(kpi_national["total_inspections"].values[0]),
             delta=None,
             format_type="number",
@@ -157,7 +157,7 @@ if page == "Overview":
 
     with col2:
         kpi_card(
-            title="Total Districts",
+            title="Districts covered",
             value=int(kpi_national["total_districts"].values[0]),
             delta=None,
             format_type="number",
@@ -165,7 +165,7 @@ if page == "Overview":
 
     with col3:
         kpi_card(
-            title="Residential %",
+            title="Residential share",
             value=float(kpi_national["residential_percentage"].values[0]),
             delta=None,
             format_type="percent",
@@ -173,7 +173,7 @@ if page == "Overview":
 
     with col4:
         kpi_card(
-            title="Avg System Size",
+            title="Average system size",
             value=float(kpi_national["average_system_size_kw"].values[0]),
             delta=None,
             format_type="decimal",
@@ -186,28 +186,28 @@ if page == "Overview":
     col1, col2 = st.columns(2)
 
     with col1:
-        st.subheader("📈 Adoption Trend Over Time")
+        st.subheader("Applications and installations over time")
         fig = create_adoption_trend(datewise)
         st.plotly_chart(fig, use_container_width=True)
 
     with col2:
-        st.subheader("🎯 Top 10 States by Applications")
+        st.subheader("Top 10 states by applications recorded")
         fig = create_state_ranking_chart(kpi_state.head(10))
         st.plotly_chart(fig, use_container_width=True)
 
     st.markdown("---")
 
     # Row 4: Conversion Funnel
-    st.subheader("🔄 Application to Subsidy Funnel")
+    st.subheader("How applications move through the program")
 
     funnel_data = {
         "Stage": [
-            "Applications",
-            "Vendor Selected",
-            "Feasibility Approved",
-            "Installations",
-            "Inspections",
-            "Subsidy Redeemed",
+            "Applications recorded",
+            "Vendor selected",
+            "Feasibility approved",
+            "Installations completed",
+            "Inspections approved",
+            "Subsidy redeemed",
         ],
         "Count": [
             int(state_master["application_status"].sum()),
@@ -225,31 +225,31 @@ if page == "Overview":
     st.markdown("---")
 
     # Row 5: National Statistics
-    st.subheader("📊 National Statistics")
+    st.subheader("National totals and value measures")
 
     stat_col1, stat_col2, stat_col3 = st.columns(3)
 
     with stat_col1:
         st.metric(
-            "Total Capacity Installed",
+            "Installed capacity",
             f"{int(kpi_national['total_capacity_installed_kw'].values[0]):,} kW",
         )
 
     with stat_col2:
-        st.metric("Total DISCOMs", int(kpi_national["total_discoms"].values[0]))
+        st.metric("DISCOMs covered", int(kpi_national["total_discoms"].values[0]))
 
     with stat_col3:
         st.metric(
-            "Subsidy per Installation",
+            "Average subsidy per installation",
             f"₹{int(kpi_national['subsidy_per_installation'].values[0]):,}",
         )
 
 elif page == "State Analysis":
-    st.header("🗺️ State-Level Analysis")
+    st.header("State comparison")
 
     st.write(
         """
-    Explore state-wise adoption metrics, conversion rates, and rankings.
+    Compare states by application volume, installation volume, and application to installation rate.
     """
     )
 
@@ -258,22 +258,23 @@ elif page == "State Analysis":
 
     with col1:
         sort_by = st.selectbox(
-            "Sort by:", ["Applications", "Installations", "Conversion Rate"]
+            "Rank states by:",
+            ["Applications recorded", "Installations completed", "Application to installation rate"],
         )
 
     with col2:
-        show_top = st.slider("Show top N states:", 5, 36, 10)
+        show_top = st.slider("Number of states to show:", 5, 36, 10)
 
     # Prepare sorted data
-    if sort_by == "Applications":
+    if sort_by == "Applications recorded":
         state_data = kpi_state.nlargest(show_top, "applications")
-    elif sort_by == "Installations":
+    elif sort_by == "Installations completed":
         state_data = kpi_state.nlargest(show_top, "installations")
     else:
         state_data = kpi_state.nlargest(show_top, "conversion_rate_app_to_install_pct")
 
     # Display table
-    st.subheader(f"Top {show_top} States")
+    st.subheader(f"Top {show_top} states")
     st.dataframe(
         state_data[
             [
@@ -291,12 +292,12 @@ elif page == "State Analysis":
     col1, col2 = st.columns(2)
 
     with col1:
-        st.subheader("Applications vs Installations")
+        st.subheader("Applications and installations by state")
         fig = create_state_ranking_chart(state_data)
         st.plotly_chart(fig, use_container_width=True)
 
     with col2:
-        st.subheader("Conversion Rate by State")
+        st.subheader("Application to installation rate by state")
         import plotly.express as px
 
         fig = px.bar(
@@ -308,8 +309,8 @@ elif page == "State Analysis":
             orientation="h",
             title="",
             labels={
-                "conversion_rate_app_to_install_pct": "Conversion Rate (%)",
-                "state": "",
+                "conversion_rate_app_to_install_pct": "Application to installation rate (%)",
+                "state": "State",
             },
             color="conversion_rate_app_to_install_pct",
             color_continuous_scale=["#ff7f0e", "#ffaa1f", "#ffcc66", "#1f77b4"],
@@ -318,17 +319,17 @@ elif page == "State Analysis":
         st.plotly_chart(fig, use_container_width=True)
 
 elif page == "District Analysis":
-    st.header("🎯 District-Level Analysis")
+    st.header("District comparison")
 
     st.write(
         """
-    Analyze adoption metrics at the district level. Filter by state for detailed insights.
+    Review district level results for the selected state.
     """
     )
 
     # State filter
     selected_state = st.selectbox(
-        "Select State:",
+        "Choose a state:",
         ["All States"] + sorted(kpi_district["state"].unique().tolist()),
     )
 
@@ -338,25 +339,25 @@ elif page == "District Analysis":
     else:
         filtered_data = district[district["state"] == selected_state].copy()
 
-    st.subheader(f"Districts: {selected_state} ({len(filtered_data)} districts)")
+    st.subheader(f"Districts in {selected_state} ({len(filtered_data)} districts)")
 
     # Show summary
     col1, col2, col3 = st.columns(3)
 
     with col1:
-        st.metric("Total Applications", int(filtered_data["application_status"].sum()))
+        st.metric("Applications recorded", int(filtered_data["application_status"].sum()))
 
     with col2:
-        st.metric("Total Installations", int(filtered_data["installation"].sum()))
+        st.metric("Installations completed", int(filtered_data["installation"].sum()))
 
     with col3:
         apps = filtered_data["application_status"].sum()
         insts = filtered_data["installation"].sum()
         conv_rate = (insts / apps * 100) if apps > 0 else 0
-        st.metric("Conversion Rate", f"{conv_rate:.1f}%")
+        st.metric("Application to installation rate", f"{conv_rate:.1f}%")
 
     # District table
-    st.subheader("District Details")
+    st.subheader("District-level table")
 
     display_cols = [
         "state",
@@ -371,10 +372,10 @@ elif page == "District Analysis":
     display_data.columns = [
         "State",
         "District",
-        "Applications",
-        "Installations",
-        "Inspections",
-        "Subsidy Redeemed",
+        "Applications recorded",
+        "Installations completed",
+        "Inspections approved",
+        "Subsidy redeemed",
     ]
 
     st.dataframe(
@@ -384,11 +385,11 @@ elif page == "District Analysis":
     )
 
 elif page == "Trends":
-    st.header("📈 Trends Over Time")
+    st.header("Trend over time")
 
     st.write(
         """
-    Analyze adoption trends, growth patterns, and seasonal variations.
+    Review how applications and installations change over time.
     """
     )
 
@@ -399,10 +400,10 @@ elif page == "Trends":
     datewise_sorted["cum_installations"] = datewise_sorted["installations"].cumsum()
 
     # Chart type selector
-    chart_type = st.radio("Select View:", ["Cumulative", "Daily"], horizontal=True)
+    chart_type = st.radio("Choose a view:", ["Cumulative", "Daily"], horizontal=True)
 
     if chart_type == "Cumulative":
-        st.subheader("Cumulative Applications & Installations")
+        st.subheader("Cumulative applications and installations")
 
         import plotly.graph_objects as go
         from plotly.subplots import make_subplots
@@ -430,9 +431,9 @@ elif page == "Trends":
         )
 
         fig.update_layout(
-            title="Program Cumulative Growth",
+            title="Cumulative program totals",
             xaxis_title="Date",
-            yaxis_title="Cumulative Count",
+            yaxis_title="Cumulative count",
             hovermode="x unified",
             height=600,
             template="plotly_white",
@@ -441,7 +442,7 @@ elif page == "Trends":
         st.plotly_chart(fig, use_container_width=True)
 
     else:
-        st.subheader("Daily Applications & Installations")
+        st.subheader("Daily applications and installations")
 
         import plotly.graph_objects as go
 
@@ -470,9 +471,9 @@ elif page == "Trends":
         )
 
         fig.update_layout(
-            title="Daily Activity",
+            title="Daily program activity",
             xaxis_title="Date",
-            yaxis_title="Daily Count",
+            yaxis_title="Daily count",
             hovermode="x unified",
             height=600,
             template="plotly_white",
@@ -481,11 +482,11 @@ elif page == "Trends":
         st.plotly_chart(fig, use_container_width=True)
 
 elif page == "Capacity Metrics":
-    st.header("⚡ Capacity Metrics")
+    st.header("Capacity and system size")
 
     st.write(
         """
-    Analyze installed capacity, system size distribution, and residential vs RWA adoption.
+    Review installed capacity, average system size, and the split between residential and RWA systems.
     """
     )
 
@@ -493,19 +494,19 @@ elif page == "Capacity Metrics":
 
     with col1:
         st.metric(
-            "Total Capacity (kW)",
+            "Installed capacity (kW)",
             f"{int(kpi_national['total_capacity_installed_kw'].values[0]):,}",
         )
 
     with col2:
         st.metric(
-            "Avg System Size (kW)",
+            "Average system size (kW)",
             f"{float(kpi_national['average_system_size_kw'].values[0]):.2f}",
         )
 
     with col3:
         st.metric(
-            "Total Installations",
+            "Installations completed",
             f"{int(kpi_national['total_installations'].values[0]):,}",
         )
 
@@ -515,10 +516,10 @@ elif page == "Capacity Metrics":
     col1, col2 = st.columns(2)
 
     with col1:
-        st.subheader("Adoption Type Distribution")
+        st.subheader("Residential and RWA share")
 
         adoption_data = {
-            "Type": ["Residential", "RWA"],
+            "Type": ["Residential systems", "RWA systems"],
             "Percentage": [
                 float(kpi_national["residential_percentage"].values[0]),
                 float(kpi_national["rwa_percentage"].values[0]),
@@ -536,7 +537,7 @@ elif page == "Capacity Metrics":
         st.plotly_chart(fig, use_container_width=True)
 
     with col2:
-        st.subheader("System Size Distribution")
+        st.subheader("Systems up to 10 kW and above 10 kW")
 
         # Calculate up to 10kW and above 10kW
         upto_10kw = datewise["upto_10_kw"].sum()
@@ -555,61 +556,56 @@ elif page == "Capacity Metrics":
             y="Count",
             color="Size",
             color_discrete_sequence=["#2ca02c", "#d62728"],
-            title="",
+            title="System size counts",
         )
         fig.update_layout(showlegend=False, height=400)
         st.plotly_chart(fig, use_container_width=True)
 
 elif page == "About":
-    st.header("ℹ️ About This Dashboard")
+    st.header("About this dashboard")
 
     st.markdown(
         """
     ### PM Surya Ghar Analytics
-    
-    **Project Objective:**
-    Comprehensive analytics of India's PM Surya Ghar (Pradhan Mantri Suryodaya) rooftop solar 
-    subsidy program to showcase data analysis and visualization skills.
-    
-    **Data Coverage:**
+
+    This dashboard shows how the PM Surya Ghar rooftop solar scheme is moving through each stage.
+    The aim is simple: make the data easy to read, show where applications move smoothly,
+    and make the problem areas easy to spot.
+
+    **What this dashboard covers:**
     - **Time Period:** September 17, 2022 – February 9, 2026
     - **Geography:** 36 States/UTs, 792 Districts, 84 DISCOMs
-    - **Records:** 6,021,455 applications analyzed
-    
-    **Key Metrics:**
-    - Total Applications: 6,021,455
-    - Total Installations: 2,329,634
-    - Conversion Rate: 38.69%
-    - Total Capacity Installed: 17.1 Million kW
-    
-    **Data Quality:**
-    ✅ All data cleaned and verified  
-    ✅ 0 nulls in main analytical files  
-    ✅ Metrics cross-checked against source data  
-    ✅ Geographic hierarchy validated
-    
-    **Dashboard Features:**
-    - **Overview:** National KPIs and trend summary
-    - **State Analysis:** State-wise rankings and metrics
-    - **District Analysis:** District-level adoption details
-    - **Trends:** Time-series adoption curves
-    - **Capacity Metrics:** System size and adoption type analysis
-    
-    **Technologies:**
-    - Python 3.11 | Streamlit | Pandas | Plotly
-    - Data cleaning and validation with robust parsers
-    - Interactive visualizations with hover information
-    - Responsive design for desktop and mobile
-    
-    **Design Guidelines:**
-    - Color scheme: Professional blue/orange palette
-    - Metrics verified and validated
-    - All conversions rates calculated consistently
-    - Following frontend guidelines for consistency
-    
+    - **Records Reviewed:** 6,021,455 applications
+
+    **Main numbers:**
+    - Applications recorded: 6,021,455
+    - Installations completed: 2,329,634
+    - Application to installation rate: 38.69%
+    - Installed capacity: 17.1 Million kW
+
+    **What we checked:**
+    - cleaned the source files before analysis
+    - cross-checked the KPI totals against the cleaned data
+    - reviewed the geography level counts
+    - kept the dashboard focused on the main numbers first
+
+    **What you can see here:**
+    - **Overview:** the main numbers and the funnel summary
+    - **State Analysis:** which states are doing well and which are lagging
+    - **District Analysis:** the district level picture
+    - **Trends:** how the program changes over time
+    - **Capacity Metrics:** how system size and segment mix compare
+    - **Bottleneck Analysis:** where the process slows down
+
+    **Built with:**
+    - Python 3.11, Streamlit, Pandas, and Plotly
+    - simple checks for data cleaning and validation
+    - interactive charts with hover details
+    - responsive layout for desktop and mobile
+
     **Version:** 1.0.0  
     **Last Updated:** March 15, 2026  
-    **Status:** Production Ready ✅
+    **Status:** Production Ready
     """
     )
 
@@ -618,7 +614,7 @@ elif page == "About":
     st.markdown(
         """
     <div style='text-align: center; color: #999; font-size: 0.9rem;'>
-    PM Surya Ghar Analytics Dashboard | Data-Driven Insights for India's Solar Initiative
+    PM Surya Ghar Analytics Dashboard | Clear, simple insights from program data
     </div>
     """,
         unsafe_allow_html=True,

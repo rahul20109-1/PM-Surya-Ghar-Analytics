@@ -55,9 +55,9 @@ def create_adoption_trend(datewise_df):
     )
 
     fig.update_layout(
-        title="Cumulative Adoption Over Time",
+        title="Applications and installations over time",
         xaxis_title="Date",
-        yaxis_title="Cumulative Count",
+        yaxis_title="Cumulative count",
         hovermode="x unified",
         height=500,
         template="plotly_white",
@@ -88,7 +88,7 @@ def create_state_ranking_chart(state_data_df):
         go.Bar(
             x=df["state"],
             y=df["applications"],
-            name="Applications",
+            name="Applications recorded",
             marker_color="#1f77b4",
         )
     )
@@ -97,13 +97,13 @@ def create_state_ranking_chart(state_data_df):
         go.Bar(
             x=df["state"],
             y=df["installations"],
-            name="Installations",
+            name="Installations completed",
             marker_color="#ff7f0e",
         )
     )
 
     fig.update_layout(
-        title="State Rankings: Applications vs Installations",
+        title="Applications and installations by state",
         xaxis_title="State",
         yaxis_title="Count",
         barmode="group",
@@ -144,8 +144,8 @@ def create_conversion_rate_chart(state_data_df):
     )
 
     fig.update_layout(
-        title="Conversion Rate by State",
-        xaxis_title="App → Installation Rate (%)",
+        title="Application to installation rate by state",
+        xaxis_title="Application to installation rate (%)",
         yaxis_title="State",
         height=600,
         template="plotly_white",
@@ -183,8 +183,8 @@ def create_district_heatmap(district_data_df):
         state_summary,
         x="state",
         y="conversion_rate",
-        title="Conversion Rate by State",
-        labels={"conversion_rate": "App → Installation (%)", "state": "State"},
+        title="Installation rate by state",
+        labels={"conversion_rate": "Application to installation rate (%)", "state": "State"},
         color="conversion_rate",
         color_continuous_scale="Viridis",
     )

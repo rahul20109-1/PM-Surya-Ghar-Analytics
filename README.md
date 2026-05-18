@@ -1,46 +1,40 @@
 # PM Surya Ghar Analytics
 
-Portfolio-grade analytics project for evaluating adoption performance, operational efficiency, and bottlenecks in the PM Surya Ghar rooftop solar subsidy program.
+This project turns public program data from the PM Surya Ghar rooftop solar scheme into clear, easy-to-read insights. It shows how raw CSV files can be cleaned, checked, summarized, and presented in a dashboard.
 
-## Executive Snapshot
+## What This Project Shows
 
-PM Surya Ghar Analytics is an end-to-end data analytics and dashboard project built to demonstrate professional data workflow capability: ingestion, cleaning, validation, KPI design, exploratory analysis, and interactive reporting.
+The goal is to show careful data work, not just charts. The project focuses on:
 
-The project analyzes multi-level program data (datewise, state, district, DISCOM, subsidy, vendor) and surfaces insights through a Streamlit dashboard.
+- cleaning messy source data and making it usable
+- checking the numbers after each step
+- tracking how applications move through the scheme
+- finding where the process slows down
+- presenting the results in a simple way
 
-Data disclaimer: This project uses demo data modeled after PM Surya Ghar scheme datasets and does not expose sensitive, personal, or confidential information.
+## Why It Matters
 
-## Portfolio Value
+PM Surya Ghar is a large public subsidy program. For a recruiter or reviewer, the useful question is not only how many applications came in, but where the process moves well and where it gets stuck.
 
-This project demonstrates:
+This repository looks at:
 
-- Production-oriented data cleaning with validation checkpoints
-- KPI engineering from raw public program data
-- Interactive visualization design for decision support
-- Modular Python architecture suitable for extension
-- Documentation and governance practices expected in analytics teams
+- total application and installation counts
+- state and district level differences
+- stage-wise drop-offs in the process
+- subsidy and capacity related patterns
 
-## Business Context
+## What Is Included
 
-PM Surya Ghar is a large-scale public subsidy initiative. For policy and operations stakeholders, the key question is not only total adoption, but where and why applications stall through the processing pipeline.
+- 36 states and UTs
+- 789 districts in the cleaned KPI output
+- 84 DISCOMs
+- datewise data for trend analysis
+- cleaned CSV outputs for repeatable reporting
+- a Streamlit dashboard for quick exploration
 
-This repository focuses on:
+## Main Results
 
-- Conversion through core funnel stages
-- Geographic performance variation across states and districts
-- Processing bottlenecks and pending load concentration
-- Program capacity and subsidy-related metrics
-
-## Scope and Data Coverage
-
-- Geographic scope: 36 states and UTs, 789 districts, 84 DISCOMs
-- Time coverage: datewise data available in cleaned outputs
-- Data source type: CSV files (read-only raw inputs, cleaned analytical outputs)
-- Processing model: batch scripts + reusable utilities
-
-## Key Verified Outputs
-
-From current cleaned KPI outputs:
+From the current cleaned KPI files:
 
 - Total applications: 6,021,455
 - Total installations: 2,329,634
@@ -49,34 +43,31 @@ From current cleaned KPI outputs:
 - Total states analyzed: 36
 - Total districts analyzed: 789
 
-Note: Financial values are retained in the same reporting unit as source datasets and cleaned KPI files.
+These numbers come from the cleaned KPI outputs in [data_cleaned/](data_cleaned/).
 
-## Architecture
+## How It Works
 
 ```text
-Raw CSV Data
-  -> Data Loading and Standardization
-  -> Cleaning and Validation
-  -> KPI Calculation
-  -> Exploratory Analysis
-  -> Streamlit Dashboard
-  -> Insights and Recommendations
+Raw CSV files
+  -> Data loading
+  -> Cleaning and validation
+  -> KPI calculation
+  -> Notebook-based analysis
+  -> Streamlit dashboard
+  -> Clear findings and recommendations
 ```
 
-## Dashboard Coverage
+## Dashboard Pages
 
-Core dashboard includes:
+The dashboard includes:
 
-- Overview: National KPIs, trend and funnel summary
-- State Analysis: Ranking and metric comparison by state
-- District Analysis: District-level drill-down
-- Trends: Program trajectory over time
-- Capacity Metrics: Capacity and segment indicators
-- About: Method and project context
-
-Advanced page:
-
-- Bottleneck Analysis: Drop-off and stage-level delay diagnostics
+- Overview: main KPIs and funnel summary
+- State Analysis: compare states by volume and conversion
+- District Analysis: drill into district level data
+- Trends: review movement over time
+- Capacity Metrics: compare system size and segment mix
+- About: short project summary
+- Bottleneck Analysis: see where the process slows down
 
 ## Technology Stack
 
@@ -89,62 +80,51 @@ Advanced page:
 - matplotlib 3.7.2
 - seaborn 0.12.2
 
-Full pinned dependencies are in requirements.txt.
+The pinned dependency list is in [requirements.txt](requirements.txt).
 
-## Repository Structure
+## Project Structure
 
 ```text
 PM-Surya-Ghar-Analytics/
-  dashboard/                Streamlit application
-  scripts/                  Reusable data processing modules
-  notebooks/                Analysis and validation notebooks
-  data_cleaned/             Cleaned datasets and KPI outputs
-  docs and root markdowns   Project governance and implementation docs
-  requirements.txt          Locked Python dependencies
+  dashboard/        Streamlit app and dashboard helpers
+  scripts/          Data loading, cleaning, and KPI scripts
+  notebooks/        Analysis and validation notebooks
+  data_cleaned/     Cleaned datasets and KPI outputs
+  requirements.txt  Python dependencies
 ```
 
-## How to Run
+## How To Run
 
-1. Create or activate a virtual environment.
-2. Install dependencies:
+1. Create or activate a Python environment.
+2. Install the dependencies:
 
 ```bash
 pip install -r requirements.txt
 ```
 
-3. Start dashboard:
+3. Start the dashboard:
 
 ```bash
 python -m streamlit run dashboard/streamlit_app.py
 ```
 
-4. Open local URL shown by Streamlit (typically http://localhost:8501).
+4. Open the local link shown by Streamlit, usually http://localhost:8501.
 
-## Quality and Validation Approach
+## How The Data Is Checked
 
-- Cleaning pipeline includes numeric parsing and schema normalization
-- Validation includes row-level checks, duplicates/null checks, and KPI sanity checks
-- KPI outputs are materialized as CSV artifacts for reproducibility
-- Dashboard uses cached loading for responsiveness
+- numbers are parsed and standardized before analysis
+- cleaned files are checked for missing values and duplicates
+- KPI totals are compared against the source data
+- dashboard pages use cached loading so the app stays responsive
 
-## Documentation Map
+## Where To Start
 
-- PRD.md: Product and KPI requirements
-- IMPLEMENTATION_PLAN.md: Delivery roadmap by phase
-- BACKEND_STRUCTURE.md: Data schema and pipeline definitions
-- FRONTEND_GUIDELINES.md: Visualization and UX standards
-- TECH_STACK.md: Approved tools and locked versions
-- progress.txt: Current execution status
+If you are reviewing this repository for hiring or project fit, start with:
 
-## Recruiter and Reviewer Guidance
+1. [scripts/01_data_cleaning.py](scripts/01_data_cleaning.py) and [scripts/02_kpi_calculation.py](scripts/02_kpi_calculation.py) to see how the data is handled
+2. [dashboard/streamlit_app.py](dashboard/streamlit_app.py) and [dashboard/pages/08_bottleneck_analysis.py](dashboard/pages/08_bottleneck_analysis.py) to see how the results are presented
+3. [notebooks/03_KPI_Verification.ipynb](notebooks/03_KPI_Verification.ipynb) to see how the numbers were checked
 
-If you are evaluating this repository for role fit, start with:
+## License And Use
 
-1. README.md for scope and approach
-2. scripts/01_data_cleaning.py and scripts/02_kpi_calculation.py for implementation quality
-3. dashboard/streamlit_app.py and dashboard/pages/08_bottleneck_analysis.py for productization
-4. notebooks/03_KPI_Verification.ipynb for analytical verification workflow
-
-## License and Usage
-
-This repository is intended for portfolio demonstration and learning use. Review source data licensing terms before any production reuse.
+This repository is intended for portfolio and learning use. If you reuse the source data in another project, review the source terms first.

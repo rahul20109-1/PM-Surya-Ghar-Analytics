@@ -60,11 +60,10 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-st.title("🔍 Bottleneck Analysis")
+st.title("Where the process slows down")
 st.markdown(
     """
-Identify critical process bottlenecks, application dropoffs, and improvement opportunities 
-in the PM Surya Ghar subsidy approval pipeline.
+This page shows where applications slow down, where they wait, and which states need the most attention.
 """
 )
 
@@ -74,17 +73,17 @@ st.markdown("---")
 # SECTION 1: FUNNEL STAGE ANALYSIS
 # ============================================================================
 
-st.header("1️⃣ Application Funnel - Stage-wise Dropout Analysis")
+st.header("1. Stage-by-stage drop-off")
 
 # Calculate funnel metrics
 funnel_stages = {
     "Stage": [
-        "1. Applications Received",
-        "2. Vendor Selected",
-        "3. Feasibility Approved",
-        "4. Installation Completed",
-        "5. Inspection Approved",
-        "6. Subsidy Redeemed",
+        "Applications recorded",
+        "Vendor selected",
+        "Feasibility approved",
+        "Installation completed",
+        "Inspection approved",
+        "Subsidy redeemed",
     ],
     "Count": [
         state_master["application_status"].sum(),
@@ -115,38 +114,38 @@ for i in range(1, len(funnel_df)):
 col1, col2, col3, col4 = st.columns(4)
 
 with col1:
-    st.metric("Total Applications", f"{int(funnel_df['Count'].iloc[0]):,}", delta=None)
+    st.metric("Applications recorded", f"{int(funnel_df['Count'].iloc[0]):,}", delta=None)
 
 with col2:
     successful = funnel_df["Count"].iloc[-1]
     success_rate = successful / funnel_df["Count"].iloc[0] * 100
     st.metric(
-        "Completed (Subsidy Redeemed)",
+        "Reached final stage",
         f"{int(successful):,}",
-        delta=f"{success_rate:.1f}% success rate",
+        delta=f"{success_rate:.1f}% of applications reached subsidy redemption",
     )
 
 with col3:
     total_pending = funnel_df["Count"].iloc[0] - funnel_df["Count"].iloc[-1]
     st.metric(
-        "Stuck in Pipeline",
+        "Still in process",
         f"{int(total_pending):,}",
-        delta=f"{(total_pending/funnel_df['Count'].iloc[0]*100):.1f}% pending",
+        delta=f"{(total_pending/funnel_df['Count'].iloc[0]*100):.1f}% of applications have not reached the final stage",
     )
 
 with col4:
     worst_stage_idx = funnel_df["Stage Dropout %"].idxmax()
     worst_dropout = funnel_df["Stage Dropout %"].max()
     st.metric(
-        "Worst Dropout Stage",
-        funnel_df["Stage"].iloc[worst_stage_idx].split(".")[1].strip(),
-        delta=f"{worst_dropout:.1f}% loss",
+        "Largest drop-off stage",
+        funnel_df["Stage"].iloc[worst_stage_idx],
+        delta=f"{worst_dropout:.1f}% drop from the previous stage",
     )
 
 st.markdown("---")
 
 # Display funnel table
-st.subheader("📊 Detailed Funnel Breakdown")
+st.subheader("Stage breakdown")
 
 display_df = funnel_df.copy()
 display_df["Count"] = display_df["Count"].apply(lambda x: f"{int(x):,}")
@@ -160,7 +159,7 @@ st.dataframe(display_df, use_container_width=True, hide_index=True)
 col1, col2 = st.columns(2)
 
 with col1:
-    st.subheader("Funnel Flow Visualization")
+    st.subheader("Stage flow chart")
 
     fig = go.Figure(
         go.Funnel(
@@ -181,7 +180,7 @@ with col1:
     st.plotly_chart(fig, use_container_width=True)
 
 with col2:
-    st.subheader("Stage Dropout Rate (%)")
+    st.subheader("Drop-off rate by stage")
 
     # Remove first stage (no prior stage)
     dropout_data = funnel_df.iloc[1:].copy()
@@ -205,14 +204,14 @@ with col2:
 st.markdown(
     """
 <div class="insight-box">
-<strong>🚨 KEY INSIGHT:</strong> The biggest dropout happens between <strong>Feasibility Approved → Installation</strong>
-({:.1f}% loss, {:.0f} applications rejected/abandoned). This is your PRIMARY BOTTLENECK.
+<strong>Main finding:</strong> The biggest drop happens between <strong>Feasibility approved</strong> and <strong>Installation completed</strong>.
+That gap is {:.1f}% of the previous stage, which means {:.0f} applications do not move forward here.
 </div>
 """.format(
-        funnel_df[funnel_df["Stage"] == "4. Installation Completed"][
+        funnel_df[funnel_df["Stage"] == "Installation completed"][
             "Stage Dropout %"
         ].values[0],
-        funnel_df[funnel_df["Stage"] == "4. Installation Completed"][
+        funnel_df[funnel_df["Stage"] == "Installation completed"][
             "Loss Count"
         ].values[0],
     ),
@@ -225,14 +224,14 @@ st.markdown("---")
 # SECTION 2: PENDING APPLICATIONS ANALYSIS
 # ============================================================================
 
-st.header("2️⃣ Pending Applications - Where Are They Stuck?")
+st.header("2. Where applications wait")
 
 # Calculate pending at each stage
 pending_analysis = {"Stage": [], "Applications": [], "Pending": [], "Pending %": []}
 
 stages_to_check = [
     ("Vendor Selection", "application_status", "vendor_selected"),
-    ("Feasibility Check", "vendor_selected", "feasibility_approved"),
+    ("Feasibility Review", "vendor_selected", "feasibility_approved"),
     ("Installation", "feasibility_approved", "installation"),
     ("Inspection", "installation", "inspection_approved"),
     ("Subsidy Redemption", "inspection_approved", "total_redeem"),
@@ -257,7 +256,7 @@ col1, col2, col3 = st.columns(3)
 
 with col1:
     st.metric(
-        "Total Pending",
+        "Total waiting applications",
         f"{int(pending_df['Pending'].sum()):,}",
         f"of {int(pending_df['Applications'].iloc[0]):,} total",
     )
@@ -265,7 +264,7 @@ with col1:
 with col2:
     highest_pending_stage = pending_df.iloc[0]
     st.metric(
-        "Highest Pending Stage",
+        "Stage with the most waiting applications",
         highest_pending_stage["Stage"],
         f"{int(highest_pending_stage['Pending']):,} applications",
     )
@@ -273,7 +272,7 @@ with col2:
 with col3:
     highest_pending_pct = pending_df["Pending %"].max()
     st.metric(
-        "Highest Pending %", f"{highest_pending_pct:.1f}%", "Stage bottleneck severity"
+        "Largest waiting share", f"{highest_pending_pct:.1f}%", "Share of applications waiting at this stage"
     )
 
 st.markdown("---")
@@ -282,7 +281,7 @@ st.markdown("---")
 col1, col2 = st.columns(2)
 
 with col1:
-    st.subheader("Pending Applications by Stage")
+    st.subheader("Applications waiting at each stage")
 
     fig = px.bar(
         pending_df.sort_values("Pending", ascending=True),
@@ -300,7 +299,7 @@ with col1:
     st.plotly_chart(fig, use_container_width=True)
 
 with col2:
-    st.subheader("Pending % by Stage")
+    st.subheader("Waiting share by stage")
 
     fig = px.bar(
         pending_df.sort_values("Pending %", ascending=True),
@@ -323,7 +322,7 @@ st.markdown("---")
 # SECTION 3: GEOGRAPHIC BOTTLENECK ANALYSIS
 # ============================================================================
 
-st.header("3️⃣ Geographic Bottleneck Map - State Performance")
+st.header("3. State comparison")
 
 # Calculate state-level conversion metrics
 state_analysis = (
@@ -370,20 +369,20 @@ col1, col2 = st.columns(2)
 
 with col1:
     issue_type = st.radio(
-        "View bottleneck by:",
-        ["Lowest Conversion Rate", "Highest Pending %", "Lowest Installation Rate"],
+        "Show states by:",
+        ["Lowest application to installation rate", "Highest waiting share", "Lowest installation completion rate"],
         horizontal=True,
     )
 
 with col2:
-    top_n = st.slider("Show top N states:", 5, 36, 15)
+    top_n = st.slider("Number of states to show:", 5, 36, 15)
 
 # Prepare display data
-if issue_type == "Lowest Conversion Rate":
+if issue_type == "Lowest application to installation rate":
     display_df = state_analysis_sorted.head(top_n)
     metric_col = "app_to_install_rate"
-    metric_name = "App→Install Rate"
-elif issue_type == "Highest Pending %":
+    metric_name = "Application to installation rate"
+elif issue_type == "Highest waiting share":
     state_analysis["pending_pct"] = (
         (state_analysis["applications"] - state_analysis["subsidy_redeemed"])
         / state_analysis["applications"]
@@ -391,13 +390,13 @@ elif issue_type == "Highest Pending %":
     ).round(2)
     display_df = state_analysis.nlargest(top_n, "pending_pct")
     metric_col = "pending_pct"
-    metric_name = "Pending %"
+    metric_name = "Waiting share"
 else:
     display_df = state_analysis.nsmallest(top_n, "install_completion_rate")
     metric_col = "install_completion_rate"
-    metric_name = "Install Rate %"
+    metric_name = "Installation completion rate"
 
-st.subheader(f"Top {top_n} States with Bottleneck Issues")
+st.subheader(f"Top {top_n} states with the largest issues")
 
 # Display table
 table_df = display_df[
@@ -407,7 +406,7 @@ table_df.columns = [
     "State",
     "Applications",
     "Installations",
-    "Subsidy Redeemed",
+    "Subsidy redeemed",
     metric_name,
 ]
 table_df["Applications"] = table_df["Applications"].apply(lambda x: f"{int(x):,}")
@@ -425,7 +424,7 @@ st.markdown("---")
 # SECTION 4: TIME-BASED BOTTLENECK ANALYSIS
 # ============================================================================
 
-st.header("4️⃣ Processing Speed - Application vs Completion")
+st.header("4. Processing speed over time")
 
 # Analyze daily throughput
 datewise_analysis = datewise.copy()
@@ -452,7 +451,7 @@ datewise_analysis["cumulative_gap"] = (
 col1, col2 = st.columns(2)
 
 with col1:
-    st.subheader("Daily Application vs Installation Rate (7-day avg)")
+    st.subheader("7-day average applications and installations")
 
     fig = go.Figure()
 
@@ -460,7 +459,7 @@ with col1:
         go.Scatter(
             x=datewise_analysis["rptdate"],
             y=datewise_analysis["apps_7d_avg"],
-            name="Applications (7d avg)",
+            name="Applications (7-day average)",
             mode="lines",
             line=dict(color="#1f77b4", width=2),
         )
@@ -470,7 +469,7 @@ with col1:
         go.Scatter(
             x=datewise_analysis["rptdate"],
             y=datewise_analysis["installs_7d_avg"],
-            name="Installations (7d avg)",
+            name="Installations (7-day average)",
             mode="lines",
             line=dict(color="#2ca02c", width=2),
         )
@@ -480,13 +479,13 @@ with col1:
         height=400,
         hovermode="x unified",
         template="plotly_white",
-        yaxis_title="Daily Count (7-day average)",
+        yaxis_title="Daily count (7-day average)",
     )
 
     st.plotly_chart(fig, use_container_width=True)
 
 with col2:
-    st.subheader("Backlog Growth Over Time")
+    st.subheader("Backlog growth over time")
 
     fig = go.Figure()
 
@@ -505,7 +504,7 @@ with col2:
         height=400,
         hovermode="x",
         template="plotly_white",
-        yaxis_title="Cumulative Pending Applications",
+        yaxis_title="Cumulative pending applications",
     )
 
     st.plotly_chart(fig, use_container_width=True)
@@ -519,13 +518,13 @@ daily_deficit = avg_daily_apps - avg_daily_installs
 st.markdown(
     f"""
 <div class="insight-box">
-<strong>⚠️ PROCESSING SPEED ISSUE:</strong><br>
-• Daily applications received: <strong>{avg_daily_apps:,.0f}</strong><br>
-• Daily installations completed: <strong>{avg_daily_installs:,.0f}</strong><br>
-• Daily backlog growth: <strong class="critical">{daily_deficit:,.0f} applications/day</strong><br>
+<strong>Main finding:</strong><br>
+• Applications received per day: <strong>{avg_daily_apps:,.0f}</strong><br>
+• Installations completed per day: <strong>{avg_daily_installs:,.0f}</strong><br>
+• Backlog grows by: <strong class="critical">{daily_deficit:,.0f} applications per day</strong><br>
 • Current total backlog: <strong class="critical">{int(latest_gap):,} applications</strong><br>
 <br>
-<strong>At current processing rate, it will take {int(latest_gap / daily_deficit / 365):.1f} years to clear the backlog!</strong>
+<strong>At the current rate, it will take about {int(latest_gap / daily_deficit / 365):.1f} years to clear the backlog.</strong>
 </div>
 """,
     unsafe_allow_html=True,
@@ -537,7 +536,7 @@ st.markdown("---")
 # SECTION 5: APPROVAL RATE ANOMALIES
 # ============================================================================
 
-st.header("5️⃣ Approval Rate Anomalies - High Rejection States")
+st.header("5. Approval rate gaps")
 
 # Calculate approval rates by state
 state_approval = (
@@ -567,7 +566,7 @@ low_inspection = state_approval.nsmallest(10, "inspection_approval_rate")
 col1, col2 = st.columns(2)
 
 with col1:
-    st.subheader("🚨 States with Low Feasibility Approval Rates")
+    st.subheader("States with lower feasibility approval rates")
 
     fig = px.bar(
         low_feasibility.sort_values("feasibility_approval_rate"),
@@ -584,7 +583,7 @@ with col1:
     st.plotly_chart(fig, use_container_width=True)
 
 with col2:
-    st.subheader("🚨 States with Low Inspection Approval Rates")
+    st.subheader("States with lower inspection approval rates")
 
     fig = px.bar(
         low_inspection.sort_values("inspection_approval_rate"),
@@ -606,42 +605,42 @@ st.markdown("---")
 # SECTION 6: ACTIONABLE RECOMMENDATIONS
 # ============================================================================
 
-st.header("💡 Actionable Recommendations")
+st.header("6. Recommended actions")
 
 recommendations = [
     {
-        "priority": "🔴 CRITICAL",
-        "issue": "Installation Completion Gap",
-        "impact": f'{int(funnel_df[funnel_df["Stage"] == "4. Installation Completed"]["Loss Count"].values[0]):,} apps stuck',
-        "action": "Investigate why feasibility-approved applications don't proceed to installation. Check vendor capacity, cost, or timeline issues.",
+        "priority": "High",
+        "issue": "Gap between feasibility approval and installation",
+        "impact": f'{int(funnel_df[funnel_df["Stage"] == "Installation completed"]["Loss Count"].values[0]):,} applications do not move forward here',
+        "action": "Check vendor capacity, cost, approvals, and local delays.",
         "timeline": "Immediate (1-2 weeks)",
     },
     {
-        "priority": "🔴 CRITICAL",
-        "issue": "Processing Backlog Growth",
-        "impact": f"{int(latest_gap):,} apps in backlog, growing {daily_deficit:,.0f}/day",
-        "action": "Increase installation/inspection capacity or reduce application intake to match processing speed.",
+        "priority": "High",
+        "issue": "Backlog is growing",
+        "impact": f"{int(latest_gap):,} applications are still waiting, and the backlog grows by {daily_deficit:,.0f} per day",
+        "action": "Increase processing capacity or slow intake until the system catches up.",
         "timeline": "Immediate (1-2 weeks)",
     },
     {
-        "priority": "🟠 HIGH",
+        "priority": "Medium",
         "issue": "Geographic Hotspots",
-        "impact": f'{len(state_analysis_sorted[state_analysis_sorted["app_to_install_rate"] < 20])} states with <20% conversion',
-        "action": "Deploy resources to underperforming states. Benchmark best practices from high-conversion states.",
+        "impact": f'{len(state_analysis_sorted[state_analysis_sorted["app_to_install_rate"] < 20])} states have an application to installation rate below 20%',
+        "action": "Move support to weaker states and compare them with better-performing states.",
         "timeline": "Short-term (1-3 months)",
     },
     {
-        "priority": "🟠 HIGH",
+        "priority": "Medium",
         "issue": "High Rejection Rates",
-        "impact": f'Feasibility rejection varies {state_approval["feasibility_approval_rate"].min():.1f}% to {state_approval["feasibility_approval_rate"].max():.1f}%',
-        "action": "Standardize feasibility criteria across states. Audit why some states reject >80% of applications.",
+        "impact": f'Feasibility approval rates range from {state_approval["feasibility_approval_rate"].min():.1f}% to {state_approval["feasibility_approval_rate"].max():.1f}%',
+        "action": "Use the same review rule across states and check why the gap is so wide.",
         "timeline": "Short-term (1-3 months)",
     },
     {
-        "priority": "🟡 MEDIUM",
+        "priority": "Medium",
         "issue": "Inspection Bottleneck",
-        "impact": f'{int(state_master["installation"].sum() - state_master["inspection_approved"].sum()):,} installations awaiting inspection',
-        "action": "Accelerate inspection schedules. Hire/train more inspectors in bottleneck regions.",
+        "impact": f'{int(state_master["installation"].sum() - state_master["inspection_approved"].sum()):,} installations are still waiting for inspection approval',
+        "action": "Speed up inspection scheduling and add more inspection capacity where needed.",
         "timeline": "Medium-term (1-2 months)",
     },
 ]
@@ -667,12 +666,12 @@ st.markdown(
 
 This bottleneck analysis reveals:
 
-1. **Installation Phase is the Killer** - 61.3% of feasibility-approved apps never get installed
-2. **Backlog is Growing Exponentially** - Receiving more apps than we can process daily
-3. **Geographic Disparities are Severe** - Some states at 10% conversion, others at 60%+
-4. **Approval Standards Vary Wildly** - Inconsistent feasibility/inspection processes across states
-5. **Time is the Enemy** - At current rates, it'll take years to clear the backlog
+1. **The biggest loss is between feasibility approval and installation** - that is the clearest stage gap
+2. **The backlog keeps growing** - more applications come in than the system clears each day
+3. **State performance is uneven** - some states move applications much faster than others
+4. **Approval rates are not the same everywhere** - feasibility and inspection results vary by state
+5. **The backlog will not clear on its own** - the process needs more capacity or a slower intake rate
 
-**Next Steps:** Share these findings with program administrators and focus resources on the installation phase bottleneck first.
+**Next step:** Share these findings with program teams and focus first on the stage with the largest drop.
 """
 )
