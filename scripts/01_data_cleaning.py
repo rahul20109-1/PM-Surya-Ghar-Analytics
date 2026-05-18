@@ -108,6 +108,10 @@ def clean_datewise(df):
     # Parse date column
     if 'rptdate' in df.columns:
         df['rptdate'] = pd.to_datetime(df['rptdate'], format='%d-%m-%Y')
+
+    # Remove pre-launch test data (scheme launch: 2024-02-13)
+    launch_date = pd.Timestamp("2024-02-13")
+    df = df[df['rptdate'] >= launch_date].copy()
     
     # Parse numeric columns
     numeric_cols = [c for c in df.columns if c != 'rptdate']
@@ -296,7 +300,7 @@ def save_cleaned_datasets(cleaned_datasets):
     output_path.mkdir(exist_ok=True)
     
     mapping = {
-        'datewise': 'datewise_clean.csv',
+        'datewise': 'datewise_clean2.csv',
         'state_master': 'state_master_clean.csv',
         'district': 'district_clean.csv',
         'discom_master': 'discom_master_clean.csv',

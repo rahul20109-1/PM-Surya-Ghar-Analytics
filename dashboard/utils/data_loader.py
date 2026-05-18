@@ -31,7 +31,10 @@ def load_data():
         kpi_district = pd.read_csv(data_dir / 'kpis_district.csv')
         
         # Load detail data files
-        datewise = pd.read_csv(data_dir / 'datewise_clean.csv')
+        datewise_path = data_dir / 'datewise_clean2.csv'
+        if not datewise_path.exists():
+            datewise_path = data_dir / 'datewise_clean.csv'
+        datewise = pd.read_csv(datewise_path)
         state_master = pd.read_csv(data_dir / 'state_master_clean.csv')
         district = pd.read_csv(data_dir / 'district_clean.csv')
         

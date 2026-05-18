@@ -29,11 +29,21 @@ def load_cleaned_datasets():
     data_cleaned_path = Path(__file__).parent.parent / "data_cleaned"
 
     datasets = {}
+    datewise_path = data_cleaned_path / "datewise_clean2.csv"
+    if not datewise_path.exists():
+        datewise_path = data_cleaned_path / "datewise_clean.csv"
+    datasets["datewise"] = pd.read_csv(datewise_path)
+    print(
+        f"  OK Loaded datewise: {datasets['datewise'].shape[0]} rows x {datasets['datewise'].shape[1]} columns"
+    )
+
     for csv_file in sorted(data_cleaned_path.glob("*_clean.csv")):
+        if csv_file.name in {"datewise_clean.csv", "datewise_clean2.csv"}:
+            continue
         name = csv_file.stem.replace("_clean", "")
         df = pd.read_csv(csv_file)
         datasets[name] = df
-        print(f"  ✓ Loaded {name}: {df.shape[0]} rows × {df.shape[1]} columns")
+        print(f"  OK Loaded {name}: {df.shape[0]} rows x {df.shape[1]} columns")
 
     return datasets
 
@@ -417,7 +427,7 @@ def validate_kpis(kpi_dict):
         for warning in warnings:
             print(f"   {warning}")
     else:
-        print("\n✓ All KPIs validated successfully")
+        print("\nOK All KPIs validated successfully")
 
 
 def save_kpis(kpi_dict, state_kpis_df, district_kpis_df):
@@ -436,18 +446,18 @@ def save_kpis(kpi_dict, state_kpis_df, district_kpis_df):
     kpi_df = pd.DataFrame([kpi_dict])
     kpi_path = output_path / "kpis_national.csv"
     kpi_df.to_csv(kpi_path, index=False)
-    print(f"✓ Saved national KPIs → {kpi_path}")
+    print(f"OK Saved national KPIs -> {kpi_path}")
 
     # Save state KPIs
     state_path = output_path / "kpis_state.csv"
     state_kpis_df.to_csv(state_path, index=False)
-    print(f"✓ Saved state KPIs → {state_path} ({len(state_kpis_df)} states)")
+    print(f"OK Saved state KPIs -> {state_path} ({len(state_kpis_df)} states)")
 
     # Save district KPIs
     district_path = output_path / "kpis_district.csv"
     district_kpis_df.to_csv(district_path, index=False)
     print(
-        f"✓ Saved district KPIs → {district_path} ({len(district_kpis_df)} districts)"
+        f"OK Saved district KPIs -> {district_path} ({len(district_kpis_df)} districts)"
     )
 
 
@@ -473,19 +483,19 @@ def calculate_all_kpis():
     print("\n2. Calculating national-level KPIs...")
 
     adoption_kpis = calculate_adoption_metrics(datewise, state)
-    print(f"   ✓ Adoption metrics: {len(adoption_kpis)} metrics")
+    print(f"   OK Adoption metrics: {len(adoption_kpis)} metrics")
 
     geographic_kpis = calculate_geographic_metrics(state, district, discom)
-    print(f"   ✓ Geographic metrics: {len(geographic_kpis)} metrics")
+    print(f"   OK Geographic metrics: {len(geographic_kpis)} metrics")
 
     financial_kpis = calculate_financial_metrics(state, datewise)
-    print(f"   ✓ Financial metrics: {len(financial_kpis)} metrics")
+    print(f"   OK Financial metrics: {len(financial_kpis)} metrics")
 
     operational_kpis = calculate_operational_metrics(state, datewise)
-    print(f"   ✓ Operational metrics: {len(operational_kpis)} metrics")
+    print(f"   OK Operational metrics: {len(operational_kpis)} metrics")
 
     capacity_kpis = calculate_capacity_metrics(state, datewise)
-    print(f"   ✓ Capacity metrics: {len(capacity_kpis)} metrics")
+    print(f"   OK Capacity metrics: {len(capacity_kpis)} metrics")
 
     # Combine all national KPIs
     kpi_dict = {}
@@ -499,11 +509,11 @@ def calculate_all_kpis():
 
     print("\n3. Calculating state-level KPIs...")
     state_kpis_df = calculate_state_level_kpis(state, district)
-    print(f"   ✓ {len(state_kpis_df)} states analyzed")
+    print(f"   OK {len(state_kpis_df)} states analyzed")
 
     print("\n4. Calculating district-level KPIs...")
     district_kpis_df = calculate_district_level_kpis(district)
-    print(f"   ✓ {len(district_kpis_df)} districts analyzed")
+    print(f"   OK {len(district_kpis_df)} districts analyzed")
 
     print("\n5. Validating KPIs...")
     validate_kpis(kpi_dict)
@@ -512,7 +522,7 @@ def calculate_all_kpis():
     save_kpis(kpi_dict, state_kpis_df, district_kpis_df)
 
     print("\n" + "=" * 80)
-    print("✅ KPI CALCULATION COMPLETE")
+    print("KPI CALCULATION COMPLETE")
     print("=" * 80)
 
     return kpi_dict, state_kpis_df, district_kpis_df
