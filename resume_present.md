@@ -1,2 +1,2 @@
-Analyst who turns messy data into clear insights that explain what is happening and why, so teams can act.
-I translate findings into simple metrics and actions that reduce bottlenecks, improve performance, and support decisions.
+Built a PM Surya Ghar scheme dashboard that turns raw program data into clear visuals, so stakeholders can spot trends, gaps, and bottlenecks fast.
+Used the scheme data to highlight strengths and weak stages, helping decision makers act on what to improve and where to focus.
