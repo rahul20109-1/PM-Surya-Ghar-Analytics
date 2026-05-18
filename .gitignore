@@ -4,6 +4,7 @@
 # Data Files (Local Raw Data - Never Commit)
 raw_data/
 raw_data/*
+Suryaghar_data.md
 
 # Large Processed Data (Optional - Uncomment if files >100MB)
 # data_cleaned/*.csv
