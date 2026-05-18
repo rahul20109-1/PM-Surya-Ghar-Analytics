@@ -1,2 +1,3 @@
-Built a PM Surya Ghar scheme dashboard that turns raw program data into clear visuals, making trends, bottlenecks, and drop‑offs easy to see at a glance.
-Used those insights to highlight strong and weak stages so decision makers know where to intervene and what to fix first.
+**PM Surya Ghar Analytics Dashboard** | Python, Pandas, Streamlit, Plotly
+
+Built an interactive analytics dashboard to transform 6M+ government solar subsidy applications across 36 states and 789 districts into actionable intelligence. Engineered 29 KPIs (adoption trends, geographic performance, financial metrics, operational efficiency, system capacity) through CSV data cleaning and aggregation, surfacing a 38.69% application-to-installation conversion rate with stage-wise bottleneck analysis. Implemented interactive Streamlit interface with filters, funnel visualizations, and geographic heatmaps that enable program stakeholders to identify underperforming regions, installation delays, and processing inefficiencies—supporting rapid intervention and resource reallocation across 84 distribution companies.
