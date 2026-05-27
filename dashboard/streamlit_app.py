@@ -204,36 +204,7 @@ if page == "Overview":
 
     st.markdown("---")
 
-    # Row 3: Coverage
-    col1, col2, col3 = st.columns(3)
-
-    with col1:
-        kpi_card(
-            title="States covered",
-            value=int(kpi_national["total_states"].values[0]),
-            delta=None,
-            format_type="number",
-        )
-
-    with col2:
-        kpi_card(
-            title="Districts covered",
-            value=int(kpi_national["total_districts"].values[0]),
-            delta=None,
-            format_type="number",
-        )
-
-    with col3:
-        kpi_card(
-            title="DISCOMs covered",
-            value=int(kpi_national["total_discoms"].values[0]),
-            delta=None,
-            format_type="number",
-        )
-
-    st.markdown("---")
-
-    # Row 4: Trend
+    # Row 3: Trend
     st.subheader("Applications and installations over time")
     fig = create_adoption_trend(datewise)
     st.plotly_chart(fig, use_container_width=True)
