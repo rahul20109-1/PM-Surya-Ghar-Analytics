@@ -61,13 +61,16 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-st.title("Where the process slows down")
-st.markdown("""
-This page shows where applications slow down, where they wait, and which states need the most attention.
-""")
+st.title("Process bottlenecks — where applications stall")
+st.markdown(
+    """
+This analysis highlights stages where applications are delayed, dropped, or accumulate in backlog. Use it to prioritise operational interventions and state-level support.
+
+The visualisations below show where the program loses applications (drop-off), where applications are waiting (backlog), and which states exhibit the largest issues.
+"""
+)
 st.caption(
-    "Stages in this analysis align to the scheme journey steps captured in the source data. "
-    "Consumer registration, agreement upload, and subsidy approval or disbursal are not available in this dataset."
+    "Data note: Stages shown reflect the steps captured in the dataset. Consumer registration, agreement upload, and subsidy disbursal are not recorded here."
 )
 
 st.markdown("---")
@@ -236,10 +239,10 @@ with col2:
 st.markdown(
     """
 <div class="insight-box">
-<strong>Main finding:</strong> The biggest drop happens between <strong>{}</strong> and <strong>{}</strong>.
-That gap is {:.1f}% of the previous stage, which means {:.0f} applications do not move forward here.
+<strong>Key insight:</strong> The largest operational loss occurs between <strong>{}</strong> and <strong>{}</strong> — a {pct:.1f}% reduction from the prior stage. Approximately <strong>{loss:,}</strong> applications do not progress at this handoff.
+<br><em>Suggested next step:</em> Investigate handoff procedures, vendor capacity, and local queues in the affected states.
 </div>
-""".format(prev_stage, worst_stage, worst_dropout, worst_loss),
+""".format(prev_stage, worst_stage, pct=worst_dropout, loss=int(worst_loss)),
     unsafe_allow_html=True,
 )
 
@@ -281,17 +284,17 @@ col1, col2, col3 = st.columns(3)
 
 with col1:
     st.metric(
-        "Total waiting applications",
+        "Total applications currently waiting",
         f"{int(pending_df['Pending'].sum()):,}",
-        f"of {int(pending_df['Applications'].iloc[0]):,} total",
+        f"of {int(pending_df['Applications'].iloc[0]):,} total received",
     )
 
 with col2:
     highest_pending_stage = pending_df.iloc[0]
     st.metric(
-        "Stage with the most waiting applications",
+        "Stage with the most pending applications",
         highest_pending_stage["Stage"],
-        f"{int(highest_pending_stage['Pending']):,} applications",
+        f"{int(highest_pending_stage['Pending']):,} applications waiting",
     )
 
 with col3:
@@ -299,7 +302,7 @@ with col3:
     st.metric(
         "Largest waiting share",
         f"{highest_pending_pct:.1f}%",
-        "Share of applications waiting at this stage",
+        "Share of applications pending at this stage",
     )
 
 st.markdown("---")
@@ -726,15 +729,14 @@ for i, rec in enumerate(recommendations, 1):
 st.markdown("---")
 
 st.markdown(f"""
-### 📋 Summary
+### 📋 Executive summary
 
-This bottleneck analysis reveals:
+Key takeaways for program managers and recruiters:
 
-1. **The biggest loss is between {prev_stage} and {worst_stage}** - that is the clearest stage gap
-2. **The backlog keeps growing** - more applications come in than the system clears each day
-3. **State performance is uneven** - some states move applications much faster than others
-4. **Approval rates are not the same everywhere** - feasibility and project inspection results vary by state
-5. **The backlog will not clear on its own** - the process needs more capacity or a slower intake rate
+- **Priority issue:** The largest operational loss is between **{prev_stage}** and **{worst_stage}** — this handoff should be investigated first.
+- **Backlog risk:** Intake exceeds clearance; the backlog is growing by roughly **{daily_deficit:,.0f}** applications per day.
+- **Uneven delivery:** State-level performance varies considerably — target support to high-volume, low-conversion states.
+- **Approval variability:** Feasibility and inspection approval rates differ across states and explain part of the outcome gap.
 
-**Next step:** Share these findings with program teams and focus first on the stage with the largest drop.
+Recommended next steps: Share these findings with delivery teams, run focused diagnostics in the top-priority states, and consider temporary capacity increases in the short term.
 """)
