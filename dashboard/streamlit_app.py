@@ -229,8 +229,8 @@ if page == "Overview":
         ],
         "Count": [
             int(state_master["application_status"].sum()),
-            int(state_master["vendor_selected"].sum()),
             int(state_master["feasibility_approved"].sum()),
+            int(state_master["vendor_selected"].sum()),
             int(state_master["installation"].sum()),
             int(state_master["inspection_approved"].sum()),
             int(state_master["total_redeem"].sum()),
