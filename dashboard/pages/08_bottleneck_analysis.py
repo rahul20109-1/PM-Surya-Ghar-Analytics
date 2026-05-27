@@ -203,7 +203,8 @@ with col1:
             )
         )
 
-        fig.update_layout(height=500, template="plotly_white")
+        fig.update_traces(hovertemplate="%{x:,} applications — %{y}")
+        fig.update_layout(title="Stage flow (counts & cumulative%)", height=520, template="plotly_white")
         st.plotly_chart(fig, use_container_width=True)
 
 with col2:
@@ -220,14 +221,14 @@ with col2:
             dropout_data,
             x="Stage",
             y="Stage Dropout %",
-            title="",
+            title="Drop-off rate by stage",
             color="Stage Dropout %",
             color_continuous_scale=["#2ca02c", "#ff7f0e", "#d62728"],
             text="Stage Dropout %",
         )
 
-        fig.update_traces(texttemplate="%{text:.1f}%", textposition="outside")
-        fig.update_layout(height=500, showlegend=False, xaxis_tickangle=-45)
+        fig.update_traces(texttemplate="%{text:.1f}%", textposition="outside", hovertemplate="%{y:.1f}% dropout — %{x}")
+        fig.update_layout(height=500, showlegend=False, xaxis_tickangle=-45, xaxis_title="Stage", yaxis_title="Drop-off (%)")
         fig.update_xaxes(tickfont=dict(size=10))
         st.plotly_chart(fig, use_container_width=True)
 
@@ -319,14 +320,14 @@ with col1:
             y="Stage",
             x="Pending",
             orientation="h",
-            title="",
+            title="Applications waiting by stage",
             color="Pending %",
             color_continuous_scale=["#2ca02c", "#ff7f0e", "#d62728"],
             text="Pending",
         )
 
-        fig.update_traces(texttemplate="%{text:,.0f}", textposition="outside")
-        fig.update_layout(height=400, showlegend=False)
+        fig.update_traces(texttemplate="%{text:,.0f}", textposition="outside", hovertemplate="%{x:,.0f} applications waiting — %{y}")
+        fig.update_layout(height=400, showlegend=False, xaxis_title="Applications waiting", yaxis_title="Stage")
         st.plotly_chart(fig, use_container_width=True)
 
 with col2:
@@ -340,14 +341,14 @@ with col2:
             y="Stage",
             x="Pending %",
             orientation="h",
-            title="",
+            title="Waiting share by stage",
             color="Pending %",
             color_continuous_scale=["#2ca02c", "#ff7f0e", "#d62728"],
             text="Pending %",
         )
 
-        fig.update_traces(texttemplate="%{text:.1f}%", textposition="outside")
-        fig.update_layout(height=400, showlegend=False)
+        fig.update_traces(texttemplate="%{text:.1f}%", textposition="outside", hovertemplate="%{x:.1f}% waiting — %{y}")
+        fig.update_layout(height=400, showlegend=False, xaxis_title="Waiting share (%)", yaxis_title="Stage")
         st.plotly_chart(fig, use_container_width=True)
 
 st.markdown("---")
@@ -513,9 +514,10 @@ with col1:
         go.Scatter(
             x=datewise_analysis["rptdate"],
             y=datewise_analysis["apps_7d_avg"],
-            name="Applications (7-day average)",
+            name="Applications (7-day avg)",
             mode="lines",
             line=dict(color="#1f77b4", width=2),
+            hovertemplate="%{y:,.0f} applications — %{x|%Y-%m-%d}",
         )
     )
 
@@ -523,9 +525,10 @@ with col1:
         go.Scatter(
             x=datewise_analysis["rptdate"],
             y=datewise_analysis["installs_7d_avg"],
-            name="Installations (7-day average)",
+            name="Installations (7-day avg)",
             mode="lines",
             line=dict(color="#2ca02c", width=2),
+            hovertemplate="%{y:,.0f} installations — %{x|%Y-%m-%d}",
         )
     )
 
@@ -534,6 +537,8 @@ with col1:
         hovermode="x unified",
         template="plotly_white",
         yaxis_title="Daily count (7-day average)",
+        xaxis_title="Date",
+        legend=dict(title="Series", x=0.01, y=0.99),
     )
 
     st.plotly_chart(fig, use_container_width=True)
@@ -547,10 +552,11 @@ with col2:
         go.Scatter(
             x=datewise_analysis["rptdate"],
             y=datewise_analysis["cumulative_gap"],
-            name="Backlog",
+            name="Backlog (cumulative)",
             mode="lines",
             fill="tozeroy",
             line=dict(color="#d62728", width=2),
+            hovertemplate="%{y:,.0f} pending applications — %{x|%Y-%m-%d}",
         )
     )
 
@@ -559,6 +565,8 @@ with col2:
         hovermode="x",
         template="plotly_white",
         yaxis_title="Cumulative pending applications",
+        xaxis_title="Date",
+        legend=dict(title="Series", x=0.01, y=0.99),
     )
 
     st.plotly_chart(fig, use_container_width=True)
@@ -636,9 +644,8 @@ with col1:
         color_continuous_scale=["#d62728", "#ff7f0e", "#2ca02c"],
         text="feasibility_approval_rate",
     )
-
-    fig.update_traces(texttemplate="%{text:.1f}%", textposition="outside")
-    fig.update_layout(height=400, showlegend=False)
+    fig.update_traces(texttemplate="%{text:.1f}%", textposition="outside", hovertemplate="%{x:.1f}% — %{y}")
+    fig.update_layout(height=400, showlegend=False, xaxis_title="Feasibility approval rate (%)")
     st.plotly_chart(fig, use_container_width=True)
 
 with col2:
@@ -653,9 +660,8 @@ with col2:
         color_continuous_scale=["#d62728", "#ff7f0e", "#2ca02c"],
         text="inspection_approval_rate",
     )
-
-    fig.update_traces(texttemplate="%{text:.1f}%", textposition="outside")
-    fig.update_layout(height=400, showlegend=False)
+    fig.update_traces(texttemplate="%{text:.1f}%", textposition="outside", hovertemplate="%{x:.1f}% — %{y}")
+    fig.update_layout(height=400, showlegend=False, xaxis_title="Inspection approval rate (%)")
     st.plotly_chart(fig, use_container_width=True)
 
 st.markdown("---")

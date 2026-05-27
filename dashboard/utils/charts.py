@@ -72,14 +72,16 @@ def create_adoption_trend(datewise_df):
         )
     )
 
+    # Improve axis labels and hover formatting
+    fig.update_traces(hovertemplate="%{y:,} <br>%{x|%Y-%m-%d}")
     fig.update_layout(
         title="Applications and installations over time",
         xaxis_title="Date",
-        yaxis_title="Cumulative count",
+        yaxis_title="Cumulative applications / installations",
         hovermode="x unified",
         height=500,
         template="plotly_white",
-        legend=dict(x=0.01, y=0.99),
+        legend=dict(title="Series", x=0.01, y=0.99),
         margin=dict(l=0, r=0, t=30, b=0),
     )
 
@@ -121,16 +123,17 @@ def create_state_ranking_chart(state_data_df):
         )
     )
 
+    fig.update_traces(hovertemplate="%{y:,} ")
     fig.update_layout(
         title="Applications and installations by state",
         xaxis_title="State",
-        yaxis_title="Count",
+        yaxis_title="Count (number of applications/installations)",
         barmode="group",
         height=500,
         template="plotly_white",
         xaxis_tickangle=-45,
         margin=dict(b=100),
-        legend=dict(x=0.01, y=0.99),
+        legend=dict(title="Metric", x=0.01, y=0.99),
     )
 
     return fig
@@ -166,9 +169,10 @@ def create_conversion_rate_chart(state_data_df):
         )
     )
 
+    fig.update_traces(hovertemplate="%{x:.1f}%")
     fig.update_layout(
-        title="Application to installation rate by state",
-        xaxis_title="Application to installation rate (%)",
+        title="Application → Installation rate by state",
+        xaxis_title="Conversion rate (%)",
         yaxis_title="State",
         height=600,
         template="plotly_white",
@@ -216,6 +220,7 @@ def create_district_heatmap(district_data_df):
         color_continuous_scale="Viridis",
     )
 
+    fig.update_traces(hovertemplate="%{y:.1f}%")
     fig.update_layout(height=500, xaxis_tickangle=-45, margin=dict(b=100))
 
     return fig
