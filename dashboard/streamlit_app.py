@@ -69,7 +69,7 @@ st.markdown(
     unsafe_allow_html=True,
 )
 st.markdown(
-    '<div class="sub-header">Clear, recruiter-friendly view of program scale, progress, and operational bottlenecks</div>',
+    '<div class="sub-header">Clear, unambiguous view of program scale, progress, and operational bottlenecks</div>',
     unsafe_allow_html=True,
 )
 
@@ -135,8 +135,8 @@ if page == "Overview":
     col1, col2, col3, col4 = st.columns(4)
 
     with col1:
-        kpi_card(
-            title="Applications recorded",
+            kpi_card(
+                title="Applications submitted",
             value=total_apps,
             delta=None,
             format_type="number",
@@ -272,7 +272,7 @@ elif page == "State Analysis":
         sort_by = st.selectbox(
             "Rank states by:",
             [
-                "Applications recorded",
+                "Applications submitted",
                 "Installations completed",
                 "Application to installation rate",
             ],
@@ -294,7 +294,7 @@ elif page == "State Analysis":
     )
 
     # Prepare sorted data
-    if sort_by == "Applications recorded":
+    if sort_by == "Applications submitted":
         state_data = state_base_df.nlargest(show_top, "applications")
     elif sort_by == "Installations completed":
         state_data = state_base_df.nlargest(show_top, "installations")
@@ -310,8 +310,8 @@ elif page == "State Analysis":
     display_table = state_data[
         ["state", "applications", "installations", "conversion_rate_app_to_install_pct"]
     ].copy()
-    display_table.columns = ["State", "Applications recorded", "Installations completed", "Application → Installation (%)"]
-    display_table["Applications recorded"] = display_table["Applications recorded"].apply(lambda x: f"{int(x):,}")
+    display_table.columns = ["State", "Applications submitted", "Installations completed", "Application → Installation (%)"]
+    display_table["Applications submitted"] = display_table["Applications submitted"].apply(lambda x: f"{int(x):,}")
     display_table["Installations completed"] = display_table["Installations completed"].apply(lambda x: f"{int(x):,}")
     display_table["Application → Installation (%)"] = display_table["Application → Installation (%)"].apply(lambda x: f"{float(x):.1f}%")
 
@@ -373,7 +373,7 @@ elif page == "District Analysis":
 
     with col1:
         st.metric(
-            "Applications recorded", int(filtered_data["application_status"].sum())
+            "Applications submitted", int(filtered_data["application_status"].sum())
         )
 
     with col2:
@@ -401,7 +401,7 @@ elif page == "District Analysis":
     display_data.columns = [
         "State",
         "District",
-        "Applications recorded",
+        "Applications submitted",
         "Installations completed",
         "Inspections approved",
         "Subsidy redeemed",
@@ -618,7 +618,7 @@ elif page == "About":
     *Note:* Consumer registration, agreement upload, and subsidy approval or disbursal are not captured in the source data.
 
     **Main numbers:**
-    - Applications recorded: 6,021,455
+    - Applications submitted: 6,021,455
     - Installations completed: 2,329,634
     - Application to installation rate: 38.69%
     - Installed capacity: 17.1 Million kW

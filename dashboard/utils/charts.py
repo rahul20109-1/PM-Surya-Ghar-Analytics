@@ -109,7 +109,7 @@ def create_state_ranking_chart(state_data_df):
         go.Bar(
             x=df["state"],
             y=df["applications"],
-            name="Applications recorded",
+            name="Applications submitted",
             marker_color="#1f77b4",
         )
     )
