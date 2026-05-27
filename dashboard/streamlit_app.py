@@ -116,6 +116,9 @@ if page == "Overview":
     total_inspections = int(kpi_national["total_inspections"].values[0])
     total_subsidy_redeemed = int(kpi_national["total_subsidy_redeemed"].values[0])
     total_subsidy_redeemed_crore = total_subsidy_redeemed / 1e7
+    app_to_install_rate = float(
+        kpi_national["conversion_rate_app_to_install"].values[0]
+    )
     install_to_inspection_rate = float(
         kpi_national["conversion_rate_install_to_inspection"].values[0]
     )
@@ -165,9 +168,17 @@ if page == "Overview":
     st.markdown("---")
 
     # Row 2: Core rates and backlog
-    col1, col2, col3 = st.columns(3)
+    col1, col2, col3, col4 = st.columns(4)
 
     with col1:
+        kpi_card(
+            title="Application to installation rate",
+            value=app_to_install_rate,
+            delta=None,
+            format_type="percent",
+        )
+
+    with col2:
         kpi_card(
             title="Installation to inspection rate",
             value=install_to_inspection_rate,
@@ -175,7 +186,7 @@ if page == "Overview":
             format_type="percent",
         )
 
-    with col2:
+    with col3:
         kpi_card(
             title="Application to subsidy rate",
             value=app_to_subsidy_rate,
@@ -183,7 +194,7 @@ if page == "Overview":
             format_type="percent",
         )
 
-    with col3:
+    with col4:
         kpi_card(
             title="Applications not yet installed",
             value=apps_not_installed,
