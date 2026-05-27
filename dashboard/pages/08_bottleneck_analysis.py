@@ -39,6 +39,70 @@ except Exception as e:
     st.error(f"Error loading data: {str(e)}")
     st.stop()
 
+
+def apply_date_range_filter(df, key_prefix):
+    df = df.copy()
+    df["rptdate"] = pd.to_datetime(df["rptdate"], errors="coerce")
+    df = df.dropna(subset=["rptdate"])
+    if df.empty:
+        return df, None, None
+
+    min_date = df["rptdate"].min().date()
+    max_date = df["rptdate"].max().date()
+    full_days = (max_date - min_date).days
+    default_start = (pd.Timestamp(max_date) - pd.Timedelta(days=365)).date()
+    if default_start < min_date:
+        default_start = min_date
+
+    preset_options = [
+        "Last 30 days",
+        "Last 90 days",
+        "Year to date",
+        "Last 12 months",
+        "All",
+        "Custom",
+    ]
+    preset_index = 3 if full_days > 365 else 4
+    preset = st.selectbox(
+        "Quick range",
+        preset_options,
+        index=preset_index,
+        key=f"{key_prefix}_preset",
+    )
+
+    if preset == "Custom":
+        start_date, end_date = st.date_input(
+            "Custom range",
+            value=(default_start, max_date),
+            key=f"{key_prefix}_custom",
+        )
+    elif preset == "Last 30 days":
+        start_date = (pd.Timestamp(max_date) - pd.Timedelta(days=29)).date()
+        end_date = max_date
+    elif preset == "Last 90 days":
+        start_date = (pd.Timestamp(max_date) - pd.Timedelta(days=89)).date()
+        end_date = max_date
+    elif preset == "Year to date":
+        start_date = pd.Timestamp(max_date.year, 1, 1).date()
+        end_date = max_date
+    elif preset == "Last 12 months":
+        start_date = default_start
+        end_date = max_date
+    else:
+        start_date = min_date
+        end_date = max_date
+
+    if start_date < min_date:
+        start_date = min_date
+    if end_date > max_date:
+        end_date = max_date
+
+    mask = (df["rptdate"].dt.date >= start_date) & (
+        df["rptdate"].dt.date <= end_date
+    )
+    filtered = df.loc[mask].copy()
+    return filtered, start_date, end_date
+
 # ============================================================================
 # HEADER
 # ============================================================================
@@ -62,11 +126,13 @@ st.markdown(
 )
 
 st.title("Process bottlenecks — where applications stall")
-st.markdown("""
+st.markdown(
+    """
 This analysis highlights stages where applications are delayed, dropped, or accumulate in backlog. Use it to prioritise operational interventions and state-level support.
 
 The visualisations below show where the program loses applications (drop-off), where applications are waiting (backlog), and which states exhibit the largest issues.
-""")
+"""
+)
 st.caption(
     "Data note: Stages shown reflect the steps captured in the dataset. Consumer registration, agreement upload, and subsidy disbursal are not recorded here."
 )
@@ -513,117 +579,144 @@ st.markdown("---")
 
 st.header("4. Processing speed over time")
 
-# Analyze daily throughput
-throughput_df = datewise[["rptdate", "applications", "installations"]].copy()
-throughput_df = filter_all_zero_rows(throughput_df, ["applications", "installations"])
-datewise_analysis = throughput_df.sort_values("rptdate")
-datewise_analysis["rptdate"] = pd.to_datetime(datewise_analysis["rptdate"])
-
-# Calculate rolling averages
-datewise_analysis["apps_7d_avg"] = (
-    datewise_analysis["applications"].rolling(window=7, min_periods=1).mean()
+st.markdown("**Date range**")
+filtered_datewise, start_date, end_date = apply_date_range_filter(
+    datewise, "bottleneck_time"
 )
-datewise_analysis["installs_7d_avg"] = (
-    datewise_analysis["installations"].rolling(window=7, min_periods=1).mean()
-)
-datewise_analysis["gap_7d"] = (
-    datewise_analysis["apps_7d_avg"] - datewise_analysis["installs_7d_avg"]
-).round(0)
+if start_date and end_date:
+    st.caption(f"Showing: {start_date} to {end_date}")
 
-# Calculate backlog growth
-datewise_analysis["cumulative_gap"] = (
-    datewise_analysis["applications"].cumsum()
-    - datewise_analysis["installations"].cumsum()
-)
+avg_daily_apps = 0.0
+avg_daily_installs = 0.0
+daily_deficit = 0.0
+latest_gap = 0.0
 
-col1, col2 = st.columns(2)
+if filtered_datewise.empty:
+    st.info("No time-series data available for the selected range.")
+else:
+    # Analyze daily throughput
+    throughput_df = filtered_datewise[["rptdate", "applications", "installations"]].copy()
+    throughput_df = filter_all_zero_rows(
+        throughput_df, ["applications", "installations"]
+    )
+    datewise_analysis = throughput_df.sort_values("rptdate")
+    datewise_analysis["rptdate"] = pd.to_datetime(datewise_analysis["rptdate"])
 
-with col1:
-    st.subheader("7-day average applications and installations")
+    # Calculate rolling averages
+    datewise_analysis["apps_7d_avg"] = (
+        datewise_analysis["applications"].rolling(window=7, min_periods=1).mean()
+    )
+    datewise_analysis["installs_7d_avg"] = (
+        datewise_analysis["installations"].rolling(window=7, min_periods=1).mean()
+    )
+    datewise_analysis["gap_7d"] = (
+        datewise_analysis["apps_7d_avg"] - datewise_analysis["installs_7d_avg"]
+    ).round(0)
 
-    fig = go.Figure()
+    # Calculate backlog growth
+    datewise_analysis["cumulative_gap"] = (
+        datewise_analysis["applications"].cumsum()
+        - datewise_analysis["installations"].cumsum()
+    )
 
-    fig.add_trace(
-        go.Scatter(
-            x=datewise_analysis["rptdate"],
-            y=datewise_analysis["apps_7d_avg"],
-            name="Applications (7-day avg)",
-            mode="lines",
-            line=dict(color="#1f77b4", width=2),
-            hovertemplate="%{y:,.0f} applications — %{x|%Y-%m-%d}",
+    col1, col2 = st.columns(2)
+
+    with col1:
+        st.subheader("7-day average applications and installations")
+
+        fig = go.Figure()
+
+        fig.add_trace(
+            go.Scatter(
+                x=datewise_analysis["rptdate"],
+                y=datewise_analysis["apps_7d_avg"],
+                name="Applications (7-day avg)",
+                mode="lines",
+                line=dict(color="#1f77b4", width=2),
+                hovertemplate="%{y:,.0f} applications - %{x|%Y-%m-%d}",
+            )
         )
-    )
 
-    fig.add_trace(
-        go.Scatter(
-            x=datewise_analysis["rptdate"],
-            y=datewise_analysis["installs_7d_avg"],
-            name="Installations (7-day avg)",
-            mode="lines",
-            line=dict(color="#2ca02c", width=2),
-            hovertemplate="%{y:,.0f} installations — %{x|%Y-%m-%d}",
+        fig.add_trace(
+            go.Scatter(
+                x=datewise_analysis["rptdate"],
+                y=datewise_analysis["installs_7d_avg"],
+                name="Installations (7-day avg)",
+                mode="lines",
+                line=dict(color="#2ca02c", width=2),
+                hovertemplate="%{y:,.0f} installations - %{x|%Y-%m-%d}",
+            )
         )
-    )
 
-    fig.update_layout(
-        height=400,
-        hovermode="x unified",
-        template="plotly_white",
-        yaxis_title="Daily count (7-day average)",
-        xaxis_title="Date",
-        legend=dict(title="Series", x=0.01, y=0.99),
-    )
-
-    st.plotly_chart(fig, use_container_width=True)
-
-with col2:
-    st.subheader("Backlog growth over time")
-
-    fig = go.Figure()
-
-    fig.add_trace(
-        go.Scatter(
-            x=datewise_analysis["rptdate"],
-            y=datewise_analysis["cumulative_gap"],
-            name="Backlog (cumulative)",
-            mode="lines",
-            fill="tozeroy",
-            line=dict(color="#d62728", width=2),
-            hovertemplate="%{y:,.0f} pending applications — %{x|%Y-%m-%d}",
+        fig.update_layout(
+            height=400,
+            hovermode="x unified",
+            template="plotly_white",
+            yaxis_title="Daily count (7-day average)",
+            xaxis_title="Date",
+            legend=dict(title="Series", x=0.01, y=0.99),
         )
+
+        st.plotly_chart(fig, use_container_width=True)
+
+    with col2:
+        st.subheader("Backlog growth over time")
+
+        fig = go.Figure()
+
+        fig.add_trace(
+            go.Scatter(
+                x=datewise_analysis["rptdate"],
+                y=datewise_analysis["cumulative_gap"],
+                name="Backlog (cumulative)",
+                mode="lines",
+                fill="tozeroy",
+                line=dict(color="#d62728", width=2),
+                hovertemplate="%{y:,.0f} pending applications - %{x|%Y-%m-%d}",
+            )
+        )
+
+        fig.update_layout(
+            height=400,
+            hovermode="x",
+            template="plotly_white",
+            yaxis_title="Cumulative pending applications",
+            xaxis_title="Date",
+            legend=dict(title="Series", x=0.01, y=0.99),
+        )
+
+        st.plotly_chart(fig, use_container_width=True)
+
+    # Throughput metrics
+    latest_gap = datewise_analysis["cumulative_gap"].iloc[-1]
+    avg_daily_apps = datewise_analysis["applications"].mean()
+    avg_daily_installs = datewise_analysis["installations"].mean()
+    daily_deficit = avg_daily_apps - avg_daily_installs
+
+    if daily_deficit > 0:
+        years_to_clear = latest_gap / daily_deficit / 365
+        clearance_line = (
+            f"At the current rate, it will take about {years_to_clear:.1f} years to clear the backlog."
+        )
+    else:
+        clearance_line = (
+            "At the current rate, backlog is not growing; clearance timing cannot be estimated."
+        )
+
+    st.markdown(
+        f"""
+    <div class="insight-box">
+    <strong>Main finding:</strong><br>
+    • Applications received per day: <strong>{avg_daily_apps:,.0f}</strong><br>
+    • Installations completed per day: <strong>{avg_daily_installs:,.0f}</strong><br>
+    • Backlog grows by: <strong class="critical">{daily_deficit:,.0f} applications per day</strong><br>
+    • Current total backlog: <strong class="critical">{int(latest_gap):,} applications</strong><br>
+    <br>
+    <strong>{clearance_line}</strong>
+    </div>
+    """,
+        unsafe_allow_html=True,
     )
-
-    fig.update_layout(
-        height=400,
-        hovermode="x",
-        template="plotly_white",
-        yaxis_title="Cumulative pending applications",
-        xaxis_title="Date",
-        legend=dict(title="Series", x=0.01, y=0.99),
-    )
-
-    st.plotly_chart(fig, use_container_width=True)
-
-# Throughput metrics
-latest_gap = datewise_analysis["cumulative_gap"].iloc[-1]
-avg_daily_apps = datewise_analysis["applications"].mean()
-avg_daily_installs = datewise_analysis["installations"].mean()
-daily_deficit = avg_daily_apps - avg_daily_installs
-
-st.markdown(
-    f"""
-<div class="insight-box">
-<strong>Main finding:</strong><br>
-• Applications received per day: <strong>{avg_daily_apps:,.0f}</strong><br>
-• Installations completed per day: <strong>{avg_daily_installs:,.0f}</strong><br>
-• Backlog grows by: <strong class="critical">{daily_deficit:,.0f} applications per day</strong><br>
-• Current total backlog: <strong class="critical">{int(latest_gap):,} applications</strong><br>
-<br>
-<strong>At the current rate, it will take about {int(latest_gap / daily_deficit / 365):.1f} years to clear the backlog.</strong>
-</div>
-""",
-    unsafe_allow_html=True,
-)
 
 st.markdown("---")
 
@@ -770,7 +863,8 @@ for i, rec in enumerate(recommendations, 1):
 
 st.markdown("---")
 
-st.markdown(f"""
+st.markdown(
+    f"""
 ### 📋 Executive summary
 
 Key takeaways for program managers and recruiters:
@@ -781,4 +875,5 @@ Key takeaways for program managers and recruiters:
 - **Approval variability:** Feasibility and inspection approval rates differ across states and explain part of the outcome gap.
 
 Recommended next steps: Share these findings with delivery teams, run focused diagnostics in the top-priority states, and consider temporary capacity increases in the short term.
-""")
+"""
+)

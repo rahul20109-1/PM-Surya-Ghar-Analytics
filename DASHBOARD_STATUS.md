@@ -9,6 +9,7 @@ Status: Operational
 - Data is loaded from cleaned CSV outputs in data_cleaned/
 - Core KPI and chart components render through dashboard utilities
 - Caching is enabled for data loading performance
+- Time-series views include date-range filters and 7-day average overlays
 
 ## Coverage
 

@@ -92,6 +92,70 @@ def get_data():
     return load_data()
 
 
+def apply_date_range_filter(df, key_prefix):
+    df = df.copy()
+    df["rptdate"] = pd.to_datetime(df["rptdate"], errors="coerce")
+    df = df.dropna(subset=["rptdate"])
+    if df.empty:
+        return df, None, None
+
+    min_date = df["rptdate"].min().date()
+    max_date = df["rptdate"].max().date()
+    full_days = (max_date - min_date).days
+    default_start = (pd.Timestamp(max_date) - pd.Timedelta(days=365)).date()
+    if default_start < min_date:
+        default_start = min_date
+
+    preset_options = [
+        "Last 30 days",
+        "Last 90 days",
+        "Year to date",
+        "Last 12 months",
+        "All",
+        "Custom",
+    ]
+    preset_index = 3 if full_days > 365 else 4
+    preset = st.selectbox(
+        "Quick range",
+        preset_options,
+        index=preset_index,
+        key=f"{key_prefix}_preset",
+    )
+
+    if preset == "Custom":
+        start_date, end_date = st.date_input(
+            "Custom range",
+            value=(default_start, max_date),
+            key=f"{key_prefix}_custom",
+        )
+    elif preset == "Last 30 days":
+        start_date = (pd.Timestamp(max_date) - pd.Timedelta(days=29)).date()
+        end_date = max_date
+    elif preset == "Last 90 days":
+        start_date = (pd.Timestamp(max_date) - pd.Timedelta(days=89)).date()
+        end_date = max_date
+    elif preset == "Year to date":
+        start_date = pd.Timestamp(max_date.year, 1, 1).date()
+        end_date = max_date
+    elif preset == "Last 12 months":
+        start_date = default_start
+        end_date = max_date
+    else:
+        start_date = min_date
+        end_date = max_date
+
+    if start_date < min_date:
+        start_date = min_date
+    if end_date > max_date:
+        end_date = max_date
+
+    mask = (df["rptdate"].dt.date >= start_date) & (
+        df["rptdate"].dt.date <= end_date
+    )
+    filtered = df.loc[mask].copy()
+    return filtered, start_date, end_date
+
+
 try:
     kpi_national, kpi_state, kpi_district, datewise, state_master, district = get_data()
 except Exception as e:
@@ -206,8 +270,18 @@ if page == "Overview":
 
     # Row 3: Trend
     st.subheader("Applications and installations over time")
-    fig = create_adoption_trend(datewise)
-    st.plotly_chart(fig, use_container_width=True)
+    st.markdown("**Date range**")
+    filtered_datewise, start_date, end_date = apply_date_range_filter(
+        datewise, "overview"
+    )
+    if start_date and end_date:
+        st.caption(f"Showing: {start_date} to {end_date}")
+
+    if filtered_datewise.empty:
+        st.info("No time-series data available for the selected range.")
+    else:
+        fig = create_adoption_trend(filtered_datewise)
+        st.plotly_chart(fig, use_container_width=True)
 
     st.markdown("---")
 
@@ -429,12 +503,29 @@ elif page == "Trends":
     Review how applications and installations change over time.
     """)
 
-    trend_df = datewise[["rptdate", "applications", "installations"]].copy()
+    st.markdown("**Date range**")
+    filtered_datewise, start_date, end_date = apply_date_range_filter(
+        datewise, "trends"
+    )
+    if start_date and end_date:
+        st.caption(f"Showing: {start_date} to {end_date}")
+
+    if filtered_datewise.empty:
+        st.info("No time-series data available for the selected range.")
+        st.stop()
+
+    trend_df = filtered_datewise[["rptdate", "applications", "installations"]].copy()
     trend_df = filter_all_zero_rows(trend_df, ["applications", "installations"])
     datewise_sorted = trend_df.sort_values("rptdate")
     datewise_sorted["rptdate"] = pd.to_datetime(datewise_sorted["rptdate"])
     datewise_sorted["cum_applications"] = datewise_sorted["applications"].cumsum()
     datewise_sorted["cum_installations"] = datewise_sorted["installations"].cumsum()
+    datewise_sorted["apps_7d_avg"] = (
+        datewise_sorted["applications"].rolling(window=7, min_periods=1).mean()
+    )
+    datewise_sorted["installs_7d_avg"] = (
+        datewise_sorted["installations"].rolling(window=7, min_periods=1).mean()
+    )
 
     # Chart type selector
     chart_type = st.radio("Choose a view:", ["Cumulative", "Daily"], horizontal=True)
@@ -504,6 +595,26 @@ elif page == "Trends":
                 mode="lines",
                 line=dict(color="#ff7f0e", width=1.5),
                 fill="tozeroy",
+            )
+        )
+
+        fig.add_trace(
+            go.Scatter(
+                x=datewise_sorted["rptdate"],
+                y=datewise_sorted["apps_7d_avg"],
+                name="Applications (7-day avg)",
+                mode="lines",
+                line=dict(color="#1f77b4", width=2, dash="dash"),
+            )
+        )
+
+        fig.add_trace(
+            go.Scatter(
+                x=datewise_sorted["rptdate"],
+                y=datewise_sorted["installs_7d_avg"],
+                name="Installations (7-day avg)",
+                mode="lines",
+                line=dict(color="#ff7f0e", width=2, dash="dash"),
             )
         )
 
