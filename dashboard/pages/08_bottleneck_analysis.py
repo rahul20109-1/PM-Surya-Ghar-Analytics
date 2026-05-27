@@ -65,6 +65,10 @@ st.title("Where the process slows down")
 st.markdown("""
 This page shows where applications slow down, where they wait, and which states need the most attention.
 """)
+st.caption(
+    "Stages in this analysis align to the scheme journey steps captured in the source data. "
+    "Consumer registration, agreement upload, and subsidy approval or disbursal are not available in this dataset."
+)
 
 st.markdown("---")
 
@@ -77,12 +81,12 @@ st.header("1. Stage-by-stage drop-off")
 # Calculate funnel metrics
 funnel_stages = {
     "Stage": [
-        "Applications recorded",
-        "Vendor selected",
-        "Feasibility approved",
+        "Application submission",
+        "Vendor selection",
+        "Feasibility approval",
         "Installation completed",
-        "Inspection approved",
-        "Subsidy redeemed",
+        "Project inspection by DISCOM",
+        "Subsidy redeem",
     ],
     "Count": [
         state_master["application_status"].sum(),
@@ -114,7 +118,7 @@ col1, col2, col3, col4 = st.columns(4)
 
 with col1:
     st.metric(
-        "Applications recorded", f"{int(funnel_df['Count'].iloc[0]):,}", delta=None
+        "Applications submitted", f"{int(funnel_df['Count'].iloc[0]):,}", delta=None
     )
 
 with col2:
@@ -123,7 +127,7 @@ with col2:
     st.metric(
         "Reached final stage",
         f"{int(successful):,}",
-        delta=f"{success_rate:.1f}% of applications reached subsidy redemption",
+        delta=f"{success_rate:.1f}% of applications reached the subsidy redeem stage",
     )
 
 with col3:
@@ -224,7 +228,7 @@ with col2:
 st.markdown(
     """
 <div class="insight-box">
-<strong>Main finding:</strong> The biggest drop happens between <strong>Feasibility approved</strong> and <strong>Installation completed</strong>.
+<strong>Main finding:</strong> The biggest drop happens between <strong>Feasibility approval</strong> and <strong>Installation completed</strong>.
 That gap is {:.1f}% of the previous stage, which means {:.0f} applications do not move forward here.
 </div>
 """.format(
@@ -250,11 +254,11 @@ st.header("2. Where applications wait")
 pending_analysis = {"Stage": [], "Applications": [], "Pending": [], "Pending %": []}
 
 stages_to_check = [
-    ("Vendor Selection", "application_status", "vendor_selected"),
-    ("Feasibility Review", "vendor_selected", "feasibility_approved"),
-    ("Installation", "feasibility_approved", "installation"),
-    ("Inspection", "installation", "inspection_approved"),
-    ("Subsidy Redemption", "inspection_approved", "total_redeem"),
+    ("Vendor selection", "application_status", "vendor_selected"),
+    ("Feasibility approval", "vendor_selected", "feasibility_approved"),
+    ("Installation completed", "feasibility_approved", "installation"),
+    ("Project inspection by DISCOM", "installation", "inspection_approved"),
+    ("Subsidy redeem", "inspection_approved", "total_redeem"),
 ]
 
 for stage_name, prev_col, curr_col in stages_to_check:
@@ -678,8 +682,8 @@ recommendations = [
     },
     {
         "priority": "Medium",
-        "issue": "Inspection Bottleneck",
-        "impact": f'{int(state_master["installation"].sum() - state_master["inspection_approved"].sum()):,} installations are still waiting for inspection approval',
+        "issue": "Project inspection bottleneck",
+        "impact": f'{int(state_master["installation"].sum() - state_master["inspection_approved"].sum()):,} installations are still waiting for project inspection approval',
         "action": "Speed up inspection scheduling and add more inspection capacity where needed.",
         "timeline": "Medium-term (1-2 months)",
     },
@@ -705,10 +709,10 @@ st.markdown("""
 
 This bottleneck analysis reveals:
 
-1. **The biggest loss is between feasibility approval and installation** - that is the clearest stage gap
+1. **The biggest loss is between feasibility approval and installation completed** - that is the clearest stage gap
 2. **The backlog keeps growing** - more applications come in than the system clears each day
 3. **State performance is uneven** - some states move applications much faster than others
-4. **Approval rates are not the same everywhere** - feasibility and inspection results vary by state
+4. **Approval rates are not the same everywhere** - feasibility and project inspection results vary by state
 5. **The backlog will not clear on its own** - the process needs more capacity or a slower intake rate
 
 **Next step:** Share these findings with program teams and focus first on the stage with the largest drop.

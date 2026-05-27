@@ -212,16 +212,20 @@ if page == "Overview":
     st.markdown("---")
 
     # Row 5: Conversion Funnel
-    st.subheader("How applications move through the main stages in the data")
+    st.subheader("How applications move through journey stages captured in the data")
+    st.caption(
+        "Stages shown below reflect the scheme journey steps available in the source data. "
+        "Consumer registration, agreement upload, and subsidy approval or disbursal are not captured in this dataset."
+    )
 
     funnel_data = {
         "Stage": [
-            "Applications recorded",
-            "Vendor selected",
-            "Feasibility approved",
-            "Installations completed",
-            "Inspections approved",
-            "Subsidy redeemed",
+            "Application submission",
+            "Vendor selection",
+            "Feasibility approval",
+            "Installation completed",
+            "Project inspection by DISCOM",
+            "Subsidy redeem",
         ],
         "Count": [
             int(state_master["application_status"].sum()),
@@ -599,6 +603,11 @@ elif page == "About":
     - **Time Period:** September 17, 2022 – February 9, 2026
     - **Geography:** 36 States/UTs, 792 Districts, 84 DISCOMs
     - **Records Reviewed:** 6,021,455 applications
+
+    **Journey stages captured in this dataset:**
+    Application submission → Vendor selection → Feasibility approval → Installation completed → Project inspection by DISCOM → Subsidy redeem
+
+    *Note:* Consumer registration, agreement upload, and subsidy approval or disbursal are not captured in the source data.
 
     **Main numbers:**
     - Applications recorded: 6,021,455

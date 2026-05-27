@@ -2,7 +2,7 @@
 
 ## PM Surya Ghar Analytics - End-to-End Workflow
 
-Last Updated: March 17, 2026
+Last Updated: May 27, 2026
 
 ## 1. System Flow
 
@@ -17,7 +17,22 @@ Raw Program Data (CSV)
   -> Insight Communication for Stakeholders
 ```
 
-## 2. Data Pipeline Stages
+## 2. Application Journey (Scheme)
+
+1. Consumer Registration
+2. Application Submission
+3. Feasibility Approval
+4. Vendor selection
+5. Upload Agreement with vendor
+6. Installation detail submission
+7. Project Inspection by DISCOM
+8. Subsidy Redeem
+9. Subsidy Approval
+10. Subsidy disbursal
+
+**Data availability note:** The dashboard and KPI pipeline can only use stages captured in the source data. Those include application submission, vendor selection, feasibility approval, installation completed, project inspection by DISCOM, and subsidy redeem.
+
+## 3. Data Pipeline Stages
 
 ### Stage A: Ingestion
 - Input files are loaded from raw_data/ using scripted loaders.
@@ -42,7 +57,7 @@ Raw Program Data (CSV)
 - Notebooks provide verification and exploratory context.
 - Dashboard pages convert KPI and cleaned data into interactive views.
 
-## 3. Dashboard User Flow
+## 4. Dashboard User Flow
 
 1. Open overview for national KPI orientation.
 2. Drill into state and district breakdowns.
@@ -50,7 +65,7 @@ Raw Program Data (CSV)
 4. Use bottleneck analysis to evaluate stage-level drop-off.
 5. Translate findings into operational recommendations.
 
-## 4. Governance Principles
+## 5. Governance Principles
 
 - Use cleaned artifact outputs as reporting source of truth.
 - Keep business-facing claims traceable to KPI exports.
