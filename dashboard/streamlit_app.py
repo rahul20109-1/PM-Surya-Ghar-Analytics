@@ -617,9 +617,9 @@ elif page == "About":
     and make the problem areas easy to spot.
 
     **What this dashboard covers:**
-    - **Time Period:** September 17, 2022 – February 9, 2026
+    - **Time Period:** February 13, 2024 – February 9, 2026
     - **Geography:** 36 States/UTs, 792 Districts, 84 DISCOMs
-    - **Records Reviewed:** 6,021,455 applications
+    - **Records Reviewed:** 6,021,454 applications
 
     **Journey stages captured in this dataset:**
     Application submission → Feasibility approval → Vendor selection → Installation completed → Project inspection by DISCOM → Subsidy redeem
@@ -627,10 +627,10 @@ elif page == "About":
     *Note:* Consumer registration, agreement upload, and subsidy approval or disbursal are not captured in the source data.
 
     **Main numbers:**
-    - Applications submitted: 6,021,455
-    - Installations completed: 2,329,634
+    - Applications submitted: 6,021,454
+    - Installations completed: 2,329,586
     - Application to installation rate: 38.69%
-    - Installed capacity: 17.1 Million kW
+    - Installed capacity: 8.56 million kW
 
     **What we checked:**
     - cleaned the source files before analysis
@@ -653,7 +653,7 @@ elif page == "About":
     - responsive layout for desktop and mobile
 
     **Version:** 1.0.0  
-    **Last Updated:** March 15, 2026  
+    **Last Updated:** May 27, 2026  
     **Status:** Production Ready
     """)
 

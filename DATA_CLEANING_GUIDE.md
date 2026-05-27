@@ -33,8 +33,7 @@ Provide a reproducible, implementation-level guide for converting raw program CS
 
 ## 5. Output Artifacts
 
-- datewise_clean2.csv (primary time-series output)
-- datewise_clean.csv (legacy export)
+- datewise_clean.csv (primary time-series output)
 - state_master_clean.csv
 - district_clean.csv
 - discom_master_clean.csv

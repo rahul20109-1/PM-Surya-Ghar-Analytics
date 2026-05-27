@@ -29,16 +29,14 @@ def load_cleaned_datasets():
     data_cleaned_path = Path(__file__).parent.parent / "data_cleaned"
 
     datasets = {}
-    datewise_path = data_cleaned_path / "datewise_clean2.csv"
-    if not datewise_path.exists():
-        datewise_path = data_cleaned_path / "datewise_clean.csv"
+    datewise_path = data_cleaned_path / "datewise_clean.csv"
     datasets["datewise"] = pd.read_csv(datewise_path)
     print(
         f"  OK Loaded datewise: {datasets['datewise'].shape[0]} rows x {datasets['datewise'].shape[1]} columns"
     )
 
     for csv_file in sorted(data_cleaned_path.glob("*_clean.csv")):
-        if csv_file.name in {"datewise_clean.csv", "datewise_clean2.csv"}:
+        if csv_file.name in {"datewise_clean.csv"}:
             continue
         name = csv_file.stem.replace("_clean", "")
         df = pd.read_csv(csv_file)

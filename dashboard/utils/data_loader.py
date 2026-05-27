@@ -31,10 +31,7 @@ def load_data():
         kpi_district = pd.read_csv(data_dir / 'kpis_district.csv')
         
         # Load detail data files
-        datewise_path = data_dir / 'datewise_clean2.csv'
-        if not datewise_path.exists():
-            datewise_path = data_dir / 'datewise_clean.csv'
-        datewise = pd.read_csv(datewise_path)
+        datewise = pd.read_csv(data_dir / 'datewise_clean.csv')
         if "rptdate" in datewise.columns:
             launch_date = pd.Timestamp("2024-02-13")
             date_series = pd.to_datetime(datewise["rptdate"], errors="coerce")

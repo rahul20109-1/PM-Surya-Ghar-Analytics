@@ -46,7 +46,7 @@ python -m streamlit run dashboard/streamlit_app.py
 
 Primary files required by dashboard loaders:
 
-- data_cleaned/datewise_clean2.csv (preferred) or data_cleaned/datewise_clean.csv
+- data_cleaned/datewise_clean.csv
 - data_cleaned/state_master_clean.csv
 - data_cleaned/district_clean.csv
 - data_cleaned/kpis_national.csv

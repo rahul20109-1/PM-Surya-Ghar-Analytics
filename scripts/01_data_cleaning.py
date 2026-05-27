@@ -300,7 +300,7 @@ def save_cleaned_datasets(cleaned_datasets):
     output_path.mkdir(exist_ok=True)
     
     mapping = {
-        'datewise': 'datewise_clean2.csv',
+        'datewise': 'datewise_clean.csv',
         'state_master': 'state_master_clean.csv',
         'district': 'district_clean.csv',
         'discom_master': 'discom_master_clean.csv',

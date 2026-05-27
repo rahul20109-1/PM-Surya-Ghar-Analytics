@@ -33,8 +33,7 @@ Supporting sources:
 - kpis_national.csv: 1 row
 - kpis_state.csv: 36 rows
 - kpis_district.csv: 792 rows
-- datewise_clean2.csv: 727 rows
-- datewise_clean.csv: 795 rows
+- datewise_clean.csv: 727 rows
 
 ## 5. Interpretation Note
 
