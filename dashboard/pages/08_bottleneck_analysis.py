@@ -62,11 +62,9 @@ st.markdown(
 )
 
 st.title("Where the process slows down")
-st.markdown(
-    """
+st.markdown("""
 This page shows where applications slow down, where they wait, and which states need the most attention.
-"""
-)
+""")
 
 st.markdown("---")
 
@@ -115,7 +113,9 @@ for i in range(1, len(funnel_df)):
 col1, col2, col3, col4 = st.columns(4)
 
 with col1:
-    st.metric("Applications recorded", f"{int(funnel_df['Count'].iloc[0]):,}", delta=None)
+    st.metric(
+        "Applications recorded", f"{int(funnel_df['Count'].iloc[0]):,}", delta=None
+    )
 
 with col2:
     successful = funnel_df["Count"].iloc[-1]
@@ -173,7 +173,14 @@ with col1:
                 y=funnel_chart_df["Stage"],
                 x=funnel_chart_df["Count"],
                 marker=dict(
-                    color=["#1f77b4", "#1f77b4", "#ff7f0e", "#ff7f0e", "#d62728", "#2ca02c"]
+                    color=[
+                        "#1f77b4",
+                        "#1f77b4",
+                        "#ff7f0e",
+                        "#ff7f0e",
+                        "#d62728",
+                        "#2ca02c",
+                    ]
                 ),
                 text=[
                     f"{count:,}<br>({pct:.1f}%)"
@@ -224,9 +231,9 @@ That gap is {:.1f}% of the previous stage, which means {:.0f} applications do no
         funnel_df[funnel_df["Stage"] == "Installation completed"][
             "Stage Dropout %"
         ].values[0],
-        funnel_df[funnel_df["Stage"] == "Installation completed"][
-            "Loss Count"
-        ].values[0],
+        funnel_df[funnel_df["Stage"] == "Installation completed"]["Loss Count"].values[
+            0
+        ],
     ),
     unsafe_allow_html=True,
 )
@@ -285,7 +292,9 @@ with col2:
 with col3:
     highest_pending_pct = pending_df["Pending %"].max()
     st.metric(
-        "Largest waiting share", f"{highest_pending_pct:.1f}%", "Share of applications waiting at this stage"
+        "Largest waiting share",
+        f"{highest_pending_pct:.1f}%",
+        "Share of applications waiting at this stage",
     )
 
 st.markdown("---")
@@ -391,7 +400,11 @@ col1, col2 = st.columns(2)
 with col1:
     issue_type = st.radio(
         "Show states by:",
-        ["Lowest application to installation rate", "Highest waiting share", "Lowest installation completion rate"],
+        [
+            "Lowest application to installation rate",
+            "Highest waiting share",
+            "Lowest installation completion rate",
+        ],
         horizontal=True,
     )
 
@@ -427,7 +440,7 @@ table_df.columns = [
     "State",
     "Applications",
     "Installations",
-    "Subsidy redeemed",
+    "Subsidy Redeemed",
     metric_name,
 ]
 table_df["Applications"] = table_df["Applications"].apply(lambda x: f"{int(x):,}")
@@ -687,8 +700,7 @@ for i, rec in enumerate(recommendations, 1):
 
 st.markdown("---")
 
-st.markdown(
-    """
+st.markdown("""
 ### 📋 Summary
 
 This bottleneck analysis reveals:
@@ -700,5 +712,4 @@ This bottleneck analysis reveals:
 5. **The backlog will not clear on its own** - the process needs more capacity or a slower intake rate
 
 **Next step:** Share these findings with program teams and focus first on the stage with the largest drop.
-"""
-)
+""")
