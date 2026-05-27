@@ -82,16 +82,16 @@ st.header("1. Stage-by-stage drop-off")
 funnel_stages = {
     "Stage": [
         "Application submission",
-        "Vendor selection",
         "Feasibility approval",
+        "Vendor selection",
         "Installation completed",
         "Project inspection by DISCOM",
         "Subsidy redeem",
     ],
     "Count": [
         state_master["application_status"].sum(),
-        state_master["vendor_selected"].sum(),
         state_master["feasibility_approved"].sum(),
+        state_master["vendor_selected"].sum(),
         state_master["installation"].sum(),
         state_master["inspection_approved"].sum(),
         state_master["total_redeem"].sum(),
@@ -141,9 +141,16 @@ with col3:
 with col4:
     worst_stage_idx = funnel_df["Stage Dropout %"].idxmax()
     worst_dropout = funnel_df["Stage Dropout %"].max()
+    worst_stage = funnel_df["Stage"].iloc[worst_stage_idx]
+    prev_stage = (
+        funnel_df["Stage"].iloc[worst_stage_idx - 1]
+        if worst_stage_idx > 0
+        else worst_stage
+    )
+    worst_loss = funnel_df["Loss Count"].iloc[worst_stage_idx]
     st.metric(
         "Largest drop-off stage",
-        funnel_df["Stage"].iloc[worst_stage_idx],
+        worst_stage,
         delta=f"{worst_dropout:.1f}% drop from the previous stage",
     )
 
@@ -228,17 +235,10 @@ with col2:
 st.markdown(
     """
 <div class="insight-box">
-<strong>Main finding:</strong> The biggest drop happens between <strong>Feasibility approval</strong> and <strong>Installation completed</strong>.
+<strong>Main finding:</strong> The biggest drop happens between <strong>{}</strong> and <strong>{}</strong>.
 That gap is {:.1f}% of the previous stage, which means {:.0f} applications do not move forward here.
 </div>
-""".format(
-        funnel_df[funnel_df["Stage"] == "Installation completed"][
-            "Stage Dropout %"
-        ].values[0],
-        funnel_df[funnel_df["Stage"] == "Installation completed"]["Loss Count"].values[
-            0
-        ],
-    ),
+""".format(prev_stage, worst_stage, worst_dropout, worst_loss),
     unsafe_allow_html=True,
 )
 
@@ -254,9 +254,9 @@ st.header("2. Where applications wait")
 pending_analysis = {"Stage": [], "Applications": [], "Pending": [], "Pending %": []}
 
 stages_to_check = [
-    ("Vendor selection", "application_status", "vendor_selected"),
-    ("Feasibility approval", "vendor_selected", "feasibility_approved"),
-    ("Installation completed", "feasibility_approved", "installation"),
+    ("Feasibility approval", "application_status", "feasibility_approved"),
+    ("Vendor selection", "feasibility_approved", "vendor_selected"),
+    ("Installation completed", "vendor_selected", "installation"),
     ("Project inspection by DISCOM", "installation", "inspection_approved"),
     ("Subsidy redeem", "inspection_approved", "total_redeem"),
 ]
@@ -654,9 +654,9 @@ st.header("6. Recommended actions")
 recommendations = [
     {
         "priority": "High",
-        "issue": "Gap between feasibility approval and installation",
-        "impact": f'{int(funnel_df[funnel_df["Stage"] == "Installation completed"]["Loss Count"].values[0]):,} applications do not move forward here',
-        "action": "Check vendor capacity, cost, approvals, and local delays.",
+        "issue": f"Gap between {prev_stage} and {worst_stage}",
+        "impact": f"{int(worst_loss):,} applications do not move forward here",
+        "action": "Review handoff controls, vendor capacity, and local delays.",
         "timeline": "Immediate (1-2 weeks)",
     },
     {
@@ -704,12 +704,12 @@ for i, rec in enumerate(recommendations, 1):
 
 st.markdown("---")
 
-st.markdown("""
+st.markdown(f"""
 ### 📋 Summary
 
 This bottleneck analysis reveals:
 
-1. **The biggest loss is between feasibility approval and installation completed** - that is the clearest stage gap
+1. **The biggest loss is between {prev_stage} and {worst_stage}** - that is the clearest stage gap
 2. **The backlog keeps growing** - more applications come in than the system clears each day
 3. **State performance is uneven** - some states move applications much faster than others
 4. **Approval rates are not the same everywhere** - feasibility and project inspection results vary by state

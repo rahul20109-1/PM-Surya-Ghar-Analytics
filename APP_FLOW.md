@@ -30,7 +30,7 @@ Raw Program Data (CSV)
 9. Subsidy Approval
 10. Subsidy disbursal
 
-**Data availability note:** The dashboard and KPI pipeline can only use stages captured in the source data. Those include application submission, vendor selection, feasibility approval, installation completed, project inspection by DISCOM, and subsidy redeem.
+**Data availability note:** The dashboard and KPI pipeline can only use stages captured in the source data. Those include application submission, feasibility approval, vendor selection, installation completed, project inspection by DISCOM, and subsidy redeem.
 
 ## 3. Data Pipeline Stages
 

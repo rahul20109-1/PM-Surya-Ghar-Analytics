@@ -221,8 +221,8 @@ if page == "Overview":
     funnel_data = {
         "Stage": [
             "Application submission",
-            "Vendor selection",
             "Feasibility approval",
+            "Vendor selection",
             "Installation completed",
             "Project inspection by DISCOM",
             "Subsidy redeem",
@@ -605,7 +605,7 @@ elif page == "About":
     - **Records Reviewed:** 6,021,455 applications
 
     **Journey stages captured in this dataset:**
-    Application submission → Vendor selection → Feasibility approval → Installation completed → Project inspection by DISCOM → Subsidy redeem
+    Application submission → Feasibility approval → Vendor selection → Installation completed → Project inspection by DISCOM → Subsidy redeem
 
     *Note:* Consumer registration, agreement upload, and subsidy approval or disbursal are not captured in the source data.
 
