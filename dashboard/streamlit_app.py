@@ -252,9 +252,16 @@ if page == "Overview":
 elif page == "State Analysis":
     st.header("State comparison")
 
-    st.write("""
-    Compare states by application volume, installation volume, and application to installation rate.
-    """)
+    st.markdown(
+        """
+    **What this view does:** Compare state performance on volume and conversion.
+
+    - Use the selector to choose a prioritisation metric: raw application or installation volume, or the conversion rate from application → installation.
+    - Lower conversion rates point to places where applications are not turning into completed installations. High volumes with low conversion are high-priority operational issues.
+    - Use the charts to spot which states have high throughput and which lag on execution. Drill down using the District page for local diagnostics.
+    """,
+        unsafe_allow_html=True,
+    )
 
     # Filters
     col1, col2 = st.columns(2)
