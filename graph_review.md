@@ -146,3 +146,65 @@ Suggestions — what to remove or replace
 ---
 
 End of review
+
+---
+
+## Additional requirement: Date range filter (from → to)
+
+Add a `date from / date to` filter to every page and chart that has time on one axis. This should be a global page-level control (where appropriate) or a per-chart control for focused analysis. Specific guidance:
+
+- Place a `st.date_input` range selector at the top of pages that show time series (Overview trend, Trends page, Bottleneck time analysis).
+- Default range: last 12 months (or full available range if less than 12 months). Provide presets: `Last 30 days`, `Last 90 days`, `Year to date`, `All`.
+- Implementation: filter the source DataFrame (e.g. `datewise`) to the selected range before passing to chart functions. Cache filtered datasets where helpful.
+- UX: show the active range in chart titles or captions (e.g., "Showing: 2025-06-01 → 2026-05-27").
+
+Benefits:
+- Enables focused temporal analysis (spikes, seasonality, recent program changes).
+- Helps compare pre/post interventions or policy changes.
+
+---
+
+## Review of previous suggestions and concrete decisions
+
+Below I assess the suggestions made earlier in this document and mark which to keep, adjust, or remove with brief rationale.
+
+- Overview: Keep all visuals. Adjustment: add a compact date-range selector for the Overview trend chart so users can zoom recent activity without leaving the page.
+
+- State comparison: Keep table and conversion chart. Adjustment: replace the grouped absolute-volume bar with a combination chart (volume bars + conversion rate line) or a scatter (volume vs conversion) as an alternative view; preference: implement scatter as an optional toggle — it reveals high-volume, low-conversion states clearly.
+
+- District table: Keep but change default to Top/Bottom N with an `Expand` button to load full table. Add `Export CSV` action. Rationale: full tables are heavy in-stream and slow the UI; paginated or lazy-loading tables work better.
+
+- Trends page: Keep both cumulative and daily views. Adjustment: add a 7-day rolling average overlay for the daily chart and include the date-range selector here (mandatory).
+
+- Capacity metrics: Keep pie and bar. Adjustment: add a histogram for system size distribution (small bins) rather than just two buckets — this is more informative for capacity planning.
+
+- Bottleneck Analysis:
+  - Keep funnel, drop-off, pending, state comparison, time-series, approval rate charts.
+  - Adjustment: add date-range filtering for time-series/backlog charts and allow applying the same date-filter across the entire Bottleneck page for consistent snapshot analysis.
+  - Replace grouped state bars with an optional scatter (volume vs conversion) as suggested.
+  - Addition: show absolute counts alongside rates in approval-rate charts (so the reader can see sample sizes behind percentages).
+  - Remove: do NOT add Sankey unless data supports multi-path flows (e.g., multiple alternative next-stages); otherwise Sankey adds noise.
+
+- Global: Add helper tooltips on each chart explaining the source field and calculation (e.g., "Applications submitted = sum of state_master.application_status"). Keep tooltips short and consistent.
+
+---
+
+## Implementation notes and quick code patterns
+
+- Date filter (Streamlit pattern):
+
+```python
+date_range = st.date_input("Select date range", value=(start_date, end_date))
+df_filtered = df[(pd.to_datetime(df["rptdate"]) >= pd.to_datetime(date_range[0])) & (pd.to_datetime(df["rptdate"]) <= pd.to_datetime(date_range[1]))]
+```
+
+- Pass `df_filtered` into existing chart functions or add optional `start_date`/`end_date` parameters to chart utilities.
+- Cache filtered datasets with `@st.cache_data` when possible to improve responsiveness.
+- Presets: implement quick buttons that set `date_range` to common values (30/90/365 days).
+- Guardrails: when computing rates that divide by counts, ensure `if denom == 0: rate = 0` to avoid NaN/inf.
+
+---
+
+If you want, I can now implement the date-range selector across pages and wire it into the existing time-series functions (`create_adoption_trend` and the Bottleneck time charts) so the UI allows focused temporal analysis. I can also add the scatter chart option for State comparison as a toggle.
+
+End of additions
