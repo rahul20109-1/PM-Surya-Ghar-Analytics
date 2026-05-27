@@ -107,11 +107,9 @@ if page == "Overview":
     # OVERVIEW PAGE - Main Dashboard
     # ========================================================================
 
-    st.write(
-        """
+    st.write("""
     Quick snapshot of program scale and operational progress. Use these numbers to understand program reach (volume), execution (installations and inspections), and financial progress (subsidy redeemed).
-    """
-    )
+    """)
 
     total_apps = int(kpi_national["total_applications"].values[0])
     total_installs = int(kpi_national["total_installations"].values[0])
@@ -135,8 +133,8 @@ if page == "Overview":
     col1, col2, col3, col4 = st.columns(4)
 
     with col1:
-            kpi_card(
-                title="Applications submitted",
+        kpi_card(
+            title="Applications submitted",
             value=total_apps,
             delta=None,
             format_type="number",
@@ -310,10 +308,21 @@ elif page == "State Analysis":
     display_table = state_data[
         ["state", "applications", "installations", "conversion_rate_app_to_install_pct"]
     ].copy()
-    display_table.columns = ["State", "Applications submitted", "Installations completed", "Application → Installation (%)"]
-    display_table["Applications submitted"] = display_table["Applications submitted"].apply(lambda x: f"{int(x):,}")
-    display_table["Installations completed"] = display_table["Installations completed"].apply(lambda x: f"{int(x):,}")
-    display_table["Application → Installation (%)"] = display_table["Application → Installation (%)"].apply(lambda x: f"{float(x):.1f}%")
+    display_table.columns = [
+        "State",
+        "Applications submitted",
+        "Installations completed",
+        "Application → Installation (%)",
+    ]
+    display_table["Applications submitted"] = display_table[
+        "Applications submitted"
+    ].apply(lambda x: f"{int(x):,}")
+    display_table["Installations completed"] = display_table[
+        "Installations completed"
+    ].apply(lambda x: f"{int(x):,}")
+    display_table["Application → Installation (%)"] = display_table[
+        "Application → Installation (%)"
+    ].apply(lambda x: f"{float(x):.1f}%")
 
     st.dataframe(display_table, use_container_width=True, hide_index=True)
 

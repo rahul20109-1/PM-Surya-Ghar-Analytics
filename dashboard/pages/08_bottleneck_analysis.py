@@ -62,13 +62,11 @@ st.markdown(
 )
 
 st.title("Process bottlenecks — where applications stall")
-st.markdown(
-    """
+st.markdown("""
 This analysis highlights stages where applications are delayed, dropped, or accumulate in backlog. Use it to prioritise operational interventions and state-level support.
 
 The visualisations below show where the program loses applications (drop-off), where applications are waiting (backlog), and which states exhibit the largest issues.
-"""
-)
+""")
 st.caption(
     "Data note: Stages shown reflect the steps captured in the dataset. Consumer registration, agreement upload, and subsidy disbursal are not recorded here."
 )
@@ -207,7 +205,11 @@ with col1:
         )
 
         fig.update_traces(hovertemplate="%{x:,} applications — %{y}")
-        fig.update_layout(title="Stage flow (counts & cumulative%)", height=520, template="plotly_white")
+        fig.update_layout(
+            title="Stage flow (counts & cumulative%)",
+            height=520,
+            template="plotly_white",
+        )
         st.plotly_chart(fig, use_container_width=True)
 
 with col2:
@@ -230,8 +232,18 @@ with col2:
             text="Stage Dropout %",
         )
 
-        fig.update_traces(texttemplate="%{text:.1f}%", textposition="outside", hovertemplate="%{y:.1f}% dropout — %{x}")
-        fig.update_layout(height=500, showlegend=False, xaxis_tickangle=-45, xaxis_title="Stage", yaxis_title="Drop-off (%)")
+        fig.update_traces(
+            texttemplate="%{text:.1f}%",
+            textposition="outside",
+            hovertemplate="%{y:.1f}% dropout — %{x}",
+        )
+        fig.update_layout(
+            height=500,
+            showlegend=False,
+            xaxis_tickangle=-45,
+            xaxis_title="Stage",
+            yaxis_title="Drop-off (%)",
+        )
         fig.update_xaxes(tickfont=dict(size=10))
         st.plotly_chart(fig, use_container_width=True)
 
@@ -329,8 +341,17 @@ with col1:
             text="Pending",
         )
 
-        fig.update_traces(texttemplate="%{text:,.0f}", textposition="outside", hovertemplate="%{x:,.0f} applications waiting — %{y}")
-        fig.update_layout(height=400, showlegend=False, xaxis_title="Applications waiting", yaxis_title="Stage")
+        fig.update_traces(
+            texttemplate="%{text:,.0f}",
+            textposition="outside",
+            hovertemplate="%{x:,.0f} applications waiting — %{y}",
+        )
+        fig.update_layout(
+            height=400,
+            showlegend=False,
+            xaxis_title="Applications waiting",
+            yaxis_title="Stage",
+        )
         st.plotly_chart(fig, use_container_width=True)
 
 with col2:
@@ -350,8 +371,17 @@ with col2:
             text="Pending %",
         )
 
-        fig.update_traces(texttemplate="%{text:.1f}%", textposition="outside", hovertemplate="%{x:.1f}% waiting — %{y}")
-        fig.update_layout(height=400, showlegend=False, xaxis_title="Waiting share (%)", yaxis_title="Stage")
+        fig.update_traces(
+            texttemplate="%{text:.1f}%",
+            textposition="outside",
+            hovertemplate="%{x:.1f}% waiting — %{y}",
+        )
+        fig.update_layout(
+            height=400,
+            showlegend=False,
+            xaxis_title="Waiting share (%)",
+            yaxis_title="Stage",
+        )
         st.plotly_chart(fig, use_container_width=True)
 
 st.markdown("---")
@@ -647,8 +677,14 @@ with col1:
         color_continuous_scale=["#d62728", "#ff7f0e", "#2ca02c"],
         text="feasibility_approval_rate",
     )
-    fig.update_traces(texttemplate="%{text:.1f}%", textposition="outside", hovertemplate="%{x:.1f}% — %{y}")
-    fig.update_layout(height=400, showlegend=False, xaxis_title="Feasibility approval rate (%)")
+    fig.update_traces(
+        texttemplate="%{text:.1f}%",
+        textposition="outside",
+        hovertemplate="%{x:.1f}% — %{y}",
+    )
+    fig.update_layout(
+        height=400, showlegend=False, xaxis_title="Feasibility approval rate (%)"
+    )
     st.plotly_chart(fig, use_container_width=True)
 
 with col2:
@@ -663,8 +699,14 @@ with col2:
         color_continuous_scale=["#d62728", "#ff7f0e", "#2ca02c"],
         text="inspection_approval_rate",
     )
-    fig.update_traces(texttemplate="%{text:.1f}%", textposition="outside", hovertemplate="%{x:.1f}% — %{y}")
-    fig.update_layout(height=400, showlegend=False, xaxis_title="Inspection approval rate (%)")
+    fig.update_traces(
+        texttemplate="%{text:.1f}%",
+        textposition="outside",
+        hovertemplate="%{x:.1f}% — %{y}",
+    )
+    fig.update_layout(
+        height=400, showlegend=False, xaxis_title="Inspection approval rate (%)"
+    )
     st.plotly_chart(fig, use_container_width=True)
 
 st.markdown("---")

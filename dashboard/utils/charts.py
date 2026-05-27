@@ -194,9 +194,7 @@ def create_district_heatmap(district_data_df):
     """
 
     # Aggregate by state
-    base_df = district_data_df[
-        ["state", "application_status", "installation"]
-    ].copy()
+    base_df = district_data_df[["state", "application_status", "installation"]].copy()
     base_df = filter_all_zero_rows(base_df, ["application_status", "installation"])
     state_summary = (
         base_df.groupby("state")
@@ -215,7 +213,10 @@ def create_district_heatmap(district_data_df):
         x="state",
         y="conversion_rate",
         title="Installation rate by state",
-        labels={"conversion_rate": "Application to installation rate (%)", "state": "State"},
+        labels={
+            "conversion_rate": "Application to installation rate (%)",
+            "state": "State",
+        },
         color="conversion_rate",
         color_continuous_scale="Viridis",
     )

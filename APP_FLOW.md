@@ -35,25 +35,30 @@ Raw Program Data (CSV)
 ## 3. Data Pipeline Stages
 
 ### Stage A: Ingestion
+
 - Input files are loaded from raw_data/ using scripted loaders.
 - Structural checks are applied for required columns and expected schema patterns.
 
 ### Stage B: Cleaning
+
 - Column names are standardized.
 - Indian-formatted numeric strings are parsed into numeric types.
 - Empty and invalid records are handled using documented rules.
 
 ### Stage C: Validation
+
 - Row-level sanity checks are performed.
 - Duplicates, null profiles, and metric consistency are reviewed.
 - Aggregation checks are used to prevent silent metric drift.
 
 ### Stage D: KPI Engineering
+
 - National KPI artifact: data_cleaned/kpis_national.csv
 - State KPI artifact: data_cleaned/kpis_state.csv
 - District KPI artifact: data_cleaned/kpis_district.csv
 
 ### Stage E: Analysis and Reporting
+
 - Notebooks provide verification and exploratory context.
 - Dashboard pages convert KPI and cleaned data into interactive views.
 
