@@ -356,7 +356,19 @@ st.markdown("---")
 # SECTION 3: GEOGRAPHIC BOTTLENECK ANALYSIS
 # ============================================================================
 
+# Section: State comparison
 st.header("3. State comparison")
+
+# Brief explanation and interpretation guidance for users
+st.markdown(
+    """
+**What this table shows:** Compare states on three problem types: low application→installation conversion, high waiting share, and low installation completion.
+
+- Use the selector to pick which issue to prioritise. Lower conversion rates indicate where applications are failing to reach installation. High waiting share signals backlog or hold-ups. Low installation completion suggests execution or capacity constraints after feasibility approval.
+- Tip: Start with the top states in this list, then drill down into local workflow, vendor capacity, and inspection scheduling to find root causes.
+""",
+    unsafe_allow_html=True,
+)
 
 # Calculate state-level conversion metrics
 state_analysis = (
@@ -434,7 +446,7 @@ else:
     metric_col = "install_completion_rate"
     metric_name = "Installation completion rate"
 
-st.subheader(f"Top {top_n} states with the largest issues")
+st.subheader(f"Top {top_n} states by selected issue")
 
 # Display table
 table_df = display_df[
@@ -455,6 +467,9 @@ table_df["Subsidy Redeemed"] = table_df["Subsidy Redeemed"].apply(
 table_df[metric_name] = table_df[metric_name].apply(lambda x: f"{x:.1f}%")
 
 st.dataframe(table_df, use_container_width=True, hide_index=True)
+st.caption(
+    "Tip: Click column headers to sort. Use this list to prioritise on-the-ground support and to pick states for focused diagnostics."
+)
 
 st.markdown("---")
 
