@@ -2,7 +2,7 @@
 
 ## PM Surya Ghar Analytics - Data Architecture
 
-Last Updated: March 17, 2026
+Last Updated: May 27, 2026
 
 ## 1. Dataset Layers
 
@@ -22,7 +22,8 @@ Last Updated: March 17, 2026
 ## 2. Current Artifact Inventory
 
 ### Cleaned Source Artifacts
-- datewise_clean.csv: 795 rows
+- datewise_clean2.csv: 727 rows (primary time-series input)
+- datewise_clean.csv: 795 rows (legacy cleaned export)
 - state_master_clean.csv: 36 rows
 - district_clean.csv: 792 rows
 - discom_master_clean.csv: 84 rows
@@ -37,20 +38,21 @@ Last Updated: March 17, 2026
 ## 3. KPI Headline Snapshot (Current Export)
 
 From data_cleaned/kpis_national.csv:
-- total_applications: 6,021,455
-- total_installations: 2,329,634
-- total_inspections: 2,267,907
-- conversion_rate_app_to_install: 38.68888831686029
+- total_applications: 6,021,454
+- total_installations: 2,329,586
+- total_inspections: 2,267,868
+- conversion_rate_app_to_install: 38.688097592375534
 - total_states: 36
-- total_districts: 789
+- total_districts: 792
 - total_discoms: 84
 
-Note: District KPI file contains 792 rows while total_districts KPI represents unique district count (789).
+Note: KPI totals are computed from datewise_clean2.csv when present (fallback to datewise_clean.csv).
 
 ## 4. Processing Components
 
 - scripts/00_data_loader.py: raw data loading utilities
-- scripts/01_data_cleaning.py: cleaning and standardization
+- scripts/01_data_cleaning.py: cleaning and standardization (writes datewise_clean2.csv)
+- scripts/01_data_cleaning_v2.py: fixed cleaning variant (writes datewise_clean.csv)
 - scripts/02_kpi_calculation.py: KPI computation
 - scripts/utils/parser.py: numeric parsing helper
 

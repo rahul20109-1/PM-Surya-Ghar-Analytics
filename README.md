@@ -26,7 +26,7 @@ This repository looks at:
 ## What Is Included
 
 - 36 states and UTs
-- 789 districts in the cleaned KPI output
+- 792 districts in the cleaned KPI output
 - 84 DISCOMs
 - datewise data for trend analysis
 - cleaned CSV outputs for repeatable reporting
@@ -36,12 +36,12 @@ This repository looks at:
 
 From the current cleaned KPI files:
 
-- Total applications: 6,021,455
-- Total installations: 2,329,634
+- Total applications: 6,021,454
+- Total installations: 2,329,586
 - Application to installation conversion: 38.69%
-- Total inspections: 2,267,907
+- Total inspections: 2,267,868
 - Total states analyzed: 36
-- Total districts analyzed: 789
+- Total districts analyzed: 792
 
 These numbers come from the cleaned KPI outputs in [data_cleaned/](data_cleaned/).
 
@@ -71,16 +71,14 @@ The dashboard includes:
 
 ## Technology Stack
 
-- Python 3.11
-- pandas 2.0.3
-- numpy 1.24.3
-- plotly 5.17.0
-- streamlit 1.28.1
-- streamlit-aggrid 0.3.4
-- matplotlib 3.7.2
-- seaborn 0.12.2
+- Python 3.11.9
+- streamlit >=1.28, <2.0
+- pandas >=2.3
+- numpy >=2.0
+- plotly >=5.17
+- matplotlib and seaborn (notebook analysis)
 
-The pinned dependency list is in [requirements.txt](requirements.txt).
+Runtime dependencies for Streamlit Cloud are listed in [requirements.txt](requirements.txt). Notebook-only packages are installed locally as needed.
 
 ## Project Structure
 

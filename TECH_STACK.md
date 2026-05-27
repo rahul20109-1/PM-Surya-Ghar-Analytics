@@ -1,48 +1,40 @@
 # Technology Stack
 
-## PM Surya Ghar Analytics - Locked Dependencies and Tooling
+## PM Surya Ghar Analytics - Runtime and Tooling
 
-Last Updated: March 17, 2026
+Last Updated: May 27, 2026
 
 ## 1. Runtime
 
-- Python 3.11
+- Python 3.11.9 (see runtime.txt)
 
-## 2. Data Processing
+## 2. Dashboard Runtime Dependencies (requirements.txt)
 
-- pandas==2.0.3
-- numpy==1.24.3
-- openpyxl==3.10.10
+- streamlit>=1.28,<2.0
+- pandas>=2.3
+- numpy>=2.0
+- plotly>=5.17
 
-## 3. Visualization
+## 3. Notebook and Analysis (local dev)
 
-- plotly==5.17.0
-- matplotlib==3.7.2
-- seaborn==0.12.2
+- matplotlib
+- seaborn
+- jupyter
+- jupyterlab
+- ipython
 
-## 4. Dashboard
+## 4. Data Processing (optional)
 
-- streamlit==1.28.1
-- streamlit-aggrid==0.3.4
+- openpyxl (only required for Excel ingestion; current pipeline uses CSV)
 
-## 5. Notebook and Development
+## 5. Code Quality (optional)
 
-- jupyter==1.0.0
-- jupyterlab==4.0.6
-- ipython==8.14.0
+- black
+- pylint
+- flake8
 
-## 6. Code Quality
+## 6. Governance Rules
 
-- black==23.9.1
-- pylint==2.17.5
-- flake8==6.0.0
-
-## 7. Utility
-
-- requests==2.31.0
-
-## 8. Governance Rules
-
-- requirements.txt is the installation source of truth.
-- Documentation must reference locked versions above, not ad-hoc local upgrades.
-- Stack changes require synchronized updates in requirements.txt and this document.
+- requirements.txt is the runtime source of truth for Streamlit Cloud.
+- If a new runtime dependency is added, update requirements.txt and this document together.
+- Notebook-only packages can be installed locally without changing requirements.txt unless needed for deployment.

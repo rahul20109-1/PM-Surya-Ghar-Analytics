@@ -1,6 +1,6 @@
 # PM Surya Ghar Analytics - Completion Summary
 
-Date: March 17, 2026
+Date: May 27, 2026
 Status: Complete
 
 ## Summary
@@ -17,11 +17,11 @@ This project delivers a complete analytics workflow for PM Surya Ghar program da
 
 ## Verified Output Snapshot
 
-- Applications: 6,021,455
-- Installations: 2,329,634
+- Applications: 6,021,454
+- Installations: 2,329,586
 - App to installation conversion: 38.69%
 - States: 36
-- Districts: 789
+- Districts: 792
 - DISCOMs: 84
 
 ## Professional Readiness Indicators
