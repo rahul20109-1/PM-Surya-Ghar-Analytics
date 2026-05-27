@@ -119,6 +119,7 @@ if page == "Overview":
     total_installs = int(kpi_national["total_installations"].values[0])
     total_inspections = int(kpi_national["total_inspections"].values[0])
     total_subsidy_redeemed = int(kpi_national["total_subsidy_redeemed"].values[0])
+    total_subsidy_redeemed_crore = total_subsidy_redeemed / 1e7
     app_to_install_rate = float(kpi_national["conversion_rate_app_to_install"].values[0])
     install_to_inspection_rate = float(
         kpi_national["conversion_rate_install_to_inspection"].values[0]
@@ -157,10 +158,11 @@ if page == "Overview":
 
     with col4:
         kpi_card(
-            title="Subsidy redeemed",
-            value=total_subsidy_redeemed,
+            title="Subsidy redeemed amount",
+            value=total_subsidy_redeemed_crore,
             delta=None,
-            format_type="number",
+            format_type="decimal",
+            suffix=" crore",
         )
 
     st.markdown("---")
