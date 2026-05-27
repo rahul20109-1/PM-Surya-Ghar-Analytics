@@ -83,9 +83,7 @@ page_options = {
     "Capacity and system size": "Capacity Metrics",
     "About this dashboard": "About",
 }
-page = page_options[
-    st.sidebar.radio("Choose a page:", list(page_options.keys()))
-]
+page = page_options[st.sidebar.radio("Choose a page:", list(page_options.keys()))]
 
 
 # Load data with caching
@@ -109,22 +107,21 @@ if page == "Overview":
     # OVERVIEW PAGE - Main Dashboard
     # ========================================================================
 
-    st.write(
-        """
+    st.write("""
     This page gives a quick snapshot of program scale, progress, and movement through the main stages.
-    """
-    )
+    """)
 
     total_apps = int(kpi_national["total_applications"].values[0])
     total_installs = int(kpi_national["total_installations"].values[0])
     total_inspections = int(kpi_national["total_inspections"].values[0])
     total_subsidy_redeemed = int(kpi_national["total_subsidy_redeemed"].values[0])
     total_subsidy_redeemed_crore = total_subsidy_redeemed / 1e7
-    app_to_install_rate = float(kpi_national["conversion_rate_app_to_install"].values[0])
     install_to_inspection_rate = float(
         kpi_national["conversion_rate_install_to_inspection"].values[0]
     )
-    app_to_subsidy_rate = float(kpi_national["conversion_rate_app_to_subsidy"].values[0])
+    app_to_subsidy_rate = float(
+        kpi_national["conversion_rate_app_to_subsidy"].values[0]
+    )
     apps_not_installed = max(total_apps - total_installs, 0)
 
     st.markdown("---")
@@ -168,17 +165,9 @@ if page == "Overview":
     st.markdown("---")
 
     # Row 2: Core rates and backlog
-    col1, col2, col3, col4 = st.columns(4)
+    col1, col2, col3 = st.columns(3)
 
     with col1:
-        kpi_card(
-            title="Application to installation rate",
-            value=app_to_install_rate,
-            delta=None,
-            format_type="percent",
-        )
-
-    with col2:
         kpi_card(
             title="Installation to inspection rate",
             value=install_to_inspection_rate,
@@ -186,7 +175,7 @@ if page == "Overview":
             format_type="percent",
         )
 
-    with col3:
+    with col2:
         kpi_card(
             title="Application to subsidy rate",
             value=app_to_subsidy_rate,
@@ -194,7 +183,7 @@ if page == "Overview":
             format_type="percent",
         )
 
-    with col4:
+    with col3:
         kpi_card(
             title="Applications not yet installed",
             value=apps_not_installed,
@@ -277,11 +266,9 @@ if page == "Overview":
 elif page == "State Analysis":
     st.header("State comparison")
 
-    st.write(
-        """
+    st.write("""
     Compare states by application volume, installation volume, and application to installation rate.
-    """
-    )
+    """)
 
     # Filters
     col1, col2 = st.columns(2)
@@ -289,7 +276,11 @@ elif page == "State Analysis":
     with col1:
         sort_by = st.selectbox(
             "Rank states by:",
-            ["Applications recorded", "Installations completed", "Application to installation rate"],
+            [
+                "Applications recorded",
+                "Installations completed",
+                "Application to installation rate",
+            ],
         )
 
     with col2:
@@ -303,7 +294,9 @@ elif page == "State Analysis":
             "conversion_rate_app_to_install_pct",
         ]
     ].copy()
-    state_base_df = filter_all_zero_rows(state_base_df, ["applications", "installations"])
+    state_base_df = filter_all_zero_rows(
+        state_base_df, ["applications", "installations"]
+    )
 
     # Prepare sorted data
     if sort_by == "Applications recorded":
@@ -311,7 +304,9 @@ elif page == "State Analysis":
     elif sort_by == "Installations completed":
         state_data = state_base_df.nlargest(show_top, "installations")
     else:
-        state_data = state_base_df.nlargest(show_top, "conversion_rate_app_to_install_pct")
+        state_data = state_base_df.nlargest(
+            show_top, "conversion_rate_app_to_install_pct"
+        )
 
     # Display table
     st.subheader(f"Top {show_top} states")
@@ -361,11 +356,9 @@ elif page == "State Analysis":
 elif page == "District Analysis":
     st.header("District comparison")
 
-    st.write(
-        """
+    st.write("""
     Review district level results for the selected state.
-    """
-    )
+    """)
 
     # State filter
     selected_state = st.selectbox(
@@ -385,7 +378,9 @@ elif page == "District Analysis":
     col1, col2, col3 = st.columns(3)
 
     with col1:
-        st.metric("Applications recorded", int(filtered_data["application_status"].sum()))
+        st.metric(
+            "Applications recorded", int(filtered_data["application_status"].sum())
+        )
 
     with col2:
         st.metric("Installations completed", int(filtered_data["installation"].sum()))
@@ -427,11 +422,9 @@ elif page == "District Analysis":
 elif page == "Trends":
     st.header("Trend over time")
 
-    st.write(
-        """
+    st.write("""
     Review how applications and installations change over time.
-    """
-    )
+    """)
 
     trend_df = datewise[["rptdate", "applications", "installations"]].copy()
     trend_df = filter_all_zero_rows(trend_df, ["applications", "installations"])
@@ -525,11 +518,9 @@ elif page == "Trends":
 elif page == "Capacity Metrics":
     st.header("Capacity and system size")
 
-    st.write(
-        """
+    st.write("""
     Review installed capacity, average system size, and the split between residential and RWA systems.
-    """
-    )
+    """)
 
     col1, col2, col3 = st.columns(3)
 
@@ -615,8 +606,7 @@ elif page == "Capacity Metrics":
 elif page == "About":
     st.header("About this dashboard")
 
-    st.markdown(
-        """
+    st.markdown("""
     ### PM Surya Ghar Analytics
 
     This dashboard shows how the PM Surya Ghar rooftop solar scheme is moving through each stage.
@@ -657,8 +647,7 @@ elif page == "About":
     **Version:** 1.0.0  
     **Last Updated:** March 15, 2026  
     **Status:** Production Ready
-    """
-    )
+    """)
 
     # Footer
     st.markdown("---")
