@@ -351,12 +351,6 @@ elif page == "State Analysis":
     with col2:
         show_top = st.slider("Number of states to show:", 5, 36, 10)
 
-    chart_mode = st.radio(
-        "State volume chart:",
-        ["Grouped bars", "Scatter: volume vs conversion"],
-        horizontal=True,
-    )
-
     state_base_df = kpi_state[
         [
             "state",
@@ -409,7 +403,13 @@ elif page == "State Analysis":
     col1, col2 = st.columns(2)
 
     with col1:
-        if chart_mode == "Grouped bars":
+        state_chart_mode = st.radio(
+            "Chart type",
+            ["Grouped bars", "Scatter: volume vs conversion"],
+            horizontal=True,
+            key="state_chart_mode",
+        )
+        if state_chart_mode == "Grouped bars":
             st.subheader("Applications and installations by state")
             fig = create_state_ranking_chart(state_data)
         else:
@@ -419,8 +419,6 @@ elif page == "State Analysis":
 
     with col2:
         st.subheader("Application to installation rate by state")
-        import plotly.express as px
-
         fig = px.bar(
             state_data.sort_values(
                 "conversion_rate_app_to_install_pct", ascending=True
@@ -480,6 +478,36 @@ elif page == "District Analysis":
     # District table
     st.subheader("District-level table")
 
+    table_col1, table_col2, table_col3 = st.columns([2, 1, 1])
+
+    with table_col1:
+        district_sort_by = st.selectbox(
+            "Rank districts by:",
+            [
+                "Applications submitted",
+                "Installations completed",
+                "Application to installation rate",
+                "Inspections approved",
+                "Subsidy redeemed",
+            ],
+            key="district_sort_by",
+        )
+
+    with table_col2:
+        district_view = st.selectbox(
+            "View:",
+            ["Top districts", "Bottom districts"],
+            key="district_view",
+        )
+
+    with table_col3:
+        rows_per_page = st.selectbox(
+            "Rows per page:",
+            [10, 25, 50],
+            index=1,
+            key="district_rows_per_page",
+        )
+
     display_cols = [
         "state",
         "district",
@@ -499,10 +527,68 @@ elif page == "District Analysis":
         "Subsidy redeemed",
     ]
 
-    st.dataframe(
-        display_data.sort_values("Applications", ascending=False),
-        use_container_width=True,
-        hide_index=True,
+    display_data["Application to installation rate"] = display_data.apply(
+        lambda row: (
+            (row["Installations completed"] / row["Applications submitted"] * 100)
+            if row["Applications submitted"] > 0
+            else 0
+        ),
+        axis=1,
+    )
+
+    sort_column_map = {
+        "Applications submitted": "Applications submitted",
+        "Installations completed": "Installations completed",
+        "Application to installation rate": "Application to installation rate",
+        "Inspections approved": "Inspections approved",
+        "Subsidy redeemed": "Subsidy redeemed",
+    }
+    sort_column = sort_column_map[district_sort_by]
+    ascending = district_view == "Bottom districts"
+    sorted_display_data = display_data.sort_values(
+        sort_column,
+        ascending=ascending,
+    ).reset_index(drop=True)
+
+    total_rows = len(sorted_display_data)
+    total_pages = max((total_rows - 1) // rows_per_page + 1, 1)
+    page_number = st.selectbox(
+        "Page:",
+        list(range(1, total_pages + 1)),
+        key="district_page_number",
+    )
+
+    start_index = (page_number - 1) * rows_per_page
+    end_index = start_index + rows_per_page
+    page_data = sorted_display_data.iloc[start_index:end_index].copy()
+
+    page_data["Applications submitted"] = page_data["Applications submitted"].map(
+        lambda value: f"{int(value):,}"
+    )
+    page_data["Installations completed"] = page_data["Installations completed"].map(
+        lambda value: f"{int(value):,}"
+    )
+    page_data["Inspections approved"] = page_data["Inspections approved"].map(
+        lambda value: f"{int(value):,}"
+    )
+    page_data["Subsidy redeemed"] = page_data["Subsidy redeemed"].map(
+        lambda value: f"{int(value):,}"
+    )
+    page_data["Application to installation rate"] = page_data[
+        "Application to installation rate"
+    ].map(lambda value: f"{float(value):.1f}%")
+
+    st.caption(
+        f"Showing rows {start_index + 1} to {min(end_index, total_rows)} of {total_rows}"
+    )
+    st.dataframe(page_data, use_container_width=True, hide_index=True)
+
+    csv_data = sorted_display_data.to_csv(index=False).encode("utf-8")
+    st.download_button(
+        "Download filtered CSV",
+        data=csv_data,
+        file_name=f"districts_{selected_state.replace(' ', '_').lower()}.csv",
+        mime="text/csv",
     )
 
 elif page == "Trends":

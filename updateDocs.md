@@ -19,6 +19,12 @@ The following documentation and small code updates were applied to keep project 
 - Added `dashboard.utils.charts.create_state_scatter_chart()` to visualize state volume, conversion, and subsidy size in one view.
 - Updated dashboard docs and status notes after the Batch 2 change.
 
+## Recent Dashboard Activity (Batch 3)
+
+- Moved the State Analysis chart toggle next to the graph so the chart mode control sits with the visual it affects.
+- Added paginated/top-N district table controls in `dashboard/streamlit_app.py` with rank-by, top/bottom view, rows-per-page, and CSV export.
+- Kept the district table focused on the currently selected state while allowing the filtered dataset to be downloaded for offline review.
+
 Instruction: After running cleaning and KPI regeneration, run:
 
 ```bash
