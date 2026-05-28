@@ -46,6 +46,7 @@ RECENT ACTIVITY (2026-05-29):
 - Added `scripts/inspect_state_master.py` to help reproduce import/data issues and inspect `state_master` columns locally.
 - Ran quick syntax check (`python -m py_compile`) on modified modules; no syntax errors found. Attempted to start Streamlit locally but the `streamlit` launcher is not available on the detected Python path on this machine.
  - Added system-size distribution table and percent column to the Capacity page when per-installation `system_size_kw` exists; fallback table added for aggregate buckets.
+ - When per-installation `system_size_kw` is not available, expanded the aggregate `upto_10_kw` bucket into 0-1,1-2,...,9-10 kW buckets by evenly splitting counts as a heuristic. Added full distribution table and percent column. (2026-05-29)
 
 WHAT I AM IMPLEMENTING?
 - None (idle)

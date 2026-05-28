@@ -1031,46 +1031,72 @@ elif page == "Capacity Metrics":
 
             st.metric("Median size band", median_band)
         else:
-            # Fallback to available aggregate buckets
-            upto_10kw = cap_filtered_datewise["upto_10_kw"].sum() if cap_filtered_datewise is not None else datewise["upto_10_kw"].sum()
-            above_10kw = cap_filtered_datewise["above_10_kw"].sum() if cap_filtered_datewise is not None else datewise["above_10_kw"].sum()
-            total_systems = upto_10kw + above_10kw
-            median_band = "Up to 10 kW" if upto_10kw >= (total_systems / 2) else "Above 10 kW"
+            # Fallback to available aggregate buckets. Split upto_10_kw evenly into 0-1,1-2,...9-10 kW buckets as a simple heuristic.
+            upto_10kw = (
+                cap_filtered_datewise["upto_10_kw"].sum()
+                if cap_filtered_datewise is not None
+                else datewise["upto_10_kw"].sum()
+            )
+            above_10kw = (
+                cap_filtered_datewise["above_10_kw"].sum()
+                if cap_filtered_datewise is not None
+                else datewise["above_10_kw"].sum()
+            )
 
-            capacity_data = {
-                "Size": ["Up to 10 kW", "Above 10 kW"],
-                "Count": [int(upto_10kw), int(above_10kw)],
-            }
-            capacity_df = pd.DataFrame(capacity_data)
-            capacity_df = filter_all_zero_rows(capacity_df, ["Count"])
+            # Create 0-1,1-2,...,9-10 and >10 labels
+            fine_labels = [f"{i}-{i+1} kW" for i in range(0, 10)]
+            fine_labels.append(
+                ">10 kW"
+            )
 
-            import plotly.express as px
+            # Evenly distribute the upto_10kw count across the first 10 buckets
+            try:
+                upto_10kw_val = int(upto_10kw)
+            except Exception:
+                upto_10kw_val = 0
+            per_bucket = upto_10kw_val // 10
+            remainder = upto_10kw_val % 10
+
+            counts = [per_bucket] * 10
+            for i in range(remainder):
+                counts[i] += 1
+            counts.append(int(above_10kw))
+
+            capacity_df = pd.DataFrame({"Size": fine_labels, "Count": counts})
+            capacity_df = filter_all_zero_rows(capacity_df, ["Count"]) if not capacity_df.empty else capacity_df
 
             if capacity_df.empty:
                 st.info("No non-zero system size data available.")
             else:
-                # Add percent column
-                capacity_df["Percent"] = (
-                    capacity_df["Count"] / capacity_df["Count"].sum() * 100
-                ).round(1)
+                capacity_df["Percent"] = (capacity_df["Count"] / capacity_df["Count"].sum() * 100).round(1)
+
+                import plotly.express as px
 
                 fig = px.bar(
                     capacity_df,
                     x="Size",
                     y="Count",
                     color="Size",
-                    color_discrete_sequence=["#2ca02c", "#d62728"],
-                    title="System size counts",
+                    color_discrete_sequence=px.colors.qualitative.Pastel,
+                    title="System size counts (estimated buckets)",
                 )
-                fig.update_layout(showlegend=False, height=400)
+                fig.update_layout(showlegend=False, height=420)
                 st.plotly_chart(fig, width="stretch")
 
                 st.subheader("System size distribution table")
-                st.dataframe(capacity_df, width="stretch")
+                st.dataframe(capacity_df[["Size", "Count", "Percent"]], width="stretch")
 
             st.caption(
-                "Histogram-style bucket view based on the available system-size counts in the cleaned data. Finer per-installation buckets require a 'system_size_kw' column in the cleaned dataset."
+                "Estimated fine-grained buckets shown by evenly splitting the 'Up to 10 kW' aggregate bucket into 0-1,1-2,...9-10 kW. This is a heuristic fallback — use per-installation 'system_size_kw' for accurate buckets."
             )
+            # Median band: select first band where cumulative >= 50%
+            cum = capacity_df["Count"].cumsum() if not capacity_df.empty else pd.Series([])
+            total = capacity_df["Count"].sum() if not capacity_df.empty else 0
+            if total > 0:
+                median_band = capacity_df.loc[cum >= total / 2, "Size"].iloc[0]
+            else:
+                median_band = "Unknown"
+
             st.metric("Median size band", median_band)
             # Source caption removed per UI guidance
 
