@@ -1,7 +1,7 @@
 PM SURYA GHAR ANALYTICS - PROJECT STATUS
 Last Updated: March 17, 2026
 Overall Status: COMPLETE
-Last Update: 2026-05-28 — Added KPI validation script, state chart controls, district pagination, capacity bucket view, chart captions/tooltips, and resume-focused docs
+Last Update: 2026-05-28 — Added KPI validation script, state chart controls, district pagination, capacity bucket view, chart captions/tooltips, resume-focused docs, and UI cleanup
 
 COMPLETED
 - Foundation and environment setup
@@ -31,6 +31,7 @@ RECENT ACTIVITY (2026-05-28 - 2026-05-28):
 - Dashboard improvements: Added a bucketed system-size distribution chart and median size band label on Capacity Metrics (Batch 4).
 - Dashboard improvements: Added consistent chart captions and helper tooltips across the dashboard, including bottleneck analysis (Batch 5).
 - Documentation improvements: Added resume-focused project summaries and README highlights to help hiring review (Batch 6).
+- UI improvements: Collapsed the sidebar by default, migrated the dashboard off deprecated Streamlit width calls, and added a validation note for approval-rate hotspots.
 
 QUALITY NOTES
 - Headline metrics aligned to current KPI exports

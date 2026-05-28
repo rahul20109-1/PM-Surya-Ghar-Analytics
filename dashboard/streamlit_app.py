@@ -35,7 +35,7 @@ st.set_page_config(
     page_title="PM Surya Ghar Analytics",
     page_icon="☀️",
     layout="wide",
-    initial_sidebar_state="expanded",
+    initial_sidebar_state="collapsed",
 )
 
 # Custom styling
@@ -280,7 +280,7 @@ if page == "Overview":
         st.info("No time-series data available for the selected range.")
     else:
         fig = create_adoption_trend(filtered_datewise, start_date=start_dt, end_date=end_dt)
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig, width="stretch")
 
     st.markdown("---")
     # Row 5: Conversion Funnel
@@ -319,7 +319,7 @@ if page == "Overview":
             "Count": funnel_df["Count"].tolist(),
         }
         fig = create_conversion_funnel(cleaned_funnel)
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig, width="stretch")
 
 elif page == "State Analysis":
     st.header("State comparison")
@@ -404,7 +404,7 @@ elif page == "State Analysis":
         "Application → Installation (%)"
     ].apply(lambda x: f"{float(x):.1f}%")
 
-    st.dataframe(display_table, use_container_width=True, hide_index=True)
+    st.dataframe(display_table, width="stretch", hide_index=True)
     st.caption("Source: kpis_state.csv. The table is sorted and filtered to the top states for the selected metric.")
 
     # Charts
@@ -421,7 +421,7 @@ elif page == "State Analysis":
         if state_chart_mode == "Grouped bars":
             st.subheader("Applications and installations by state")
             fig = create_state_ranking_chart(state_data)
-            st.plotly_chart(fig, use_container_width=True)
+            st.plotly_chart(fig, width="stretch")
             chart_caption(
                 "Grouped bars compare applications submitted and installations completed",
                 "Source: kpis_state.csv columns applications and installations.",
@@ -429,7 +429,7 @@ elif page == "State Analysis":
         else:
             st.subheader("State volume vs conversion")
             fig = create_state_scatter_chart(state_data)
-            st.plotly_chart(fig, use_container_width=True)
+            st.plotly_chart(fig, width="stretch")
             chart_caption(
                 "Scatter highlights high-volume states and conversion outliers",
                 "Source: kpis_state.csv columns applications, conversion_rate_app_to_install_pct, and subsidy_redeemed_amount.",
@@ -453,7 +453,7 @@ elif page == "State Analysis":
             color_continuous_scale=["#ff7f0e", "#ffaa1f", "#ffcc66", "#1f77b4"],
         )
         fig.update_layout(height=600, showlegend=False)
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig, width="stretch")
         chart_caption(
             "Horizontal bars rank states by application-to-installation rate",
             "Source: kpis_state.csv column conversion_rate_app_to_install_pct.",
@@ -606,7 +606,7 @@ elif page == "District Analysis":
     st.caption(
         f"Showing rows {start_index + 1} to {min(end_index, total_rows)} of {total_rows}"
     )
-    st.dataframe(page_data, use_container_width=True, hide_index=True)
+    st.dataframe(page_data, width="stretch", hide_index=True)
     st.caption(
         "Source: district_clean.csv. The download button exports the full filtered, sorted result set.")
 
@@ -689,7 +689,7 @@ elif page == "Trends":
             template="plotly_white",
         )
 
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig, width="stretch")
         chart_caption(
             "Cumulative view shows the running total for applications and installations",
             "Source: datewise_clean.csv columns rptdate, applications, and installations.",
@@ -754,7 +754,7 @@ elif page == "Trends":
             template="plotly_white",
         )
 
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig, width="stretch")
         chart_caption(
             "Daily view adds 7-day averages to smooth day-to-day noise",
             "Source: datewise_clean.csv columns rptdate, applications, and installations.",
@@ -817,7 +817,7 @@ elif page == "Capacity Metrics":
                 names="Type",
                 color_discrete_sequence=["#1f77b4", "#ff7f0e"],
             )
-            st.plotly_chart(fig, use_container_width=True)
+            st.plotly_chart(fig, width="stretch")
             chart_caption(
                 "Pie chart shows the residential and RWA mix",
                 "Source: kpis_national.csv columns residential_percentage and rwa_percentage.",
@@ -853,7 +853,7 @@ elif page == "Capacity Metrics":
                 title="System size counts",
             )
             fig.update_layout(showlegend=False, height=400)
-            st.plotly_chart(fig, use_container_width=True)
+            st.plotly_chart(fig, width="stretch")
 
         st.caption(
             "Histogram-style bucket view based on the available system-size counts in the cleaned data."

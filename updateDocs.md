@@ -43,6 +43,12 @@ The following documentation and small code updates were applied to keep project 
 - Kept the wording focused on scale, validation, and dashboard outcomes so the project reads well in hiring contexts.
 - Matched the portfolio summary to the current implemented dashboard features and verified metrics.
 
+## Recent UI Cleanup (2026-05-28)
+
+- Collapsed the sidebar by default to improve the first-view dashboard layout.
+- Migrated the dashboard away from deprecated Streamlit width usage.
+- Added a validation note on bottleneck approval-rate charts so impossible-looking percentages are interpreted correctly.
+
 Instruction: After running cleaning and KPI regeneration, run:
 
 ```bash

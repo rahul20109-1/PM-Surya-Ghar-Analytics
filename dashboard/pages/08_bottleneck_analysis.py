@@ -179,7 +179,7 @@ display_df["Loss Count"] = display_df["Loss Count"].apply(
     lambda x: f"{int(x):,}" if x > 0 else "-"
 )
 
-st.dataframe(display_df, use_container_width=True, hide_index=True)
+st.dataframe(display_df, width="stretch", hide_index=True)
 
 # Funnel visualization
 col1, col2 = st.columns(2)
@@ -223,7 +223,7 @@ with col1:
             height=520,
             template="plotly_white",
         )
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig, width="stretch")
         chart_caption(
             "Funnel counts stage-by-stage drop-off from application submission to subsidy redeem",
             "Source: state_master_clean.csv columns application_status, feasibility_approved, vendor_selected, installation, inspection_approved, and total_redeem.",
@@ -262,7 +262,7 @@ with col2:
             yaxis_title="Drop-off (%)",
         )
         fig.update_xaxes(tickfont=dict(size=10))
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig, width="stretch")
         chart_caption(
             "Bars show the percent lost between adjacent funnel stages",
             "Source: same stage counts from state_master_clean.csv.",
@@ -373,7 +373,7 @@ with col1:
             xaxis_title="Applications waiting",
             yaxis_title="Stage",
         )
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig, width="stretch")
         chart_caption(
             "Pending counts identify the stage where applications accumulate",
             "Source: state_master_clean.csv stage totals compared between adjacent steps.",
@@ -407,7 +407,7 @@ with col2:
             xaxis_title="Waiting share (%)",
             yaxis_title="Stage",
         )
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig, width="stretch")
         chart_caption(
             "Waiting share shows where backlog is largest relative to volume entering the stage",
             "Source: pending counts derived from state_master_clean.csv.",
@@ -536,7 +536,7 @@ table_df["Subsidy Redeemed"] = table_df["Subsidy Redeemed"].apply(
 )
 table_df[metric_name] = table_df[metric_name].apply(lambda x: f"{x:.1f}%")
 
-st.dataframe(table_df, use_container_width=True, hide_index=True)
+st.dataframe(table_df, width="stretch", hide_index=True)
 st.caption(
     "Tip: Click column headers to sort. Use this list to prioritise on-the-ground support and to pick states for focused diagnostics."
 )
@@ -630,7 +630,7 @@ else:
             legend=dict(title="Series", x=0.01, y=0.99),
         )
 
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig, width="stretch")
         chart_caption(
             "7-day averages smooth the daily throughput series",
             "Source: datewise_clean.csv columns applications and installations.",
@@ -663,7 +663,7 @@ else:
             legend=dict(title="Series", x=0.01, y=0.99),
         )
 
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig, width="stretch")
         chart_caption(
             "Backlog line shows how the application gap accumulates over time",
             "Source: datewise_clean.csv columns applications and installations.",
@@ -709,6 +709,11 @@ st.markdown("---")
 
 st.header("5. Approval rate gaps")
 
+state_approval_note = (
+    "Note: if an approval rate exceeds 100%, the source records are not aligned at the same grain, "
+    "so treat the chart as a hotspot indicator rather than a literal pass rate."
+)
+
 # Calculate approval rates by state
 state_approval = (
     state_master.groupby("state")
@@ -728,12 +733,16 @@ state_approval = filter_all_zero_rows(
     ["feasibility_approved", "vendor_selected", "installation", "inspection_approved"],
 )
 
-state_approval["feasibility_approval_rate"] = (
-    state_approval["feasibility_approved"] / state_approval["vendor_selected"] * 100
-).round(2)
-state_approval["inspection_approval_rate"] = (
-    state_approval["inspection_approved"] / state_approval["installation"] * 100
-).round(2)
+state_approval["feasibility_approval_rate"] = np.where(
+    state_approval["vendor_selected"] > 0,
+    (state_approval["feasibility_approved"] / state_approval["vendor_selected"] * 100).round(2),
+    0,
+)
+state_approval["inspection_approval_rate"] = np.where(
+    state_approval["installation"] > 0,
+    (state_approval["inspection_approved"] / state_approval["installation"] * 100).round(2),
+    0,
+)
 
 # Find states with low approval rates
 low_feasibility = state_approval.nsmallest(10, "feasibility_approval_rate")
@@ -761,7 +770,7 @@ with col1:
     fig.update_layout(
         height=400, showlegend=False, xaxis_title="Feasibility approval rate (%)"
     )
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, width="stretch")
     chart_caption(
         "Lower feasibility approval rates can indicate tighter reviews or more incomplete applications",
         "Source: state_master_clean.csv columns feasibility_approved and vendor_selected.",
@@ -787,11 +796,13 @@ with col2:
     fig.update_layout(
         height=400, showlegend=False, xaxis_title="Inspection approval rate (%)"
     )
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, width="stretch")
     chart_caption(
         "Lower inspection approval rates show where completed installations are not clearing inspection",
         "Source: state_master_clean.csv columns inspection_approved and installation.",
     )
+
+st.info(state_approval_note)
 
 st.markdown("---")
 
