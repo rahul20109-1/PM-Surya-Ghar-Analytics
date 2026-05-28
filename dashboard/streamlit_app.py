@@ -33,7 +33,7 @@ from dashboard.utils.charts import (
 # Configure Streamlit
 st.set_page_config(
     page_title="PM Surya Ghar Analytics",
-    page_icon="☀️",
+    page_icon="ÔÿÇ´©Å",
     layout="wide",
     initial_sidebar_state="collapsed",
 )
@@ -407,7 +407,7 @@ elif page == "State Analysis":
         """
     **What this view does:** Compare state performance on volume and conversion.
 
-    - Use the selector to choose a prioritisation metric: raw application or installation volume, or the conversion rate from application → installation.
+    - Use the selector to choose a prioritisation metric: raw application or installation volume, or the conversion rate from application ÔåÆ installation.
     - Lower conversion rates point to places where applications are not turning into completed installations. High volumes with low conversion are high-priority operational issues.
     - Use the charts to spot which states have high throughput and which lag on execution. Drill down using the District page for local diagnostics.
     """,
@@ -1115,12 +1115,12 @@ elif page == "About":
     and make the problem areas easy to spot.
 
     **What this dashboard covers:**
-    - **Time Period:** February 13, 2024 - February 9, 2026
+    - **Time Period:** February 13, 2024 ÔÇô February 9, 2026
     - **Geography:** 36 States/UTs, 792 Districts, 84 DISCOMs
     - **Records Reviewed:** 6,021,454 applications
 
     **Journey stages captured in this dataset:**
-    Application submission → Vendor selection → Installation completed → Project inspection by DISCOM → Subsidy redeem
+    Application submission ÔåÆ Feasibility approval ÔåÆ Vendor selection ÔåÆ Installation completed ÔåÆ Project inspection by DISCOM ÔåÆ Subsidy redeem
 
     *Note:* Consumer registration, agreement upload, and subsidy approval or disbursal are not captured in the source data.
 
