@@ -81,7 +81,6 @@ page_options = {
     "State comparison": "State Analysis",
     "District comparison": "District Analysis",
     "Trend over time": "Trends",
-    "Capacity and system size": "Capacity Metrics",
     "About this dashboard": "About",
 }
 selected_page_label = st.sidebar.radio("Choose a page:", list(page_options.keys()))
