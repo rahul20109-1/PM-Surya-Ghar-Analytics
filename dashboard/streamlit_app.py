@@ -847,6 +847,53 @@ elif page == "Trends":
             "The dashed lines show the rolling average overlay.",
         )
 
+    st.markdown("---")
+    st.subheader("Weekly seasonality heatmap")
+    st.caption(
+        "This heatmap shows daily application volume by weekday across the selected date range. Darker cells indicate higher activity."
+    )
+
+    heatmap_source = datewise_sorted[["rptdate", "applications"]].copy()
+    heatmap_source["weekday"] = heatmap_source["rptdate"].dt.day_name()
+    heatmap_source["week_start"] = (
+        heatmap_source["rptdate"].dt.to_period("W-SUN").apply(lambda period: period.start_time.strftime("%Y-%m-%d"))
+    )
+
+    weekday_order = [
+        "Monday",
+        "Tuesday",
+        "Wednesday",
+        "Thursday",
+        "Friday",
+        "Saturday",
+        "Sunday",
+    ]
+    heatmap_pivot = heatmap_source.pivot_table(
+        index="weekday",
+        columns="week_start",
+        values="applications",
+        aggfunc="sum",
+        fill_value=0,
+    ).reindex(index=weekday_order)
+
+    if heatmap_pivot.empty:
+        st.info("No weekly seasonality data available for the selected range.")
+    else:
+        heatmap_pivot = heatmap_pivot.reindex(columns=sorted(heatmap_pivot.columns))
+        fig = px.imshow(
+            heatmap_pivot,
+            aspect="auto",
+            color_continuous_scale=["#f7fbff", "#c6dbef", "#6baed6", "#2171b5"],
+            labels={"x": "Week starting", "y": "Weekday", "color": "Applications"},
+        )
+        fig.update_layout(height=420, template="plotly_white")
+        st.plotly_chart(fig, width="stretch")
+        chart_caption(
+            "Weekly seasonality heatmap highlights which weekdays and weeks carry the heaviest application load",
+            "Source: datewise_clean.csv columns rptdate and applications.",
+            "Filtered to the selected date range.",
+        )
+
 elif page == "Capacity Metrics":
     st.header("Capacity and system size")
 

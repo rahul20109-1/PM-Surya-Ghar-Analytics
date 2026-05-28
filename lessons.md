@@ -57,3 +57,9 @@ Trade-off:
 - Bottleneck pages need explicit caveats when the source grain can produce approval rates above 100%.
 - A metric glossary is worth keeping in the repository because it reduces repeated explanation work during interviews.
 - Status docs should be updated after each batch so the next session can resume without re-reading the full history.
+
+## 6. Recent Trend Visualization Learnings (2026-05-28)
+
+- Weekly seasonality is easier to interpret when daily values are grouped by weekday and week start, rather than forcing everything into a single line chart.
+- Date-filtered charts should keep selectors close to the section they affect, but unique widget keys are still required when similar controls appear multiple times in one page.
+- If a dashboard section has both a cumulative overview and a diagnostic heatmap, the overview should stay simple while the diagnostic view carries the temporal pattern details.

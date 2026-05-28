@@ -38,13 +38,14 @@ RECENT ACTIVITY (2026-05-28 - 2026-05-28):
 - UX and content improvements: Added KPI delta badges on the Overview, normalized efficiency columns in state and district tables, backlog scenario planning, chart callouts, and a metric glossary.
 - Documentation sync: Updated all project status docs so the next session can resume from the current dashboard state without re-checking the history.
 - Overview funnel now has its own date-range selector and uses daily-grain counts from `datewise_clean.csv`.
+- Trends page now includes a weekly seasonality heatmap driven by daily application counts.
 
 WHAT I AM IMPLEMENTING?
 - None (idle)
 
 NEXT TO IMPLEMENT
-- Add explanatory captions for funnel date limitations.
-- Add more Trend visualizations (weekly seasonality heatmap, installation lag distribution).
+- Add installation lag distribution visualization.
+- Add any remaining explanatory captions for edge-case chart behavior.
 
 NOTE: The session agent stores the current implementation state in `/memories/session/implementation_state.md` and will update `WHAT I AM IMPLEMENTING?` at the start of each task.
  - Recent UX fixes (2026-05-28): Colocated backlog scenarios beside backlog chart, tightened Overview date-range placement near KPI deltas, and reframed approval-rate wording to "processing ratio". Code and docs updated accordingly.

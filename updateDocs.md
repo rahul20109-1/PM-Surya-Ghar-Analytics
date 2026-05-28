@@ -32,6 +32,11 @@ The following documentation and small code updates were applied to keep project 
 - Kept the funnel date selector separate from the Overview snapshot so KPI cards stay cumulative.
 - Added a note that the daily-grain funnel only includes stages that are present in `datewise_clean.csv`.
 
+## Recent Dashboard Activity (2026-05-28 - Trend Heatmap)
+
+- Added a weekly seasonality heatmap to the Trends page so weekday and week-level traffic patterns are easier to inspect.
+- Kept the heatmap scoped to `datewise_clean.csv` daily application counts and the selected date range.
+
 ## Recent Dashboard Activity (Batch 3)
 
 - Moved the State Analysis chart toggle next to the graph so the chart mode control sits with the visual it affects.
