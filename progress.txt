@@ -49,6 +49,10 @@ NEXT TO IMPLEMENT
 NOTE: The session agent stores the current implementation state in `/memories/session/implementation_state.md` and will update `WHAT I AM IMPLEMENTING?` at the start of each task.
  - Recent UX fixes (2026-05-28): Colocated backlog scenarios beside backlog chart, tightened Overview date-range placement near KPI deltas, and reframed approval-rate wording to "processing ratio". Code and docs updated accordingly.
 
+IMPLEMENTED IN THIS SESSION (2026-05-28):
+- Tightened Overview date-range placement into KPI row so filters sit beside KPI deltas.
+- Removed the approval-rate processing charts from Bottleneck Analysis (kept diagnostic notes and adjusted recommendations).
+
 QUALITY NOTES
 - Headline metrics aligned to current KPI exports
 - Versions aligned to requirements.txt and TECH_STACK.md
