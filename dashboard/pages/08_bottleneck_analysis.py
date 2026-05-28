@@ -797,109 +797,6 @@ else:
 st.markdown("---")
 
 # ============================================================================
-# SECTION 5: APPROVAL RATE ANOMALIES
-# ============================================================================
-
-st.header("5. Processing ratio gaps (diagnostic hotspot)")
-
-state_approval_note = (
-    "Note: these are processing ratios computed from different source grains and may exceed 100%. "
-    "Treat them as diagnostic hotspots rather than literal pass rates."
-)
-
-# Calculate approval rates by state
-state_approval = (
-    state_master.groupby("state")
-    .agg(
-        {
-            "feasibility_approved": "sum",
-            "vendor_selected": "sum",
-            "installation": "sum",
-            "inspection_approved": "sum",
-        }
-    )
-    .reset_index()
-)
-
-state_approval = filter_all_zero_rows(
-    state_approval,
-    ["feasibility_approved", "vendor_selected", "installation", "inspection_approved"],
-)
-
-state_approval["feasibility_approval_rate"] = np.where(
-    state_approval["vendor_selected"] > 0,
-    (state_approval["feasibility_approved"] / state_approval["vendor_selected"] * 100).round(2),
-    0,
-)
-state_approval["inspection_approval_rate"] = np.where(
-    state_approval["installation"] > 0,
-    (state_approval["inspection_approved"] / state_approval["installation"] * 100).round(2),
-    0,
-)
-
-# Find states with low approval rates
-low_feasibility = state_approval.nsmallest(10, "feasibility_approval_rate")
-low_inspection = state_approval.nsmallest(10, "inspection_approval_rate")
-
-col1, col2 = st.columns(2)
-
-with col1:
-    st.subheader("States with lower feasibility approval rates")
-
-    fig = px.bar(
-        low_feasibility.sort_values("feasibility_approval_rate"),
-        y="state",
-        x="feasibility_approval_rate",
-        orientation="h",
-        color="feasibility_approval_rate",
-        color_continuous_scale=["#d62728", "#ff7f0e", "#2ca02c"],
-        text="feasibility_approval_rate",
-    )
-    fig.update_traces(
-        texttemplate="%{text:.1f}%",
-        textposition="outside",
-        hovertemplate="%{x:.1f}% ÔÇö %{y}",
-    )
-    fig.update_layout(
-        height=400, showlegend=False, xaxis_title="Feasibility approval rate (%)"
-    )
-    st.plotly_chart(fig, width="stretch")
-    chart_caption(
-        "Lower feasibility approval rates can indicate tighter reviews or more incomplete applications",
-        "Source: state_master_clean.csv columns feasibility_approved and vendor_selected.",
-    )
-
-with col2:
-    st.subheader("States with lower inspection approval rates")
-
-    fig = px.bar(
-        low_inspection.sort_values("inspection_approval_rate"),
-        y="state",
-        x="inspection_approval_rate",
-        orientation="h",
-        color="inspection_approval_rate",
-        color_continuous_scale=["#d62728", "#ff7f0e", "#2ca02c"],
-        text="inspection_approval_rate",
-    )
-    fig.update_traces(
-        texttemplate="%{text:.1f}%",
-        textposition="outside",
-        hovertemplate="%{x:.1f}% ÔÇö %{y}",
-    )
-    fig.update_layout(
-        height=400, showlegend=False, xaxis_title="Inspection approval rate (%)"
-    )
-    st.plotly_chart(fig, width="stretch")
-    chart_caption(
-        "Lower inspection approval rates show where completed installations are not clearing inspection",
-        "Source: state_master_clean.csv columns inspection_approved and installation.",
-    )
-
-st.info(state_approval_note)
-
-st.markdown("---")
-
-# ============================================================================
 # SECTION 6: ACTIONABLE RECOMMENDATIONS
 # ============================================================================
 
@@ -930,7 +827,7 @@ recommendations = [
     {
         "priority": "Medium",
         "issue": "High Rejection Rates",
-        "impact": f'Feasibility approval rates range from {state_approval["feasibility_approval_rate"].min():.1f}% to {state_approval["feasibility_approval_rate"].max():.1f}%',
+        "impact": "Feasibility approval rates vary significantly across states; investigate review rules and data quality.",
         "action": "Use the same review rule across states and check why the gap is so wide.",
         "timeline": "Short-term (1-3 months)",
     },

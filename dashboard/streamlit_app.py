@@ -210,13 +210,61 @@ if page == "Overview":
     apps_not_installed = max(total_apps - total_installs, 0)
 
     st.subheader("Applications and installations over time")
-    # Place the date-range selector beside the KPIs so deltas and filters are visually grouped
-    date_col, _ = st.columns([1, 4])
+    # Place the date-range selector inside the KPI row so deltas and filters are visually grouped with KPIs
+    date_col, col1, col2, col3, col4 = st.columns([1, 2, 2, 2, 2])
+
     with date_col:
         st.markdown("**Date range**")
         filtered_datewise, start_dt, end_dt = apply_date_range_filter(datewise, "overview")
         if start_dt and end_dt:
             st.caption(f"Showing: {start_dt} → {end_dt}")
+
+    # compute period windows immediately after date selection so KPI deltas are accurate
+    if start_dt and end_dt:
+        selected_days = max((end_dt - start_dt).days + 1, 1)
+        previous_end = (pd.Timestamp(start_dt) - pd.Timedelta(days=1)).date()
+        previous_start = (pd.Timestamp(previous_end) - pd.Timedelta(days=selected_days - 1)).date()
+        current_window = summarize_period_totals(datewise, start_dt, end_dt)
+        previous_window = summarize_period_totals(datewise, previous_start, previous_end)
+    else:
+        current_window = {"applications": 0, "installations": 0, "inspections": 0, "subsidy_redeemed": 0}
+        previous_window = current_window.copy()
+
+    current_gap = current_window["applications"] - current_window["installations"]
+    previous_gap = previous_window["applications"] - previous_window["installations"]
+
+    app_delta = current_window["applications"] - previous_window["applications"]
+    install_delta = current_window["installations"] - previous_window["installations"]
+    inspection_delta = current_window["inspections"] - previous_window["inspections"]
+    subsidy_delta = current_window["subsidy_redeemed"] - previous_window["subsidy_redeemed"]
+    app_to_install_delta = (
+        (current_window["installations"] / current_window["applications"] * 100)
+        if current_window["applications"] > 0
+        else 0
+    ) - (
+        (previous_window["installations"] / previous_window["applications"] * 100)
+        if previous_window["applications"] > 0
+        else 0
+    )
+    install_to_inspection_delta = (
+        (current_window["inspections"] / current_window["installations"] * 100)
+        if current_window["installations"] > 0
+        else 0
+    ) - (
+        (previous_window["inspections"] / previous_window["installations"] * 100)
+        if previous_window["installations"] > 0
+        else 0
+    )
+    app_to_subsidy_delta = (
+        (current_window["subsidy_redeemed"] / current_window["applications"] * 100)
+        if current_window["applications"] > 0
+        else 0
+    ) - (
+        (previous_window["subsidy_redeemed"] / previous_window["applications"] * 100)
+        if previous_window["applications"] > 0
+        else 0
+    )
+    gap_delta = current_gap - previous_gap
 
     if start_dt and end_dt:
         selected_days = max((end_dt - start_dt).days + 1, 1)
@@ -266,9 +314,7 @@ if page == "Overview":
 
     st.markdown("---")
 
-    # Row 1: Core volume metrics
-    col1, col2, col3, col4 = st.columns(4)
-
+    # Row 1: Core volume metrics placed next to date selector
     with col1:
         kpi_card(
             title="Applications submitted",
