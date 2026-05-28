@@ -45,6 +45,13 @@ From the current cleaned KPI files:
 
 These numbers come from the cleaned KPI outputs in [data_cleaned/](data_cleaned/).
 
+## Resume Highlights
+
+- Built a reproducible analytics pipeline for 6M+ public-sector records across 36 states and 792 districts.
+- Cleaned, validated, and engineered KPI outputs before dashboarding the results in Streamlit.
+- Added bottleneck diagnostics, date-range filtering, district export, and state-level comparison views for faster analysis.
+- Documented the validation process so the numbers can be checked and reused confidently.
+
 ## How It Works
 
 ```text

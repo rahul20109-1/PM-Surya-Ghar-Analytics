@@ -39,6 +39,13 @@ For hiring review, present this repository as:
 - A demonstration of data quality recovery and validation discipline
 - A practical dashboarding implementation for policy analytics use cases
 
+## Resume Talking Points
+
+- Rebuilt messy public CSV inputs into validated KPI outputs and a repeatable dashboard workflow.
+- Analyzed 6M+ records across 36 states, 792 districts, and 84 DISCOMs.
+- Added interactive diagnostics for trends, bottlenecks, state comparison, and district drilldowns.
+- Documented the pipeline so the work is easy to explain in interviews and easy to extend later.
+
 ## Optional Next Enhancements
 
 - Public deployment and shareable live link

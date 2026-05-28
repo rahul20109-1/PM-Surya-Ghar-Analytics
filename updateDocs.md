@@ -37,6 +37,12 @@ The following documentation and small code updates were applied to keep project 
 - Updated the bottleneck analysis page with source notes for stage drop-off, backlog, state ranking, and approval-gap charts.
 - Kept the control text close to the visuals so users can interpret each chart without guessing.
 
+## Recent Documentation Activity (Batch 6)
+
+- Strengthened `README.md`, `resume_present.md`, and `PROJECT_COMPLETION_SUMMARY.md` with resume-ready impact statements.
+- Kept the wording focused on scale, validation, and dashboard outcomes so the project reads well in hiring contexts.
+- Matched the portfolio summary to the current implemented dashboard features and verified metrics.
+
 Instruction: After running cleaning and KPI regeneration, run:
 
 ```bash

@@ -1,3 +1,7 @@
 **PM Surya Ghar Analytics Dashboard** | Python, Pandas, Streamlit, Plotly
 
-Built an interactive analytics dashboard to transform 6M+ government solar subsidy applications across 36 states and 792 districts into actionable intelligence. Engineered 29 KPIs (adoption trends, geographic performance, financial metrics, operational efficiency, system capacity) through CSV data cleaning and aggregation, surfacing a 38.69% application-to-installation conversion rate with stage-wise bottleneck analysis. Implemented interactive Streamlit interface with filters, funnel visualizations, and geographic heatmaps that enable program stakeholders to identify underperforming regions, installation delays, and processing inefficiencies—supporting rapid intervention and resource reallocation across 84 distribution companies.
+Built a reproducible analytics dashboard for 6M+ government solar subsidy records across 36 states and 792 districts. Cleaned and validated source CSVs, engineered KPI outputs, and exposed a 38.69% application-to-installation conversion rate with stage-level bottleneck analysis. Shipped interactive Streamlit views for trends, state comparison, district drilldowns, and operational diagnostics so stakeholders can spot delays, compare regions, and prioritize intervention.
+
+- Validated KPI exports against cleaned source data before publishing results.
+- Added date filters, exportable district views, and state scatter/comparison charts for faster analysis.
+- Turned raw public data into a portfolio-ready reporting app with clear documentation and reusable scripts.
