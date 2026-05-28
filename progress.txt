@@ -24,6 +24,8 @@ CURRENT STATE
 RECENT ACTIVITY (2026-05-28 - 2026-05-28):
 - Added `scripts/validate_kpis.py` for automated KPI <-> cleaned source validation.
 - Fixed `pending_vendor_selection` calculation in `scripts/02_kpi_calculation.py`.
+- Fixed custom date-range fallback in `dashboard/streamlit_app.py` so a single custom start date defaults the end date to the dataset maximum.
+- Cleaned the State Comparison table to focus on operational metrics by removing the subsidy-per-installation column and fixing the conversion-rate label formatting.
 - Documentation updated: `README.md`, `DATA_CLEANING_GUIDE.md`, `DASHBOARD_STATUS.md`, `BACKEND_STRUCTURE.md`, `VERIFICATION_REPORT.md`, `lessons.md`, `content_change.md`.
 - Dashboard improvements: Added Overview date-range selector, centralized date-range helper, Trends 7-day rolling averages, and wired Bottleneck page to date-range filtering (Batch 1).
 - Dashboard improvements: Added State Analysis toggle for grouped bars vs scatter (volume vs conversion) and introduced `create_state_scatter_chart()` (Batch 2).
@@ -41,8 +43,6 @@ WHAT I AM IMPLEMENTING?
 NEXT TO IMPLEMENT
 - Make Overview KPIs reflect the selected date range (recompute KPIs for chosen presets/custom range).
 - Add date-range selector for the funnel so funnel counts reflect the selected period.
-- Fix custom date selector behavior in `apply_date_range_filter()` to default end-date to dataset max when only start is set.
-- Remove or refactor duplicate columns in State Comparison (consider removing "Subsidy per installation (₹)" for operational focus).
 - Add per-chart date selectors in Bottleneck Analysis and a states filter for deeper drill-down.
 - Add more Trend visualizations (weekly seasonality heatmap, installation lag distribution).
 

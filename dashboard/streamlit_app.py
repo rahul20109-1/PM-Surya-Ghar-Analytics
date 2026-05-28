@@ -124,11 +124,23 @@ def apply_date_range_filter(df, key_prefix):
     )
 
     if preset == "Custom":
-        start_date, end_date = st.date_input(
+        selected_dates = st.date_input(
             "Custom range",
             value=(default_start, max_date),
             key=f"{key_prefix}_custom",
         )
+        if isinstance(selected_dates, tuple) or isinstance(selected_dates, list):
+            if len(selected_dates) == 2:
+                start_date, end_date = selected_dates
+            elif len(selected_dates) == 1:
+                start_date = selected_dates[0]
+                end_date = max_date
+            else:
+                start_date = default_start
+                end_date = max_date
+        else:
+            start_date = selected_dates
+            end_date = max_date
     elif preset == "Last 30 days":
         start_date = (pd.Timestamp(max_date) - pd.Timedelta(days=29)).date()
         end_date = max_date
@@ -489,7 +501,6 @@ elif page == "State Analysis":
             "installations",
             "conversion_rate_app_to_install_pct",
             "installations_per_1000_applications",
-            "subsidy_per_installation",
         ]
     ].copy()
     display_table.columns = [
@@ -498,7 +509,6 @@ elif page == "State Analysis":
         "Installations completed",
         "Application → Installation (%)",
         "Installations per 1,000 applications",
-        "Subsidy per installation (₹)",
     ]
     display_table["Applications submitted"] = display_table[
         "Applications submitted"
@@ -506,15 +516,12 @@ elif page == "State Analysis":
     display_table["Installations completed"] = display_table[
         "Installations completed"
     ].apply(lambda x: f"{int(x):,}")
-    display_table["Application ÔåÆ Installation (%)"] = display_table[
-        "Application ÔåÆ Installation (%)"
+    display_table["Application → Installation (%)"] = display_table[
+        "Application → Installation (%)"
     ].apply(lambda x: f"{float(x):.1f}%")
     display_table["Installations per 1,000 applications"] = display_table[
         "Installations per 1,000 applications"
     ].apply(lambda x: f"{float(x):.1f}")
-    display_table["Subsidy per installation (₹)"] = display_table[
-        "Subsidy per installation (₹)"
-    ].apply(lambda x: f"₹{float(x):,.0f}")
 
     st.dataframe(display_table, width="stretch", hide_index=True)
     st.caption("Source: kpis_state.csv. The table is sorted and filtered to the top states for the selected metric.")
