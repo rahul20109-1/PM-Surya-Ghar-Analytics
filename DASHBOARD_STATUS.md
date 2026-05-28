@@ -74,7 +74,7 @@ Primary files required by dashboard loaders:
 
 - Overview KPI cards are cumulative again and no longer show delta badges on the snapshot page.
 - The Overview funnel now has its own date-range selector and uses daily-grain counts from `datewise_clean.csv`.
-- The Trends page now includes a weekly seasonality heatmap for daily application volume.
+- The Trends page now includes a weekday seasonality curve for daily application and installation volume.
 - State and district comparison tables now include normalized efficiency columns.
 - Bottleneck Analysis now includes backlog scenario planning, direct chart callouts, per-chart date controls, and a focused state comparison selector.
 - The dashboard links to the metric glossary so KPI terms are easier to trust and explain.

@@ -38,7 +38,7 @@ RECENT ACTIVITY (2026-05-28 - 2026-05-28):
 - UX and content improvements: Added KPI delta badges on the Overview, normalized efficiency columns in state and district tables, backlog scenario planning, chart callouts, and a metric glossary.
 - Documentation sync: Updated all project status docs so the next session can resume from the current dashboard state without re-checking the history.
 - Overview funnel now has its own date-range selector and uses daily-grain counts from `datewise_clean.csv`.
-- Trends page now includes a weekly seasonality heatmap driven by daily application counts.
+- Trends page now includes a weekday seasonality curve driven by daily application and installation counts.
 
 WHAT I AM IMPLEMENTING?
 - None (idle)

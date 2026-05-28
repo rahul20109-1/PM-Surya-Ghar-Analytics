@@ -63,3 +63,8 @@ Trade-off:
 - Weekly seasonality is easier to interpret when daily values are grouped by weekday and week start, rather than forcing everything into a single line chart.
 - Date-filtered charts should keep selectors close to the section they affect, but unique widget keys are still required when similar controls appear multiple times in one page.
 - If a dashboard section has both a cumulative overview and a diagnostic heatmap, the overview should stay simple while the diagnostic view carries the temporal pattern details.
+
+## 7. Trend Visualization Revision (2026-05-28)
+
+- A weekday curve is often easier to read than a dense heatmap when the goal is to show weekly seasonality.
+- Smooth line charts with markers are a better default when the audience needs pattern recognition more than cell-by-cell comparison.

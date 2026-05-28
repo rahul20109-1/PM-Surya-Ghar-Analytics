@@ -848,15 +848,9 @@ elif page == "Trends":
         )
 
     st.markdown("---")
-    st.subheader("Weekly seasonality heatmap")
+    st.subheader("Weekday seasonality curve")
     st.caption(
-        "This heatmap shows daily application volume by weekday across the selected date range. Darker cells indicate higher activity."
-    )
-
-    heatmap_source = datewise_sorted[["rptdate", "applications"]].copy()
-    heatmap_source["weekday"] = heatmap_source["rptdate"].dt.day_name()
-    heatmap_source["week_start"] = (
-        heatmap_source["rptdate"].dt.to_period("W-SUN").apply(lambda period: period.start_time.strftime("%Y-%m-%d"))
+        "This curve shows the average daily applications and installations for each weekday in the selected date range."
     )
 
     weekday_order = [
@@ -868,29 +862,51 @@ elif page == "Trends":
         "Saturday",
         "Sunday",
     ]
-    heatmap_pivot = heatmap_source.pivot_table(
-        index="weekday",
-        columns="week_start",
-        values="applications",
-        aggfunc="sum",
-        fill_value=0,
-    ).reindex(index=weekday_order)
+    weekday_curve = (
+        datewise_sorted.assign(weekday=datewise_sorted["rptdate"].dt.day_name())
+        .groupby("weekday", as_index=False)[["applications", "installations"]]
+        .mean()
+    )
+    weekday_curve["weekday"] = pd.Categorical(
+        weekday_curve["weekday"], categories=weekday_order, ordered=True
+    )
+    weekday_curve = weekday_curve.sort_values("weekday")
 
-    if heatmap_pivot.empty:
+    if weekday_curve.empty:
         st.info("No weekly seasonality data available for the selected range.")
     else:
-        heatmap_pivot = heatmap_pivot.reindex(columns=sorted(heatmap_pivot.columns))
-        fig = px.imshow(
-            heatmap_pivot,
-            aspect="auto",
-            color_continuous_scale=["#f7fbff", "#c6dbef", "#6baed6", "#2171b5"],
-            labels={"x": "Week starting", "y": "Weekday", "color": "Applications"},
+        fig = go.Figure()
+        fig.add_trace(
+            go.Scatter(
+                x=weekday_curve["weekday"],
+                y=weekday_curve["applications"],
+                name="Applications",
+                mode="lines+markers",
+                line=dict(color="#1f77b4", width=3, shape="spline"),
+                marker=dict(size=8),
+            )
         )
-        fig.update_layout(height=420, template="plotly_white")
+        fig.add_trace(
+            go.Scatter(
+                x=weekday_curve["weekday"],
+                y=weekday_curve["installations"],
+                name="Installations",
+                mode="lines+markers",
+                line=dict(color="#ff7f0e", width=3, shape="spline"),
+                marker=dict(size=8),
+            )
+        )
+        fig.update_layout(
+            height=420,
+            template="plotly_white",
+            hovermode="x unified",
+            xaxis_title="Weekday",
+            yaxis_title="Average daily count",
+        )
         st.plotly_chart(fig, width="stretch")
         chart_caption(
-            "Weekly seasonality heatmap highlights which weekdays and weeks carry the heaviest application load",
-            "Source: datewise_clean.csv columns rptdate and applications.",
+            "Weekday curve shows whether applications and installations cluster on certain days of the week",
+            "Source: datewise_clean.csv columns rptdate, applications, and installations.",
             "Filtered to the selected date range.",
         )
 
