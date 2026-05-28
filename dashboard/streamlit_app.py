@@ -315,42 +315,51 @@ if page == "Overview":
 
     st.markdown("---")
     # Row 5: Conversion Funnel
-    st.subheader("How applications move through journey stages captured in the data")
+    st.subheader("How applications move through the selected period")
     st.caption(
-        "Stages shown below reflect the scheme journey steps available in the source data. "
-        "Consumer registration, agreement upload, and subsidy approval or disbursal are not captured in this dataset."
+        "This funnel is filtered using the date grain available in `datewise_clean.csv`. "
+        "Feasibility approval and vendor selection are not present at the same daily grain, so the filtered funnel focuses on stages that can be measured consistently over time."
     )
 
-    funnel_data = {
-        "Stage": [
-            "Application submission",
-            "Feasibility approval",
-            "Vendor selection",
-            "Installation completed",
-            "Project inspection by DISCOM",
-            "Subsidy redeem",
-        ],
-        "Count": [
-            int(state_master["application_status"].sum()),
-            int(state_master["feasibility_approved"].sum()),
-            int(state_master["vendor_selected"].sum()),
-            int(state_master["installation"].sum()),
-            int(state_master["inspection_approved"].sum()),
-            int(state_master["total_redeem"].sum()),
-        ],
-    }
+    funnel_filter_col, funnel_spacer_col = st.columns([1, 3])
+    with funnel_filter_col:
+        st.markdown("**Date range**")
+        funnel_datewise, funnel_start_dt, funnel_end_dt = apply_date_range_filter(
+            datewise, "overview_funnel"
+        )
+        if funnel_start_dt and funnel_end_dt:
+            st.caption(f"Showing: {funnel_start_dt} → {funnel_end_dt}")
 
-    funnel_df = pd.DataFrame(funnel_data)
-    funnel_df = filter_all_zero_rows(funnel_df, ["Count"])
-    if funnel_df.empty:
-        st.info("No non-zero stage data available for this period.")
+    funnel_data = None
+    if funnel_datewise.empty:
+        st.info("No time-series data available for the selected funnel range.")
     else:
-        cleaned_funnel = {
-            "Stage": funnel_df["Stage"].tolist(),
-            "Count": funnel_df["Count"].tolist(),
+        funnel_data = {
+            "Stage": [
+                "Application submission",
+                "Installation completed",
+                "Project inspection by DISCOM",
+                "Subsidy redeemed",
+            ],
+            "Count": [
+                int(funnel_datewise["applications"].sum()),
+                int(funnel_datewise["installations"].sum()),
+                int(funnel_datewise["inspection"].sum()),
+                int(funnel_datewise["subsidyredeemed"].sum()),
+            ],
         }
-        fig = create_conversion_funnel(cleaned_funnel)
-        st.plotly_chart(fig, width="stretch")
+
+        funnel_df = pd.DataFrame(funnel_data)
+        funnel_df = filter_all_zero_rows(funnel_df, ["Count"])
+        if funnel_df.empty:
+            st.info("No non-zero stage data available for this period.")
+        else:
+            cleaned_funnel = {
+                "Stage": funnel_df["Stage"].tolist(),
+                "Count": funnel_df["Count"].tolist(),
+            }
+            fig = create_conversion_funnel(cleaned_funnel)
+            st.plotly_chart(fig, width="stretch")
 
 elif page == "State Analysis":
     st.header("State comparison")

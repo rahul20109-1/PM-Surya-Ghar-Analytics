@@ -37,13 +37,13 @@ RECENT ACTIVITY (2026-05-28 - 2026-05-28):
 - UI improvements: Collapsed the sidebar by default, migrated the dashboard off deprecated Streamlit width calls, and added a validation note for approval-rate hotspots.
 - UX and content improvements: Added KPI delta badges on the Overview, normalized efficiency columns in state and district tables, backlog scenario planning, chart callouts, and a metric glossary.
 - Documentation sync: Updated all project status docs so the next session can resume from the current dashboard state without re-checking the history.
+- Overview funnel now has its own date-range selector and uses daily-grain counts from `datewise_clean.csv`.
 
 WHAT I AM IMPLEMENTING?
 - None (idle)
 
 NEXT TO IMPLEMENT
-- Make Overview KPIs reflect the selected date range (recompute KPIs for chosen presets/custom range).
-- Add date-range selector for the funnel so funnel counts reflect the selected period.
+- Add explanatory captions for funnel date limitations.
 - Add more Trend visualizations (weekly seasonality heatmap, installation lag distribution).
 
 NOTE: The session agent stores the current implementation state in `/memories/session/implementation_state.md` and will update `WHAT I AM IMPLEMENTING?` at the start of each task.

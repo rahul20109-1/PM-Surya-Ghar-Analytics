@@ -72,7 +72,8 @@ Primary files required by dashboard loaders:
 
 ## Latest Dashboard Enhancements
 
-- Overview KPI cards now show deltas against the previous period of the same length.
+- Overview KPI cards are cumulative again and no longer show delta badges on the snapshot page.
+- The Overview funnel now has its own date-range selector and uses daily-grain counts from `datewise_clean.csv`.
 - State and district comparison tables now include normalized efficiency columns.
 - Bottleneck Analysis now includes backlog scenario planning, direct chart callouts, per-chart date controls, and a focused state comparison selector.
 - The dashboard links to the metric glossary so KPI terms are easier to trust and explain.

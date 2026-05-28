@@ -26,6 +26,12 @@ The following documentation and small code updates were applied to keep project 
 - Added `dashboard.utils.charts.create_state_scatter_chart()` to visualize state volume, conversion, and subsidy size in one view.
 - Updated dashboard docs and status notes after the Batch 2 change.
 
+## Recent Dashboard Activity (2026-05-28 - Funnel Update)
+
+- Replaced the Overview funnel with a date-filtered funnel driven by `datewise_clean.csv`.
+- Kept the funnel date selector separate from the Overview snapshot so KPI cards stay cumulative.
+- Added a note that the daily-grain funnel only includes stages that are present in `datewise_clean.csv`.
+
 ## Recent Dashboard Activity (Batch 3)
 
 - Moved the State Analysis chart toggle next to the graph so the chart mode control sits with the visual it affects.
