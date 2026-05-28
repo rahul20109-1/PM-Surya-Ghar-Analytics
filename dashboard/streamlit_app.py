@@ -84,7 +84,7 @@ page_options = {
     "Capacity and system size": "Capacity Metrics",
     "About this dashboard": "About",
 }
-page = page_options[st.sidebar.radio("Choose a page:", list(page_options.keys()))]
+selected_page_label = st.sidebar.radio("Choose a page:", list(page_options.keys()))
 
 
 # Load data with caching
@@ -197,6 +197,16 @@ try:
 except Exception as e:
     st.error(f"Error loading data: {str(e)}")
     st.stop()
+
+# Map the sidebar selection to an internal page key. If per-installation system size
+# data is not available, hide the Capacity page and show Bottleneck Analysis instead.
+page = page_options[selected_page_label]
+if page == "Capacity Metrics":
+    if "system_size_kw" not in datewise.columns:
+        page = "Bottleneck Analysis"
+        st.sidebar.info(
+            "Per-installation system size data not available: showing Bottleneck Analysis instead."
+        )
 
 # ============================================================================
 # PAGE ROUTING
@@ -477,14 +487,13 @@ elif page == "State Analysis":
     ].apply(lambda x: f"{float(x):.1f}")
 
     st.dataframe(display_table, width="stretch", hide_index=True)
+    st.caption("Source: kpis_state.csv. The table is sorted and filtered to the top states for the selected metric.")
     st.caption("Normalized columns help compare efficiency, not just raw volume. Installations per 1,000 applications is a size-adjusted delivery rate.")
 
     # Charts
     col1, col2 = st.columns(2)
 
     with col1:
-        # Heading first, then present the chart-type selector underneath it
-        st.subheader("Applications and installations by state")
         state_chart_mode = st.radio(
             "Chart type",
             ["Grouped bars", "Scatter: volume vs conversion"],
@@ -492,20 +501,21 @@ elif page == "State Analysis":
             key="state_chart_mode",
             help="Switch between absolute volume comparison and the volume-versus-conversion scatter.",
         )
-
         if state_chart_mode == "Grouped bars":
+            st.subheader("Applications and installations by state")
             fig = create_state_ranking_chart(state_data)
             st.plotly_chart(fig, width="stretch")
             chart_caption(
                 "Grouped bars compare applications submitted and installations completed",
-                "",
+                "Source: kpis_state.csv columns applications and installations.",
             )
         else:
+            st.subheader("State volume vs conversion")
             fig = create_state_scatter_chart(state_data)
             st.plotly_chart(fig, width="stretch")
             chart_caption(
                 "Scatter highlights high-volume states and conversion outliers",
-                "",
+                "Source: kpis_state.csv columns applications, conversion_rate_app_to_install_pct, and subsidy_redeemed_amount.",
             )
 
     with col2:
@@ -529,7 +539,7 @@ elif page == "State Analysis":
         st.plotly_chart(fig, width="stretch")
         chart_caption(
             "Horizontal bars rank states by application-to-installation rate",
-            "",
+            "Source: kpis_state.csv column conversion_rate_app_to_install_pct.",
         )
 
 elif page == "District Analysis":
@@ -691,6 +701,8 @@ elif page == "District Analysis":
         f"Showing rows {start_index + 1} to {min(end_index, total_rows)} of {total_rows}"
     )
     st.dataframe(page_data, width="stretch", hide_index=True)
+    st.caption(
+        "Source: district_clean.csv. The download button exports the full filtered, sorted result set.")
 
     csv_data = sorted_display_data.to_csv(index=False).encode("utf-8")
     st.download_button(
@@ -774,7 +786,7 @@ elif page == "Trends":
         st.plotly_chart(fig, width="stretch")
         chart_caption(
             "Cumulative view shows the running total for applications and installations",
-            "",
+            "Source: datewise_clean.csv columns rptdate, applications, and installations.",
             "Filtered to the selected date range.",
         )
 
@@ -839,7 +851,7 @@ elif page == "Trends":
         st.plotly_chart(fig, width="stretch")
         chart_caption(
             "Daily view adds 7-day averages to smooth day-to-day noise",
-            "",
+            "Source: datewise_clean.csv columns rptdate, applications, and installations.",
             "The dashed lines show the rolling average overlay.",
         )
 
@@ -902,7 +914,7 @@ elif page == "Trends":
         st.plotly_chart(fig, width="stretch")
         chart_caption(
             "Weekday curve shows whether applications and installations cluster on certain days of the week",
-            "",
+            "Source: datewise_clean.csv columns rptdate, applications, and installations.",
             "Filtered to the selected date range.",
         )
 
@@ -983,7 +995,7 @@ elif page == "Capacity Metrics":
             st.plotly_chart(fig, width="stretch")
             chart_caption(
                 "Pie chart shows the residential and RWA mix",
-                "",
+                "Source: kpis_national.csv columns residential_percentage and rwa_percentage.",
             )
 
     with col2:
@@ -1010,11 +1022,6 @@ elif page == "Capacity Metrics":
             if capacity_df["Count"].sum() == 0:
                 st.info("No system-size records available for the selected range.")
             else:
-                # Add percent column for clarity
-                capacity_df["Percent"] = (
-                    capacity_df["Count"] / capacity_df["Count"].sum() * 100
-                ).round(1)
-
                 fig = px.bar(
                     capacity_df,
                     x="Size",
@@ -1025,94 +1032,46 @@ elif page == "Capacity Metrics":
                 fig.update_layout(showlegend=False, height=420)
                 st.plotly_chart(fig, width="stretch")
 
-                # Show a simple table with counts and percentage
-                st.subheader("System size distribution table")
-                st.dataframe(capacity_df[["Size", "Count", "Percent"]], width="stretch")
-
             st.metric("Median size band", median_band)
+            st.caption(
+                "Source: per-installation system size column 'system_size_kw' in the cleaned data."
+            )
         else:
-            # Fallback to available aggregate buckets. Split upto_10_kw evenly into 0-1,1-2,...9-10 kW buckets as a simple heuristic.
-            upto_10kw = (
-                cap_filtered_datewise["upto_10_kw"].sum()
-                if cap_filtered_datewise is not None
-                else datewise["upto_10_kw"].sum()
-            )
-            above_10kw = (
-                cap_filtered_datewise["above_10_kw"].sum()
-                if cap_filtered_datewise is not None
-                else datewise["above_10_kw"].sum()
-            )
+            # Fallback to available aggregate buckets
+            upto_10kw = cap_filtered_datewise["upto_10_kw"].sum() if cap_filtered_datewise is not None else datewise["upto_10_kw"].sum()
+            above_10kw = cap_filtered_datewise["above_10_kw"].sum() if cap_filtered_datewise is not None else datewise["above_10_kw"].sum()
+            total_systems = upto_10kw + above_10kw
+            median_band = "Up to 10 kW" if upto_10kw >= (total_systems / 2) else "Above 10 kW"
 
-            # Create 0-1,1-2,...,9-10 and >10 labels
-            fine_labels = [f"{i}-{i+1} kW" for i in range(0, 10)]
-            fine_labels.append(
-                ">10 kW"
-            )
+            capacity_data = {
+                "Size": ["Up to 10 kW", "Above 10 kW"],
+                "Count": [int(upto_10kw), int(above_10kw)],
+            }
+            capacity_df = pd.DataFrame(capacity_data)
+            capacity_df = filter_all_zero_rows(capacity_df, ["Count"])
 
-            # Distribute the upto_10kw count across the first 10 buckets using
-            # a simple heuristic that weights smaller system sizes more heavily.
-            # Use mid-point inverse weighting (1 / midpoint) to bias toward small systems.
-            try:
-                upto_10kw_val = int(upto_10kw)
-            except Exception:
-                upto_10kw_val = 0
-
-            midpoints = [0.5 + i for i in range(0, 10)]  # 0.5, 1.5, ..., 9.5
-            weights = [1.0 / m if m > 0 else 0 for m in midpoints]
-            total_weight = sum(weights)
-            if total_weight == 0 or upto_10kw_val == 0:
-                counts = [0] * 10
-            else:
-                raw_counts = [w / total_weight * upto_10kw_val for w in weights]
-                # Round toward integers while preserving sum
-                counts = [int(x) for x in raw_counts]
-                shortfall = upto_10kw_val - sum(counts)
-                # distribute remaining ones to the smallest buckets first
-                idx = 0
-                while shortfall > 0:
-                    counts[idx % 10] += 1
-                    idx += 1
-                    shortfall -= 1
-
-            counts.append(int(above_10kw))
-
-            capacity_df = pd.DataFrame({"Size": fine_labels, "Count": counts})
-            capacity_df = filter_all_zero_rows(capacity_df, ["Count"]) if not capacity_df.empty else capacity_df
+            import plotly.express as px
 
             if capacity_df.empty:
                 st.info("No non-zero system size data available.")
             else:
-                capacity_df["Percent"] = (capacity_df["Count"] / capacity_df["Count"].sum() * 100).round(1)
-
-                import plotly.express as px
-
                 fig = px.bar(
                     capacity_df,
                     x="Size",
                     y="Count",
                     color="Size",
-                    color_discrete_sequence=px.colors.qualitative.Pastel,
-                    title="System size counts (estimated buckets)",
+                    color_discrete_sequence=["#2ca02c", "#d62728"],
+                    title="System size counts",
                 )
-                fig.update_layout(showlegend=False, height=420)
+                fig.update_layout(showlegend=False, height=400)
                 st.plotly_chart(fig, width="stretch")
 
-                st.subheader("System size distribution table")
-                st.dataframe(capacity_df[["Size", "Count", "Percent"]], width="stretch")
-
             st.caption(
-                "Estimated fine-grained buckets shown by evenly splitting the 'Up to 10 kW' aggregate bucket into 0-1,1-2,...9-10 kW. This is a heuristic fallback — use per-installation 'system_size_kw' for accurate buckets."
+                "Histogram-style bucket view based on the available system-size counts in the cleaned data. Finer per-installation buckets require a 'system_size_kw' column in the cleaned dataset."
             )
-            # Median band: select first band where cumulative >= 50%
-            cum = capacity_df["Count"].cumsum() if not capacity_df.empty else pd.Series([])
-            total = capacity_df["Count"].sum() if not capacity_df.empty else 0
-            if total > 0:
-                median_band = capacity_df.loc[cum >= total / 2, "Size"].iloc[0]
-            else:
-                median_band = "Unknown"
-
             st.metric("Median size band", median_band)
-            # Source caption removed per UI guidance
+            st.caption(
+                "Source: datewise_clean.csv columns upto_10_kw and above_10_kw. The median is shown as the bucket containing the midpoint, not a per-installation median.")
 
 elif page == "About":
     st.header("About this dashboard")
