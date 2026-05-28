@@ -271,30 +271,17 @@ if page == "Overview":
     # Row 3: Trend
     st.subheader("Applications and installations over time")
     st.markdown("**Date range**")
-    filtered_datewise, start_date, end_date = apply_date_range_filter(
-        datewise, "overview"
-    )
-    if start_date and end_date:
-        st.caption(f"Showing: {start_date} to {end_date}")
+    filtered_datewise, start_dt, end_dt = apply_date_range_filter(datewise, "overview")
+    if start_dt and end_dt:
+        st.caption(f"Showing: {start_dt} → {end_dt}")
 
     if filtered_datewise.empty:
         st.info("No time-series data available for the selected range.")
     else:
-        fig = create_adoption_trend(filtered_datewise)
+        fig = create_adoption_trend(filtered_datewise, start_date=start_dt, end_date=end_dt)
         st.plotly_chart(fig, use_container_width=True)
 
     st.markdown("---")
-
-            # Date range selector (Overview) - presets and custom via helper
-            filtered_datewise, start_dt, end_dt = apply_date_range_filter(datewise, "overview")
-            if start_dt and end_dt:
-                st.caption(f"Showing: {start_dt} → {end_dt}")
-
-            if filtered_datewise.empty:
-                st.info("No time-series data available for the selected range.")
-            else:
-                fig = create_adoption_trend(filtered_datewise, start_date=start_dt, end_date=end_dt)
-                st.plotly_chart(fig, use_container_width=True)
     # Row 5: Conversion Funnel
     st.subheader("How applications move through journey stages captured in the data")
     st.caption(
