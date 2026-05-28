@@ -45,6 +45,10 @@ From the current cleaned KPI files:
 
 These numbers come from the cleaned KPI outputs in [data_cleaned/](data_cleaned/).
 
+## Metric Glossary
+
+The main KPI definitions, normalized metrics, and bottleneck formulas are documented in [docs/metric_glossary.md](docs/metric_glossary.md).
+
 ## Resume Highlights
 
 - Built a reproducible analytics pipeline for 6M+ public-sector records across 36 states and 792 districts.
@@ -121,6 +125,7 @@ python -m streamlit run dashboard/streamlit_app.py
 - cleaned files are checked for missing values and duplicates
 - KPI totals are compared against the source data
 - dashboard pages use cached loading so the app stays responsive
+- KPI and bottleneck terms are defined in [docs/metric_glossary.md](docs/metric_glossary.md)
 
 ## Where To Start
 

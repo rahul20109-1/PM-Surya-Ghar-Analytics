@@ -3,6 +3,7 @@
 Vibe coding fails not because AI is bad, but because developers provide vague intent, no structure, and no constraints. AI is a translator, not a mind reader. When fundamentals, documentation, and rules are missing, AI guesses—and those guesses compound into broken systems. Vibe coding works only when you supply clarity, locked constraints, and persistent context.
 
 ---
+
 ---
 
 ## Recent Documentation Activity (2026-05-28)
@@ -49,6 +50,13 @@ The following documentation and small code updates were applied to keep project 
 - Migrated the dashboard away from deprecated Streamlit width usage.
 - Added a validation note on bottleneck approval-rate charts so impossible-looking percentages are interpreted correctly.
 
+## Recent Dashboard + Content Upgrade (2026-05-28)
+
+- Added KPI delta badges on the Overview so the headline numbers show direction as well as scale.
+- Added normalized efficiency metrics to the state and district tables so comparisons are less volume-biased.
+- Added backlog scenario planning and chart callouts on bottleneck analysis to make the page more decision-oriented.
+- Added `docs/metric_glossary.md` and linked it from the README and dashboard About page.
+
 Instruction: After running cleaning and KPI regeneration, run:
 
 ```bash
@@ -56,6 +64,7 @@ python scripts/validate_kpis.py
 ```
 
 Address any reported failures before publishing or demoing artifacts. These additions are committed to `main` for traceability.
+
 ## Most Important Ideas
 
 ### 1. Documentation Is the Real Product
@@ -66,12 +75,12 @@ Code is a downstream artifact. The real foundation is a **documentation-first sy
 
 A complete project requires six markdown files as immutable sources of truth:
 
-* **PRD.md** – What is being built, for whom, success criteria, scope, and non-goals.
-* **APP_FLOW.md** – Pages, routes, navigation paths, success/error states.
-* **TECH_STACK.md** – Exact frameworks, tools, and versions.
-* **FRONTEND_GUIDELINES.md** – Design system, tokens, responsive rules.
-* **BACKEND_STRUCTURE.md** – Database schema, APIs, auth rules.
-* **IMPLEMENTATION_PLAN.md** – Step-by-step build order.
+- **PRD.md** – What is being built, for whom, success criteria, scope, and non-goals.
+- **APP_FLOW.md** – Pages, routes, navigation paths, success/error states.
+- **TECH_STACK.md** – Exact frameworks, tools, and versions.
+- **FRONTEND_GUIDELINES.md** – Design system, tokens, responsive rules.
+- **BACKEND_STRUCTURE.md** – Database schema, APIs, auth rules.
+- **IMPLEMENTATION_PLAN.md** – Step-by-step build order.
 
 These documents cross-reference each other and eliminate ambiguity.
 
@@ -79,8 +88,8 @@ These documents cross-reference each other and eliminate ambiguity.
 
 AI has no session memory. Two files solve this:
 
-* **CLAUDE.md** – Global rules, constraints, patterns, forbidden actions.
-* **progress.txt** – What’s done, in progress, next, and broken.
+- **CLAUDE.md** – Global rules, constraints, patterns, forbidden actions.
+- **progress.txt** – What’s done, in progress, next, and broken.
 
 Together, they prevent context loss and repeated mistakes.
 
@@ -92,21 +101,21 @@ Before documentation, AI must aggressively question the idea to expose assumptio
 
 Key concepts you must understand to communicate with AI:
 
-* Components
-* Layout
-* State
-* Styling and design tokens
-* Responsive design
-* Pages vs routes
-* Frontend vs backend
-* APIs, databases, authentication
+- Components
+- Layout
+- State
+- Styling and design tokens
+- Responsive design
+- Pages vs routes
+- Frontend vs backend
+- APIs, databases, authentication
 
 Prompt quality depends on conceptual understanding, not clever wording.
 
 ### 6. UI ≠ UX
 
-* **UI**: visual appearance.
-* **UX**: usability and flow.
+- **UI**: visual appearance.
+- **UX**: usability and flow.
   AI must be told explicitly which one to improve. Visual references (screenshots) outperform verbal descriptions.
 
 ### 7. Consistency Comes From Locked Rules
@@ -117,11 +126,11 @@ Design tokens, component patterns, folder structure, and dependency versions mus
 
 Different tools excel at different stages:
 
-* **Claude**: thinking, interrogation, documentation.
-* **Cursor (Ask → Plan → Agent → Debug)**: implementation workflow.
-* **Kimi K2.5**: pixel-accurate frontend from visuals.
-* **Codex**: debugging, refactoring, stabilization.
-* **GitHub + Vercel + Supabase**: version control, deployment, backend.
+- **Claude**: thinking, interrogation, documentation.
+- **Cursor (Ask → Plan → Agent → Debug)**: implementation workflow.
+- **Kimi K2.5**: pixel-accurate frontend from visuals.
+- **Codex**: debugging, refactoring, stabilization.
+- **GitHub + Vercel + Supabase**: version control, deployment, backend.
 
 ### 9. Markdown Is a Control Mechanism
 
@@ -156,11 +165,11 @@ The document presents a complete operating system for AI-assisted software devel
 9. Follow the sequence: **Interrogation → Documentation → Code**.
 10. Build only one step at a time from **IMPLEMENTATION_PLAN.md**.
 11. Always specify:
+    - Components to build
+    - Layout rules
+    - State changes
+    - Routes and pages
 
-    * Components to build
-    * Layout rules
-    * State changes
-    * Routes and pages
 12. Reference the relevant markdown file in every AI request.
 13. Update **progress.txt** after every completed feature.
 

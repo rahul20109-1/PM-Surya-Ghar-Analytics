@@ -8,42 +8,43 @@ import pandas as pd
 from pathlib import Path
 import streamlit as st
 
+
 @st.cache_data
 def load_data():
     """
     Load all cleaned data files with error handling.
-    
+
     Returns:
         tuple: (kpi_national, kpi_state, kpi_district, datewise, state_master, district)
     """
-    
+
     # Determine data directory
     project_root = Path(__file__).parent.parent.parent
-    data_dir = project_root / 'data_cleaned'
-    
+    data_dir = project_root / "data_cleaned"
+
     if not data_dir.exists():
         raise FileNotFoundError(f"Data directory not found: {data_dir}")
-    
+
     try:
         # Load KPI files
-        kpi_national = pd.read_csv(data_dir / 'kpis_national.csv')
-        kpi_state = pd.read_csv(data_dir / 'kpis_state.csv')
-        kpi_district = pd.read_csv(data_dir / 'kpis_district.csv')
-        
+        kpi_national = pd.read_csv(data_dir / "kpis_national.csv")
+        kpi_state = pd.read_csv(data_dir / "kpis_state.csv")
+        kpi_district = pd.read_csv(data_dir / "kpis_district.csv")
+
         # Load detail data files
-        datewise = pd.read_csv(data_dir / 'datewise_clean.csv')
+        datewise = pd.read_csv(data_dir / "datewise_clean.csv")
         if "rptdate" in datewise.columns:
             launch_date = pd.Timestamp("2024-02-13")
             date_series = pd.to_datetime(datewise["rptdate"], errors="coerce")
             datewise = datewise.loc[date_series >= launch_date].copy()
-            datewise["rptdate"] = date_series.loc[date_series >= launch_date].dt.strftime(
-                "%Y-%m-%d"
-            )
-        state_master = pd.read_csv(data_dir / 'state_master_clean.csv')
-        district = pd.read_csv(data_dir / 'district_clean.csv')
-        
+            datewise["rptdate"] = date_series.loc[
+                date_series >= launch_date
+            ].dt.strftime("%Y-%m-%d")
+        state_master = pd.read_csv(data_dir / "state_master_clean.csv")
+        district = pd.read_csv(data_dir / "district_clean.csv")
+
         return kpi_national, kpi_state, kpi_district, datewise, state_master, district
-    
+
     except FileNotFoundError as e:
         raise FileNotFoundError(f"Failed to load data files: {str(e)}")
     except Exception as e:
@@ -57,6 +58,7 @@ def apply_date_range_filter(df, key_prefix=None):
     Returns: (filtered_df, start_date, end_date)
     """
     import streamlit as st
+
     df = df.copy()
     if "rptdate" not in df.columns:
         return df, None, None

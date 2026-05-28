@@ -186,6 +186,27 @@ def create_state_scatter_chart(state_data_df):
             "Subsidy redeemed: %{marker.size:,.0f}<extra></extra>"
         )
     )
+
+    outlier_df = df.sort_values(
+        ["conversion_rate_app_to_install_pct", "applications"], ascending=[True, False]
+    ).head(3)
+    for _, row in outlier_df.iterrows():
+        fig.add_annotation(
+            x=row["applications"],
+            y=row["conversion_rate_app_to_install_pct"],
+            text=row["state"],
+            showarrow=True,
+            arrowhead=2,
+            arrowsize=1,
+            arrowwidth=1,
+            ax=24,
+            ay=-24,
+            bgcolor="rgba(255,255,255,0.75)",
+            bordercolor="#999999",
+            borderwidth=1,
+            font=dict(size=10),
+        )
+
     fig.update_layout(
         title="State volume vs conversion",
         xaxis_title="Applications submitted",

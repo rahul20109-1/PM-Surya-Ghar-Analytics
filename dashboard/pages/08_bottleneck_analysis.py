@@ -1,4 +1,4 @@
-"""
+﻿"""
 Bottleneck Analysis - Identify Where Applications Get Stuck
 ============================================================
 Advanced analytics to identify process bottlenecks and improvement opportunities.
@@ -44,7 +44,7 @@ except Exception as e:
 st.markdown("**Date range (Bottleneck analysis)**")
 filtered_datewise, start_dt, end_dt = apply_date_range_filter(datewise, "bottleneck")
 if start_dt and end_dt:
-    st.caption(f"Showing: {start_dt} → {end_dt}")
+    st.caption(f"Showing: {start_dt} ÔåÆ {end_dt}")
 
 # Use filtered_datewise for time-based analyses below
 if filtered_datewise is None or filtered_datewise.empty:
@@ -72,7 +72,7 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-st.title("Process bottlenecks — where applications stall")
+st.title("Process bottlenecks ÔÇö where applications stall")
 st.markdown(
     """
 This analysis highlights stages where applications are delayed, dropped, or accumulate in backlog. Use it to prioritise operational interventions and state-level support.
@@ -217,7 +217,7 @@ with col1:
             )
         )
 
-        fig.update_traces(hovertemplate="%{x:,} applications — %{y}")
+        fig.update_traces(hovertemplate="%{x:,} applications ÔÇö %{y}")
         fig.update_layout(
             title="Stage flow (counts & cumulative%)",
             height=520,
@@ -252,7 +252,7 @@ with col2:
         fig.update_traces(
             texttemplate="%{text:.1f}%",
             textposition="outside",
-            hovertemplate="%{y:.1f}% dropout — %{x}",
+            hovertemplate="%{y:.1f}% dropout ÔÇö %{x}",
         )
         fig.update_layout(
             height=500,
@@ -272,7 +272,7 @@ with col2:
 st.markdown(
     """
 <div class="insight-box">
-<strong>Key insight:</strong> The largest operational loss occurs between <strong>{}</strong> and <strong>{}</strong> — a {pct:.1f}% reduction from the prior stage. Approximately <strong>{loss:,}</strong> applications do not progress at this handoff.
+<strong>Key insight:</strong> The largest operational loss occurs between <strong>{}</strong> and <strong>{}</strong> ÔÇö a {pct:.1f}% reduction from the prior stage. Approximately <strong>{loss:,}</strong> applications do not progress at this handoff.
 <br><em>Suggested next step:</em> Investigate handoff procedures, vendor capacity, and local queues in the affected states.
 </div>
 """.format(prev_stage, worst_stage, pct=worst_dropout, loss=int(worst_loss)),
@@ -365,7 +365,7 @@ with col1:
         fig.update_traces(
             texttemplate="%{text:,.0f}",
             textposition="outside",
-            hovertemplate="%{x:,.0f} applications waiting — %{y}",
+            hovertemplate="%{x:,.0f} applications waiting ÔÇö %{y}",
         )
         fig.update_layout(
             height=400,
@@ -399,7 +399,7 @@ with col2:
         fig.update_traces(
             texttemplate="%{text:.1f}%",
             textposition="outside",
-            hovertemplate="%{x:.1f}% waiting — %{y}",
+            hovertemplate="%{x:.1f}% waiting ÔÇö %{y}",
         )
         fig.update_layout(
             height=400,
@@ -425,7 +425,7 @@ st.header("3. State comparison")
 # Brief explanation and interpretation guidance for users
 st.markdown(
     """
-**What this table shows:** Compare states on three problem types: low application→installation conversion, high waiting share, and low installation completion.
+**What this table shows:** Compare states on three problem types: low applicationÔåÆinstallation conversion, high waiting share, and low installation completion.
 
 - Use the selector to pick which issue to prioritise. Lower conversion rates indicate where applications are failing to reach installation. High waiting share signals backlog or hold-ups. Low installation completion suggests execution or capacity constraints after feasibility approval.
 - Tip: Start with the top states in this list, then drill down into local workflow, vendor capacity, and inspection scheduling to find root causes.
@@ -663,6 +663,21 @@ else:
             legend=dict(title="Series", x=0.01, y=0.99),
         )
 
+        latest_backlog = datewise_analysis["cumulative_gap"].iloc[-1]
+        latest_backlog_date = datewise_analysis["rptdate"].iloc[-1]
+        fig.add_annotation(
+            x=latest_backlog_date,
+            y=latest_backlog,
+            text=f"Current backlog: {int(latest_backlog):,}",
+            showarrow=True,
+            arrowhead=2,
+            ax=-40,
+            ay=-40,
+            bgcolor="rgba(255,255,255,0.8)",
+            bordercolor="#d62728",
+            borderwidth=1,
+        )
+
         st.plotly_chart(fig, width="stretch")
         chart_caption(
             "Backlog line shows how the application gap accumulates over time",
@@ -690,15 +705,74 @@ else:
         f"""
     <div class="insight-box">
     <strong>Main finding:</strong><br>
-    • Applications received per day: <strong>{avg_daily_apps:,.0f}</strong><br>
-    • Installations completed per day: <strong>{avg_daily_installs:,.0f}</strong><br>
-    • Backlog grows by: <strong class="critical">{daily_deficit:,.0f} applications per day</strong><br>
-    • Current total backlog: <strong class="critical">{int(latest_gap):,} applications</strong><br>
+    ÔÇó Applications received per day: <strong>{avg_daily_apps:,.0f}</strong><br>
+    ÔÇó Installations completed per day: <strong>{avg_daily_installs:,.0f}</strong><br>
+    ÔÇó Backlog grows by: <strong class="critical">{daily_deficit:,.0f} applications per day</strong><br>
+    ÔÇó Current total backlog: <strong class="critical">{int(latest_gap):,} applications</strong><br>
     <br>
     <strong>{clearance_line}</strong>
     </div>
     """,
         unsafe_allow_html=True,
+    )
+
+    st.subheader("Backlog clearance scenarios")
+    if latest_gap > 0 and daily_deficit != 0:
+        scenario_rows = [
+            {
+                "Scenario": "Current pace",
+                "Daily intake": f"{avg_daily_apps:,.0f}",
+                "Daily installations": f"{avg_daily_installs:,.0f}",
+                "Daily deficit": f"{daily_deficit:,.0f}",
+                "Years to clear": f"{(latest_gap / daily_deficit / 365):.1f}" if daily_deficit > 0 else "Not growing",
+            },
+            {
+                "Scenario": "+25% capacity",
+                "Daily intake": f"{avg_daily_apps:,.0f}",
+                "Daily installations": f"{avg_daily_installs * 1.25:,.0f}",
+                "Daily deficit": f"{(avg_daily_apps - avg_daily_installs * 1.25):,.0f}",
+                "Years to clear": f"{(latest_gap / (avg_daily_apps - avg_daily_installs * 1.25) / 365):.1f}"
+                if (avg_daily_apps - avg_daily_installs * 1.25) > 0
+                else "No backlog growth",
+            },
+            {
+                "Scenario": "-25% intake",
+                "Daily intake": f"{avg_daily_apps * 0.75:,.0f}",
+                "Daily installations": f"{avg_daily_installs:,.0f}",
+                "Daily deficit": f"{(avg_daily_apps * 0.75 - avg_daily_installs):,.0f}",
+                "Years to clear": f"{(latest_gap / (avg_daily_apps * 0.75 - avg_daily_installs) / 365):.1f}"
+                if (avg_daily_apps * 0.75 - avg_daily_installs) > 0
+                else "No backlog growth",
+            },
+        ]
+    else:
+        scenario_rows = [
+            {
+                "Scenario": "Current pace",
+                "Daily intake": f"{avg_daily_apps:,.0f}",
+                "Daily installations": f"{avg_daily_installs:,.0f}",
+                "Daily deficit": f"{daily_deficit:,.0f}",
+                "Years to clear": "Not applicable",
+            },
+            {
+                "Scenario": "+25% capacity",
+                "Daily intake": f"{avg_daily_apps:,.0f}",
+                "Daily installations": f"{avg_daily_installs * 1.25:,.0f}",
+                "Daily deficit": f"{(avg_daily_apps - avg_daily_installs * 1.25):,.0f}",
+                "Years to clear": "Not applicable",
+            },
+            {
+                "Scenario": "-25% intake",
+                "Daily intake": f"{avg_daily_apps * 0.75:,.0f}",
+                "Daily installations": f"{avg_daily_installs:,.0f}",
+                "Daily deficit": f"{(avg_daily_apps * 0.75 - avg_daily_installs):,.0f}",
+                "Years to clear": "Not applicable",
+            },
+        ]
+
+    st.dataframe(pd.DataFrame(scenario_rows), width="stretch", hide_index=True)
+    st.caption(
+        "Scenarios compare the current flow against a 25% capacity increase or a 25% intake reduction to show how quickly the backlog could be reduced."
     )
 
 st.markdown("---")
@@ -765,7 +839,7 @@ with col1:
     fig.update_traces(
         texttemplate="%{text:.1f}%",
         textposition="outside",
-        hovertemplate="%{x:.1f}% — %{y}",
+        hovertemplate="%{x:.1f}% ÔÇö %{y}",
     )
     fig.update_layout(
         height=400, showlegend=False, xaxis_title="Feasibility approval rate (%)"
@@ -791,7 +865,7 @@ with col2:
     fig.update_traces(
         texttemplate="%{text:.1f}%",
         textposition="outside",
-        hovertemplate="%{x:.1f}% — %{y}",
+        hovertemplate="%{x:.1f}% ÔÇö %{y}",
     )
     fig.update_layout(
         height=400, showlegend=False, xaxis_title="Inspection approval rate (%)"
@@ -867,13 +941,13 @@ st.markdown("---")
 
 st.markdown(
     f"""
-### 📋 Executive summary
+### ­ƒôï Executive summary
 
 Key takeaways for program managers and recruiters:
 
-- **Priority issue:** The largest operational loss is between **{prev_stage}** and **{worst_stage}** — this handoff should be investigated first.
+- **Priority issue:** The largest operational loss is between **{prev_stage}** and **{worst_stage}** ÔÇö this handoff should be investigated first.
 - **Backlog risk:** Intake exceeds clearance; the backlog is growing by roughly **{daily_deficit:,.0f}** applications per day.
-- **Uneven delivery:** State-level performance varies considerably — target support to high-volume, low-conversion states.
+- **Uneven delivery:** State-level performance varies considerably ÔÇö target support to high-volume, low-conversion states.
 - **Approval variability:** Feasibility and inspection approval rates differ across states and explain part of the outcome gap.
 
 Recommended next steps: Share these findings with delivery teams, run focused diagnostics in the top-priority states, and consider temporary capacity increases in the short term.

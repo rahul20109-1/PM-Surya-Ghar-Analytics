@@ -1,4 +1,4 @@
-"""
+﻿"""
 PM Surya Ghar Analytics Dashboard
 ==================================
 Main Streamlit application for exploring PM Surya Ghar program analytics.
@@ -33,7 +33,7 @@ from dashboard.utils.charts import (
 # Configure Streamlit
 st.set_page_config(
     page_title="PM Surya Ghar Analytics",
-    page_icon="☀️",
+    page_icon="ÔÿÇ´©Å",
     layout="wide",
     initial_sidebar_state="collapsed",
 )
@@ -157,6 +157,23 @@ def apply_date_range_filter(df, key_prefix):
     return filtered, start_date, end_date
 
 
+def summarize_period_totals(df, start_date, end_date):
+    period_df = df.copy()
+    period_df["rptdate"] = pd.to_datetime(period_df["rptdate"], errors="coerce")
+    period_df = period_df.dropna(subset=["rptdate"])
+    if start_date is not None:
+        period_df = period_df[period_df["rptdate"].dt.date >= start_date]
+    if end_date is not None:
+        period_df = period_df[period_df["rptdate"].dt.date <= end_date]
+
+    return {
+        "applications": int(period_df["applications"].sum()) if "applications" in period_df else 0,
+        "installations": int(period_df["installations"].sum()) if "installations" in period_df else 0,
+        "inspections": int(period_df["inspection_approved"].sum()) if "inspection_approved" in period_df else 0,
+        "subsidy_redeemed": int(period_df["subsidyredeemed"].sum()) if "subsidyredeemed" in period_df else 0,
+    }
+
+
 try:
     kpi_national, kpi_state, kpi_district, datewise, state_master, district = get_data()
 except Exception as e:
@@ -192,6 +209,58 @@ if page == "Overview":
     )
     apps_not_installed = max(total_apps - total_installs, 0)
 
+    st.subheader("Applications and installations over time")
+    st.markdown("**Date range**")
+    filtered_datewise, start_dt, end_dt = apply_date_range_filter(datewise, "overview")
+    if start_dt and end_dt:
+        st.caption(f"Showing: {start_dt} → {end_dt}")
+
+    if start_dt and end_dt:
+        selected_days = max((end_dt - start_dt).days + 1, 1)
+        previous_end = (pd.Timestamp(start_dt) - pd.Timedelta(days=1)).date()
+        previous_start = (pd.Timestamp(previous_end) - pd.Timedelta(days=selected_days - 1)).date()
+        current_window = summarize_period_totals(datewise, start_dt, end_dt)
+        previous_window = summarize_period_totals(datewise, previous_start, previous_end)
+    else:
+        current_window = {"applications": 0, "installations": 0, "inspections": 0, "subsidy_redeemed": 0}
+        previous_window = current_window.copy()
+
+    current_gap = current_window["applications"] - current_window["installations"]
+    previous_gap = previous_window["applications"] - previous_window["installations"]
+
+    app_delta = current_window["applications"] - previous_window["applications"]
+    install_delta = current_window["installations"] - previous_window["installations"]
+    inspection_delta = current_window["inspections"] - previous_window["inspections"]
+    subsidy_delta = current_window["subsidy_redeemed"] - previous_window["subsidy_redeemed"]
+    app_to_install_delta = (
+        (current_window["installations"] / current_window["applications"] * 100)
+        if current_window["applications"] > 0
+        else 0
+    ) - (
+        (previous_window["installations"] / previous_window["applications"] * 100)
+        if previous_window["applications"] > 0
+        else 0
+    )
+    install_to_inspection_delta = (
+        (current_window["inspections"] / current_window["installations"] * 100)
+        if current_window["installations"] > 0
+        else 0
+    ) - (
+        (previous_window["inspections"] / previous_window["installations"] * 100)
+        if previous_window["installations"] > 0
+        else 0
+    )
+    app_to_subsidy_delta = (
+        (current_window["subsidy_redeemed"] / current_window["applications"] * 100)
+        if current_window["applications"] > 0
+        else 0
+    ) - (
+        (previous_window["subsidy_redeemed"] / previous_window["applications"] * 100)
+        if previous_window["applications"] > 0
+        else 0
+    )
+    gap_delta = current_gap - previous_gap
+
     st.markdown("---")
 
     # Row 1: Core volume metrics
@@ -201,7 +270,7 @@ if page == "Overview":
         kpi_card(
             title="Applications submitted",
             value=total_apps,
-            delta=None,
+            delta=f"{app_delta:+,}",
             format_type="number",
         )
 
@@ -209,7 +278,7 @@ if page == "Overview":
         kpi_card(
             title="Installations completed",
             value=total_installs,
-            delta=None,
+            delta=f"{install_delta:+,}",
             format_type="number",
         )
 
@@ -217,7 +286,7 @@ if page == "Overview":
         kpi_card(
             title="Inspections approved",
             value=total_inspections,
-            delta=None,
+            delta=f"{inspection_delta:+,}",
             format_type="number",
         )
 
@@ -225,7 +294,7 @@ if page == "Overview":
         kpi_card(
             title="Subsidy redeemed amount",
             value=total_subsidy_redeemed_crore,
-            delta=None,
+            delta=f"{subsidy_delta / 1e7:+,.2f} crore",
             format_type="decimal",
             suffix=" crore",
         )
@@ -239,7 +308,7 @@ if page == "Overview":
         kpi_card(
             title="Application to installation rate",
             value=app_to_install_rate,
-            delta=None,
+            delta=f"{app_to_install_delta:+.1f} pp",
             format_type="percent",
         )
 
@@ -247,7 +316,7 @@ if page == "Overview":
         kpi_card(
             title="Installation to inspection rate",
             value=install_to_inspection_rate,
-            delta=None,
+            delta=f"{install_to_inspection_delta:+.1f} pp",
             format_type="percent",
         )
 
@@ -255,7 +324,7 @@ if page == "Overview":
         kpi_card(
             title="Application to subsidy rate",
             value=app_to_subsidy_rate,
-            delta=None,
+            delta=f"{app_to_subsidy_delta:+.1f} pp",
             format_type="percent",
         )
 
@@ -263,18 +332,15 @@ if page == "Overview":
         kpi_card(
             title="Applications not yet installed",
             value=apps_not_installed,
-            delta=None,
+            delta=f"{gap_delta:+,}",
             format_type="number",
         )
 
-    st.markdown("---")
+    st.caption(
+        "KPI deltas compare the selected date range with the immediately preceding period of the same length."
+    )
 
-    # Row 3: Trend
-    st.subheader("Applications and installations over time")
-    st.markdown("**Date range**")
-    filtered_datewise, start_dt, end_dt = apply_date_range_filter(datewise, "overview")
-    if start_dt and end_dt:
-        st.caption(f"Showing: {start_dt} → {end_dt}")
+    st.markdown("---")
 
     if filtered_datewise.empty:
         st.info("No time-series data available for the selected range.")
@@ -328,7 +394,7 @@ elif page == "State Analysis":
         """
     **What this view does:** Compare state performance on volume and conversion.
 
-    - Use the selector to choose a prioritisation metric: raw application or installation volume, or the conversion rate from application → installation.
+    - Use the selector to choose a prioritisation metric: raw application or installation volume, or the conversion rate from application ÔåÆ installation.
     - Lower conversion rates point to places where applications are not turning into completed installations. High volumes with low conversion are high-priority operational issues.
     - Use the charts to spot which states have high throughput and which lag on execution. Drill down using the District page for local diagnostics.
     """,
@@ -370,6 +436,14 @@ elif page == "State Analysis":
     state_base_df = filter_all_zero_rows(
         state_base_df, ["applications", "installations"]
     )
+    state_base_df["installations_per_1000_applications"] = (
+        state_base_df["installations"] / state_base_df["applications"] * 1000
+    ).round(1)
+    state_base_df["subsidy_per_installation"] = np.where(
+        state_base_df["installations"] > 0,
+        state_base_df["subsidy_redeemed_amount"] / state_base_df["installations"],
+        0,
+    ).round(0)
 
     # Prepare sorted data
     if sort_by == "Applications submitted":
@@ -386,13 +460,22 @@ elif page == "State Analysis":
 
     # Prepare a recruiter-friendly display table
     display_table = state_data[
-        ["state", "applications", "installations", "conversion_rate_app_to_install_pct"]
+        [
+            "state",
+            "applications",
+            "installations",
+            "conversion_rate_app_to_install_pct",
+            "installations_per_1000_applications",
+            "subsidy_per_installation",
+        ]
     ].copy()
     display_table.columns = [
         "State",
         "Applications submitted",
         "Installations completed",
-        "Application → Installation (%)",
+        "Application ÔåÆ Installation (%)",
+        "Installations per 1,000 applications",
+        "Subsidy per installation (₹)",
     ]
     display_table["Applications submitted"] = display_table[
         "Applications submitted"
@@ -400,12 +483,19 @@ elif page == "State Analysis":
     display_table["Installations completed"] = display_table[
         "Installations completed"
     ].apply(lambda x: f"{int(x):,}")
-    display_table["Application → Installation (%)"] = display_table[
-        "Application → Installation (%)"
+    display_table["Application ÔåÆ Installation (%)"] = display_table[
+        "Application ÔåÆ Installation (%)"
     ].apply(lambda x: f"{float(x):.1f}%")
+    display_table["Installations per 1,000 applications"] = display_table[
+        "Installations per 1,000 applications"
+    ].apply(lambda x: f"{float(x):.1f}")
+    display_table["Subsidy per installation (₹)"] = display_table[
+        "Subsidy per installation (₹)"
+    ].apply(lambda x: f"₹{float(x):,.0f}")
 
     st.dataframe(display_table, width="stretch", hide_index=True)
     st.caption("Source: kpis_state.csv. The table is sorted and filtered to the top states for the selected metric.")
+    st.caption("Normalized columns help compare efficiency, not just raw volume. Installations per 1,000 applications is a size-adjusted delivery rate.")
 
     # Charts
     col1, col2 = st.columns(2)
@@ -560,6 +650,14 @@ elif page == "District Analysis":
         ),
         axis=1,
     )
+    display_data["Installations per 1,000 applications"] = display_data.apply(
+        lambda row: (
+            (row["Installations completed"] / row["Applications submitted"] * 1000)
+            if row["Applications submitted"] > 0
+            else 0
+        ),
+        axis=1,
+    )
 
     sort_column_map = {
         "Applications submitted": "Applications submitted",
@@ -602,6 +700,9 @@ elif page == "District Analysis":
     page_data["Application to installation rate"] = page_data[
         "Application to installation rate"
     ].map(lambda value: f"{float(value):.1f}%")
+    page_data["Installations per 1,000 applications"] = page_data[
+        "Installations per 1,000 applications"
+    ].map(lambda value: f"{float(value):.1f}")
 
     st.caption(
         f"Showing rows {start_index + 1} to {min(end_index, total_rows)} of {total_rows}"
@@ -873,12 +974,12 @@ elif page == "About":
     and make the problem areas easy to spot.
 
     **What this dashboard covers:**
-    - **Time Period:** February 13, 2024 – February 9, 2026
+    - **Time Period:** February 13, 2024 ÔÇô February 9, 2026
     - **Geography:** 36 States/UTs, 792 Districts, 84 DISCOMs
     - **Records Reviewed:** 6,021,454 applications
 
     **Journey stages captured in this dataset:**
-    Application submission → Feasibility approval → Vendor selection → Installation completed → Project inspection by DISCOM → Subsidy redeem
+    Application submission ÔåÆ Feasibility approval ÔåÆ Vendor selection ÔåÆ Installation completed ÔåÆ Project inspection by DISCOM ÔåÆ Subsidy redeem
 
     *Note:* Consumer registration, agreement upload, and subsidy approval or disbursal are not captured in the source data.
 
@@ -893,6 +994,7 @@ elif page == "About":
     - cross-checked the KPI totals against the cleaned data
     - reviewed the geography level counts
     - kept the dashboard focused on the main numbers first
+    - documented KPI definitions in docs/metric_glossary.md
 
     **What you can see here:**
     - **Overview:** the main numbers and the funnel summary

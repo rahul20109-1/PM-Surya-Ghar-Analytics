@@ -11,9 +11,11 @@ Validate that published headline metrics are consistent with current KPI artifac
 ## 2. Source of Truth
 
 Primary source:
+
 - data_cleaned/kpis_national.csv
 
 Supporting sources:
+
 - data_cleaned/kpis_state.csv
 - data_cleaned/kpis_district.csv
 - data_cleaned/datewise_clean.csv
