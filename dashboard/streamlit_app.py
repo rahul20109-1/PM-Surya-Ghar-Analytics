@@ -223,10 +223,18 @@ if page == "Overview":
 
     st.subheader("Applications and installations over time")
 
-    # For KPI deltas default to the last 12 months window (so KPIs remain cumulative while deltas are meaningful)
+    # Date range selector (affects KPIs and the adoption trend)
     datewise_local = datewise.copy()
     datewise_local["rptdate"] = pd.to_datetime(datewise_local["rptdate"], errors="coerce")
     datewise_local = datewise_local.dropna(subset=["rptdate"]) if not datewise_local.empty else datewise_local
+    chart_filter_col, chart_spacer_col = st.columns([1, 3])
+    with chart_filter_col:
+        st.markdown("**Date range**")
+        filtered_datewise, start_dt, end_dt = apply_date_range_filter(datewise, "overview")
+        if start_dt and end_dt:
+            st.caption(f"Showing: {start_dt} → {end_dt}")
+
+    # Determine KPI windows: use selected range if provided, otherwise default to last 12 months
     if datewise_local.empty:
         current_window = {"applications": 0, "installations": 0, "inspections": 0, "subsidy_redeemed": 0}
         previous_window = current_window.copy()
@@ -236,10 +244,19 @@ if page == "Overview":
         default_start = (pd.Timestamp(max_date) - pd.Timedelta(days=365)).date()
         if default_start < min_date:
             default_start = min_date
-        selected_days = max((max_date - default_start).days + 1, 1)
-        previous_end = (pd.Timestamp(default_start) - pd.Timedelta(days=1)).date()
+
+        if start_dt and end_dt:
+            # use the user-selected range
+            sel_start = start_dt
+            sel_end = end_dt
+        else:
+            sel_start = default_start
+            sel_end = max_date
+
+        selected_days = max((pd.Timestamp(sel_end).date() - pd.Timestamp(sel_start).date()).days + 1, 1)
+        previous_end = (pd.Timestamp(sel_start) - pd.Timedelta(days=1)).date()
         previous_start = (pd.Timestamp(previous_end) - pd.Timedelta(days=selected_days - 1)).date()
-        current_window = summarize_period_totals(datewise_local, default_start, max_date)
+        current_window = summarize_period_totals(datewise_local, sel_start, sel_end)
         previous_window = summarize_period_totals(datewise_local, previous_start, previous_end)
 
     current_gap = current_window["applications"] - current_window["installations"]
