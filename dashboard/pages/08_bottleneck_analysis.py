@@ -516,7 +516,11 @@ if selected_focus_states:
     display_df = state_analysis[state_analysis["state"].isin(selected_focus_states)].copy()
     display_df = display_df.sort_values(metric_col)
 
-st.subheader(f"Top {top_n} states by selected issue")
+if selected_focus_states:
+    st.subheader("Statewise comparison")
+    st.caption(f"Focused comparison for {len(selected_focus_states)} selected state(s).")
+else:
+    st.subheader(f"Top {top_n} states by selected issue")
 
 # Display table
 table_df = display_df[

@@ -449,7 +449,7 @@ elif page == "State Analysis":
     # Optional: allow explicit selection of states to compare
     selected_states = st.multiselect(
         "Select specific states to compare (optional):",
-        options=sorted(state_base_df["state"].tolist()),
+        options=sorted(kpi_state["state"].unique().tolist()),
         help="If selected, only these states will be shown in the table and charts.",
     )
 
@@ -487,9 +487,12 @@ elif page == "State Analysis":
                 show_top, "conversion_rate_app_to_install_pct"
             )
 
-    # Display table
+    # Display table: show a different heading when specific states are selected
     if selected_states:
-        st.subheader(f"Selected states ({len(selected_states)})")
+        st.subheader("Statewise comparison")
+        st.caption(
+            f"Focused selection active — displaying {len(selected_states)} selected state(s)."
+        )
     else:
         st.subheader(f"Top {show_top} states")
 
