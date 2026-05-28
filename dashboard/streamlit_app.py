@@ -202,90 +202,61 @@ except Exception as e:
 # PAGE ROUTING
 # ============================================================================
 
-if page == "Overview":
-    # ========================================================================
-    # OVERVIEW PAGE - Main Dashboard
-    # ========================================================================
+    # Date range selector for the adoption-trend chart (kept for the chart only)
+    datewise_local = datewise.copy()
+    datewise_local["rptdate"] = pd.to_datetime(datewise_local["rptdate"], errors="coerce")
+    datewise_local = datewise_local.dropna(subset=["rptdate"]) if not datewise_local.empty else datewise_local
 
     st.write("""
     Quick snapshot of program scale and operational progress. Use these numbers to understand program reach (volume), execution (installations and inspections), and financial progress (subsidy redeemed).
     """)
 
     total_apps = int(kpi_national["total_applications"].values[0])
-    total_installs = int(kpi_national["total_installations"].values[0])
-    total_inspections = int(kpi_national["total_inspections"].values[0])
-    total_subsidy_redeemed = int(kpi_national["total_subsidy_redeemed"].values[0])
-    total_subsidy_redeemed_crore = total_subsidy_redeemed / 1e7
-    app_to_install_rate = float(
-        kpi_national["conversion_rate_app_to_install"].values[0]
+        # Single date selector for the adoption-trend chart only; use a unique key prefix
+        filtered_datewise, start_dt, end_dt = apply_date_range_filter(datewise, "overview_chart")
+        if start_dt and end_dt:
+            st.caption(f"Showing: {start_dt} → {end_dt}")
     )
     install_to_inspection_rate = float(
         kpi_national["conversion_rate_install_to_inspection"].values[0]
     )
     app_to_subsidy_rate = float(
-        kpi_national["conversion_rate_app_to_subsidy"].values[0]
-    )
-    apps_not_installed = max(total_apps - total_installs, 0)
-
-    st.subheader("Applications and installations over time")
-    # Date range selector for the adoption-trend chart (and optional KPI period totals)
-    datewise_local = datewise.copy()
-    datewise_local["rptdate"] = pd.to_datetime(datewise_local["rptdate"], errors="coerce")
-    datewise_local = datewise_local.dropna(subset=["rptdate"]) if not datewise_local.empty else datewise_local
-
-    # Provide a compact date-range control and an option to display KPIs for the selected range
-    filter_col, spacer = st.columns([1, 3])
-    with filter_col:
-        st.markdown("**Date range**")
-        filtered_datewise, start_dt, end_dt = apply_date_range_filter(datewise, "overview_chart")
-        use_range_kpis = st.checkbox(
-            "Show KPI cards for selected date range",
             value=False,
-            key="overview_kpis_range_toggle",
-            help="When checked, KPI cards show totals for the selected date range instead of cumulative national totals.",
         )
-        if start_dt and end_dt:
-            st.caption(f"Showing: {start_dt} → {end_dt}")
 
-    # Row 1: Core volume metrics
-    col1, col2, col3, col4 = st.columns(4)
 
-    # Choose KPI source: cumulative national or selected range
-    if use_range_kpis and not filtered_datewise.empty:
-        period_totals = summarize_period_totals(filtered_datewise, start_dt, end_dt)
-        period_apps = period_totals.get("applications", 0)
-        period_installs = period_totals.get("installations", 0)
-        period_inspections = period_totals.get("inspections", 0)
-        period_subsidy = period_totals.get("subsidy_redeemed", 0)
-        period_subsidy_crore = period_subsidy / 1e7
-        period_app_to_install_rate = (
-            (period_installs / period_apps * 100) if period_apps > 0 else 0
-        )
-        period_install_to_inspection_rate = (
-            (period_inspections / period_installs * 100) if period_installs > 0 else 0
-        )
         period_app_to_subsidy_rate = (
-            (period_subsidy / period_apps * 100) if period_apps > 0 else 0
-        )
-        period_apps_not_installed = max(period_apps - period_installs, 0)
-
-        with col1:
-            kpi_card(title="Applications submitted", value=period_apps, format_type="number")
-
-        with col2:
-            kpi_card(title="Installations completed", value=period_installs, format_type="number")
-
-        with col3:
-            kpi_card(title="Inspections approved", value=period_inspections, format_type="number")
 
         with col4:
-            kpi_card(
-                title="Subsidy redeemed amount",
-                value=period_subsidy_crore,
-                format_type="decimal",
-                suffix=" crore",
-            )
-    else:
+    # Row 1: Core volume metrics (always cumulative national totals)
+    with col1:
+        kpi_card(
+            title="Applications submitted",
+            value=total_apps,
+            format_type="number",
+        )
+
+    with col2:
+        kpi_card(
+            title="Installations completed",
+            value=total_installs,
+            format_type="number",
+        )
+
+    with col3:
+        kpi_card(
+            title="Inspections approved",
+            value=total_inspections,
+            format_type="number",
+        )
+
+    with col4:
+        kpi_card(
+            title="Subsidy redeemed amount",
+            value=total_subsidy_redeemed_crore,
+            format_type="decimal",
+            suffix=" crore",
+        )
         with col1:
             kpi_card(
                 title="Applications submitted",

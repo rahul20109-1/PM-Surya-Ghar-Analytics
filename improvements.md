@@ -13,7 +13,7 @@ Use the check marks to quickly see what's complete and what's pending.
 - [x] Colocate backlog scenarios with backlog chart
 - [x] Reframe approval-rate wording to "processing ratio (diagnostic hotspot)"
 - [x] Add Trends CSV export for filtered time-series
-- [ ] Make Overview KPI cards reflect selected date range (DEFERRED — snapshot KPIs remain cumulative by design)
+- [ ] Make Overview KPI cards reflect selected date range (DEPRECATED — removed; KPI cards are cumulative)
 - [ ] Add additional, data-backed Trend visualizations (pending further specification)
 
 
