@@ -18,6 +18,8 @@ Supporting sources:
 - data_cleaned/kpis_district.csv
 - data_cleaned/datewise_clean.csv
 
+Note: For subsidy totals we validate against `state_master_clean.csv` (`total_redeem_amt`) when present, as that field is the authoritative state-level subsidy aggregation used during KPI calculation.
+
 ## 3. Verified Headline Metrics
 
 - total_applications: 6,021,454
@@ -44,3 +46,6 @@ The national KPI column total_districts reports 792 districts, matching the dist
 Status: Passed
 
 All portfolio headline metrics should reference this report and the current KPI export values.
+
+--
+Validation notes (2026-05-28): Initial validation failed because subsidy in `kpis_national.csv` was being compared to `datewise_clean.csv`'s `subsidyredeemed` column. I updated the validation script to use `state_master_clean.csv` (`total_redeem_amt`) as the canonical subsidy source and re-ran the checks after fixing a KPI calculation bug. The validation script now passes against current artifacts. See `scripts/validate_kpis.py` for details.

@@ -237,8 +237,9 @@ def calculate_operational_metrics(state_df, datewise_df):
         metrics["inspection_approval_rate"] = 0
 
     # Pending counts
+    # Applications that have not yet reached vendor selection
     metrics["pending_vendor_selection"] = int(
-        state_df["vendor_selected"].sum() - vendor_selected_total
+        applications_total - vendor_selected_total
     )
     metrics["pending_feasibility"] = int(state_df["feasibility_pending"].sum())
     metrics["pending_inspection"] = int(state_df["inspection_pending"].sum())

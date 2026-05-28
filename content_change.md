@@ -61,6 +61,8 @@ If you want, I can:
 - Produce a short changelog with exact diff snippets for each edit.
 - Run the Streamlit app and capture screenshots of the updated pages.
 
+- Added `scripts/validate_kpis.py` and updated `scripts/02_kpi_calculation.py` to fix pending calculation; updated validation behavior to compare subsidy to state-level totals. These changes and the validation result were recorded in `VERIFICATION_REPORT.md` and `lessons.md`.
+
 ---
 
 End of content_change.md

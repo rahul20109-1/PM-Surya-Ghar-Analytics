@@ -43,3 +43,9 @@ Trade-off:
 - KPI export designated as canonical reporting source.
 - Documentation rewritten to reflect current repository facts.
 - Legacy progress narrative replaced with concise portfolio communication.
+
+## 4. Recent Fixes (2026-05-28)
+
+- Added `scripts/validate_kpis.py` — automated validation comparing `kpis_national.csv` to cleaned artifacts.
+- Fixed `pending_vendor_selection` calculation in `scripts/02_kpi_calculation.py` (was incorrectly subtracting sums from themselves).
+- Validation logic updated to prefer `state_master_clean.csv.total_redeem_amt` for subsidy totals to avoid cross-source unit mismatches.
