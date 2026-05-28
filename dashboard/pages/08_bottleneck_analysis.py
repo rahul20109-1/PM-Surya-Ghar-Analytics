@@ -34,16 +34,7 @@ def get_data():
     return load_data()
 
 
-try:
-    kpi_national, kpi_state, kpi_district, datewise, state_master, district = get_data()
-except Exception as e:
-    st.error(f"Error loading data: {str(e)}")
-    st.stop()
-
-# ============================================================================
-# HEADER
-# ============================================================================
-
+# Custom styling
 st.markdown(
     """
 <style>
@@ -82,11 +73,10 @@ st.markdown("---")
 
 st.header("1. Stage-by-stage drop-off")
 
-# Calculate funnel metrics
+# Calculate funnel metrics (feasibility approval stage removed — not used for operational diagnostics)
 funnel_stages = {
     "Stage": [
         "Application submission",
-        "Feasibility approval",
         "Vendor selection",
         "Installation completed",
         "Project inspection by DISCOM",
@@ -94,7 +84,6 @@ funnel_stages = {
     ],
     "Count": [
         state_master["application_status"].sum(),
-        state_master["feasibility_approved"].sum(),
         state_master["vendor_selected"].sum(),
         state_master["installation"].sum(),
         state_master["inspection_approved"].sum(),
@@ -216,7 +205,7 @@ with col1:
         st.plotly_chart(fig, width="stretch")
         chart_caption(
             "Funnel counts stage-by-stage drop-off from application submission to subsidy redeem",
-            "Source: state_master_clean.csv columns application_status, feasibility_approved, vendor_selected, installation, inspection_approved, and total_redeem.",
+            "Source: state_master_clean.csv columns application_status, vendor_selected, installation, inspection_approved, and total_redeem.",
         )
 
 with col2:
@@ -280,9 +269,9 @@ st.header("2. Where applications wait")
 # Calculate pending at each stage
 pending_analysis = {"Stage": [], "Applications": [], "Pending": [], "Pending %": []}
 
+# Stages to check for pending/backlog comparisons (feasibility removed)
 stages_to_check = [
-    ("Feasibility approval", "application_status", "feasibility_approved"),
-    ("Vendor selection", "feasibility_approved", "vendor_selected"),
+    ("Vendor selection", "application_status", "vendor_selected"),
     ("Installation completed", "vendor_selected", "installation"),
     ("Project inspection by DISCOM", "installation", "inspection_approved"),
     ("Subsidy redeem", "inspection_approved", "total_redeem"),
@@ -415,9 +404,9 @@ st.header("3. State comparison")
 # Brief explanation and interpretation guidance for users
 st.markdown(
     """
-**What this table shows:** Compare states on three problem types: low applicationÔåÆinstallation conversion, high waiting share, and low installation completion.
+**What this table shows:** Compare states on three problem types: low application→installation conversion, high waiting share, and low installation completion.
 
-- Use the selector to pick which issue to prioritise. Lower conversion rates indicate where applications are failing to reach installation. High waiting share signals backlog or hold-ups. Low installation completion suggests execution or capacity constraints after feasibility approval.
+- Use the selector to pick which issue to prioritise. Lower conversion rates indicate where applications are failing to reach installation. High waiting share signals backlog or hold-ups. Low installation completion suggests execution or capacity constraints after vendor selection.
 - Tip: Start with the top states in this list, then drill down into local workflow, vendor capacity, and inspection scheduling to find root causes.
 """,
     unsafe_allow_html=True,
@@ -430,7 +419,6 @@ state_analysis = (
         {
             "application_status": "sum",
             "vendor_selected": "sum",
-            "feasibility_approved": "sum",
             "installation": "sum",
             "inspection_approved": "sum",
             "total_redeem": "sum",
@@ -443,7 +431,6 @@ state_analysis.columns = [
     "state",
     "applications",
     "vendor_sel",
-    "feasibility",
     "installation",
     "inspection",
     "subsidy_redeemed",
@@ -457,7 +444,7 @@ state_analysis["app_to_subsidy_rate"] = (
     state_analysis["subsidy_redeemed"] / state_analysis["applications"] * 100
 ).round(2)
 state_analysis["install_completion_rate"] = (
-    state_analysis["installation"] / state_analysis["feasibility"] * 100
+    state_analysis["installation"] / state_analysis["vendor_sel"] * 100
 ).round(2)
 
 # Sort by conversion rate (worst first)
@@ -816,9 +803,9 @@ recommendations = [
     },
     {
         "priority": "Medium",
-        "issue": "High Rejection Rates",
-        "impact": "Feasibility approval rates vary significantly across states; investigate review rules and data quality.",
-        "action": "Use the same review rule across states and check why the gap is so wide.",
+        "issue": "Vendor selection variability",
+        "impact": "Vendor selection rates and criteria vary across states; investigate vendor onboarding and selection rules.",
+        "action": "Review vendor selection policies and data quality; standardise where appropriate.",
         "timeline": "Short-term (1-3 months)",
     },
     {
