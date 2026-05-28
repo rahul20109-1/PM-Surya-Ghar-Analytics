@@ -477,7 +477,6 @@ elif page == "State Analysis":
     ].apply(lambda x: f"{float(x):.1f}")
 
     st.dataframe(display_table, width="stretch", hide_index=True)
-    st.caption("Source: kpis_state.csv. The table is sorted and filtered to the top states for the selected metric.")
     st.caption("Normalized columns help compare efficiency, not just raw volume. Installations per 1,000 applications is a size-adjusted delivery rate.")
 
     # Charts
@@ -497,7 +496,7 @@ elif page == "State Analysis":
             st.plotly_chart(fig, width="stretch")
             chart_caption(
                 "Grouped bars compare applications submitted and installations completed",
-                "Source: kpis_state.csv columns applications and installations.",
+                "",
             )
         else:
             st.subheader("State volume vs conversion")
@@ -505,7 +504,7 @@ elif page == "State Analysis":
             st.plotly_chart(fig, width="stretch")
             chart_caption(
                 "Scatter highlights high-volume states and conversion outliers",
-                "Source: kpis_state.csv columns applications, conversion_rate_app_to_install_pct, and subsidy_redeemed_amount.",
+                "",
             )
 
     with col2:
@@ -529,7 +528,7 @@ elif page == "State Analysis":
         st.plotly_chart(fig, width="stretch")
         chart_caption(
             "Horizontal bars rank states by application-to-installation rate",
-            "Source: kpis_state.csv column conversion_rate_app_to_install_pct.",
+            "",
         )
 
 elif page == "District Analysis":
@@ -691,8 +690,6 @@ elif page == "District Analysis":
         f"Showing rows {start_index + 1} to {min(end_index, total_rows)} of {total_rows}"
     )
     st.dataframe(page_data, width="stretch", hide_index=True)
-    st.caption(
-        "Source: district_clean.csv. The download button exports the full filtered, sorted result set.")
 
     csv_data = sorted_display_data.to_csv(index=False).encode("utf-8")
     st.download_button(
@@ -776,7 +773,7 @@ elif page == "Trends":
         st.plotly_chart(fig, width="stretch")
         chart_caption(
             "Cumulative view shows the running total for applications and installations",
-            "Source: datewise_clean.csv columns rptdate, applications, and installations.",
+            "",
             "Filtered to the selected date range.",
         )
 
@@ -841,7 +838,7 @@ elif page == "Trends":
         st.plotly_chart(fig, width="stretch")
         chart_caption(
             "Daily view adds 7-day averages to smooth day-to-day noise",
-            "Source: datewise_clean.csv columns rptdate, applications, and installations.",
+            "",
             "The dashed lines show the rolling average overlay.",
         )
 
@@ -904,7 +901,7 @@ elif page == "Trends":
         st.plotly_chart(fig, width="stretch")
         chart_caption(
             "Weekday curve shows whether applications and installations cluster on certain days of the week",
-            "Source: datewise_clean.csv columns rptdate, applications, and installations.",
+            "",
             "Filtered to the selected date range.",
         )
 
@@ -985,7 +982,7 @@ elif page == "Capacity Metrics":
             st.plotly_chart(fig, width="stretch")
             chart_caption(
                 "Pie chart shows the residential and RWA mix",
-                "Source: kpis_national.csv columns residential_percentage and rwa_percentage.",
+                "",
             )
 
     with col2:
@@ -1023,9 +1020,6 @@ elif page == "Capacity Metrics":
                 st.plotly_chart(fig, width="stretch")
 
             st.metric("Median size band", median_band)
-            st.caption(
-                "Source: per-installation system size column 'system_size_kw' in the cleaned data."
-            )
         else:
             # Fallback to available aggregate buckets
             upto_10kw = cap_filtered_datewise["upto_10_kw"].sum() if cap_filtered_datewise is not None else datewise["upto_10_kw"].sum()
@@ -1060,8 +1054,7 @@ elif page == "Capacity Metrics":
                 "Histogram-style bucket view based on the available system-size counts in the cleaned data. Finer per-installation buckets require a 'system_size_kw' column in the cleaned dataset."
             )
             st.metric("Median size band", median_band)
-            st.caption(
-                "Source: datewise_clean.csv columns upto_10_kw and above_10_kw. The median is shown as the bucket containing the midpoint, not a per-installation median.")
+            # Source caption removed per UI guidance
 
 elif page == "About":
     st.header("About this dashboard")

@@ -212,7 +212,7 @@ with col1:
         st.plotly_chart(fig, width="stretch")
         chart_caption(
             "Funnel counts stage-by-stage drop-off from application submission to subsidy redeem",
-            "Source: state_master_clean.csv columns application_status, vendor_selected, installation, inspection_approved, and total_redeem.",
+            "",
         )
 
 with col2:
@@ -251,7 +251,7 @@ with col2:
         st.plotly_chart(fig, width="stretch")
         chart_caption(
             "Bars show the percent lost between adjacent funnel stages",
-            "Source: same stage counts from state_master_clean.csv.",
+            "",
         )
 
 # Critical insight
@@ -362,7 +362,7 @@ with col1:
         st.plotly_chart(fig, width="stretch")
         chart_caption(
             "Pending counts identify the stage where applications accumulate",
-            "Source: state_master_clean.csv stage totals compared between adjacent steps.",
+            "",
         )
 
 with col2:
@@ -396,7 +396,7 @@ with col2:
         st.plotly_chart(fig, width="stretch")
         chart_caption(
             "Waiting share shows where backlog is largest relative to volume entering the stage",
-            "Source: pending counts derived from state_master_clean.csv.",
+            "",
         )
 
 st.markdown("---")
@@ -538,9 +538,7 @@ st.dataframe(table_df, width="stretch", hide_index=True)
 st.caption(
     "Tip: Click column headers to sort. Use this list to prioritise on-the-ground support and to pick states for focused diagnostics."
 )
-st.caption(
-    "Source: state_master_clean.csv aggregated to the state level and ranked by the selected issue."
-)
+# Source caption removed per UI guidance
 
 if selected_focus_states:
     st.caption(f"Focused comparison for {len(selected_focus_states)} selected states.")
@@ -625,7 +623,7 @@ with col1:
         st.plotly_chart(fig, width="stretch")
         chart_caption(
             "7-day averages smooth the daily throughput series",
-            "Source: datewise_clean.csv columns applications and installations.",
+            "",
             "The selected date range controls the window shown here.",
         )
 
@@ -759,7 +757,7 @@ with col2:
         )
         chart_caption(
             "Backlog line shows how the application gap accumulates over time",
-            "Source: datewise_clean.csv columns applications and installations.",
+            "",
             "Filtered to the selected date range.",
         )
 
