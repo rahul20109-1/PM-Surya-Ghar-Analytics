@@ -40,6 +40,16 @@ Provide a reproducible, implementation-level guide for converting raw program CS
 - subsidy_status_clean.csv
 - vendor_selection_clean.csv
 
+## 7. Post-cleaning Validation
+
+Run `scripts/validate_kpis.py` after producing cleaned artifacts and before KPI generation. The validator:
+
+- Compares national KPIs to aggregated cleaned sources.
+- Prefers `state_master_clean.csv.total_redeem_amt` as the canonical subsidy total when present to avoid cross-file unit mismatches.
+- Filters `datewise` to the scheme launch date (2024-02-13) to ignore pre-launch test data.
+
+If validation fails, investigate the mismatched aggregates and re-run cleaning or KPI generation.
+
 ## 6. Operational Guidance
 
 - Treat raw_data/ as immutable input.

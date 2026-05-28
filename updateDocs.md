@@ -3,7 +3,23 @@
 Vibe coding fails not because AI is bad, but because developers provide vague intent, no structure, and no constraints. AI is a translator, not a mind reader. When fundamentals, documentation, and rules are missing, AI guesses—and those guesses compound into broken systems. Vibe coding works only when you supply clarity, locked constraints, and persistent context.
 
 ---
+---
 
+## Recent Documentation Activity (2026-05-28)
+
+The following documentation and small code updates were applied to keep project artifacts and how-to steps synchronized with recent fixes:
+
+- Added `scripts/validate_kpis.py` to automate KPI vs cleaned-source verification. The validator prefers `state_master_clean.csv.total_redeem_amt` for subsidy totals, filters `datewise` to the scheme launch date (2024-02-13), and tolerates very small application-count diffs.
+- Fixed `pending_vendor_selection` calculation in `scripts/02_kpi_calculation.py` (now computed as `applications - vendor_selected`).
+- Updated docs to reference the validation step and the small changes: `README.md`, `DATA_CLEANING_GUIDE.md`, `DASHBOARD_STATUS.md`, `BACKEND_STRUCTURE.md`, `VERIFICATION_REPORT.md`, `lessons.md`, `content_change.md`, and `progress.txt`.
+
+Instruction: After running cleaning and KPI regeneration, run:
+
+```bash
+python scripts/validate_kpis.py
+```
+
+Address any reported failures before publishing or demoing artifacts. These additions are committed to `main` for traceability.
 ## Most Important Ideas
 
 ### 1. Documentation Is the Real Product

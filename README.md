@@ -123,6 +123,16 @@ If you are reviewing this repository for hiring or project fit, start with:
 2. [dashboard/streamlit_app.py](dashboard/streamlit_app.py) and [dashboard/pages/08_bottleneck_analysis.py](dashboard/pages/08_bottleneck_analysis.py) to see how the results are presented
 3. [notebooks/03_KPI_Verification.ipynb](notebooks/03_KPI_Verification.ipynb) to see how the numbers were checked
 
+## Validation
+
+After running the cleaning and KPI pipeline, run the validation script to ensure KPI artifacts match the cleaned sources:
+
+```bash
+python scripts/validate_kpis.py
+```
+
+The script compares `data_cleaned/kpis_national.csv` against aggregates from `state_master_clean.csv` (preferred for subsidy totals) and `datewise_clean.csv`. It fails loudly on large mismatches and warns on small, acceptable differences.
+
 ## License And Use
 
 This repository is intended for portfolio and learning use. If you reuse the source data in another project, review the source terms first.

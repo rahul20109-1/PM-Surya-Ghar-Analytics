@@ -43,6 +43,16 @@ python -m streamlit run dashboard/streamlit_app.py
 
 4. Open the local URL shown in terminal.
 
+## Validation Step
+
+After regenerating cleaned artifacts and KPIs, run the validation script to confirm artifact consistency before launching the dashboard:
+
+```bash
+python scripts/validate_kpis.py
+```
+
+If validation fails, address the mismatches (check `state_master_clean.csv` and `datewise_clean.csv`) before demoing the dashboard.
+
 ## Data Dependencies
 
 Primary files required by dashboard loaders:

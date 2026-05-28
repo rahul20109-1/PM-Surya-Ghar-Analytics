@@ -1,6 +1,7 @@
 PM SURYA GHAR ANALYTICS - PROJECT STATUS
 Last Updated: March 17, 2026
 Overall Status: COMPLETE
+Last Update: 2026-05-28 — Added KPI validation script and doc updates
 
 COMPLETED
 - Foundation and environment setup
@@ -19,6 +20,11 @@ CURRENT STATE
 - In Progress: None
 - Next: Optional public deployment and portfolio packaging
 - Blockers: None
+
+RECENT ACTIVITY (2026-05-28):
+- Added `scripts/validate_kpis.py` for automated KPI <-> cleaned source validation.
+- Fixed `pending_vendor_selection` calculation in `scripts/02_kpi_calculation.py`.
+- Documentation updated: `README.md`, `DATA_CLEANING_GUIDE.md`, `DASHBOARD_STATUS.md`, `BACKEND_STRUCTURE.md`, `VERIFICATION_REPORT.md`, `lessons.md`, `content_change.md`.
 
 QUALITY NOTES
 - Headline metrics aligned to current KPI exports

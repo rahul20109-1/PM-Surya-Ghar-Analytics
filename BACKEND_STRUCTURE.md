@@ -54,6 +54,7 @@ Note: KPI totals are computed from datewise_clean.csv.
 - scripts/01_data_cleaning_v2.py: fixed cleaning variant (writes datewise_clean.csv)
 - scripts/02_kpi_calculation.py: KPI computation
 - scripts/utils/parser.py: numeric parsing helper
+ - scripts/validate_kpis.py: validation script that compares KPI artifacts to cleaned sources and warns/fails on mismatches
 
 ## 5. Data Quality Controls
 
