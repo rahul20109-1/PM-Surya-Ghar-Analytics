@@ -14,6 +14,12 @@ The following documentation and small code updates were applied to keep project 
 - Fixed `pending_vendor_selection` calculation in `scripts/02_kpi_calculation.py` (now computed as `applications - vendor_selected`).
 - Updated docs to reference the validation step and the small changes: `README.md`, `DATA_CLEANING_GUIDE.md`, `DASHBOARD_STATUS.md`, `BACKEND_STRUCTURE.md`, `VERIFICATION_REPORT.md`, `lessons.md`, `content_change.md`, and `progress.txt`.
 
+## Recent Documentation Activity (2026-05-28 - Bottleneck refinement)
+
+- Reworked the Bottleneck Analysis time controls so the throughput chart and backlog chart each have their own date range selector.
+- Added a focused state multiselect on the Bottleneck state ranking table so users can compare states like Chandigarh, Uttar Pradesh, and Nagaland directly.
+- Removed the page-wide bottleneck date selector so the controls sit closer to the charts they affect.
+
 ## Recent Dashboard Activity (2026-05-28)
 
 - Added a state comparison chart toggle in `dashboard/streamlit_app.py` so users can switch between grouped bars and a scatter plot of volume vs conversion.

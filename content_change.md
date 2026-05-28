@@ -20,6 +20,8 @@ This document lists all content (UI copy, chart titles/labels, table headings, c
 2. dashboard/pages/08_bottleneck_analysis.py
 
 - Rewrote page title and description to: "Process bottlenecks — where applications stall" and added an explanatory paragraph describing how to use the page.
+- Removed the page-wide bottleneck date selector and moved date controls down to the time-based charts they affect.
+- Added a focused state multiselect so users can compare specific states directly in the bottleneck ranking table.
 - Replaced the original critical insight wording with a clearer "Key insight" box that includes the stage names, percentage drop, application loss, and a suggested next step.
 - Improved metric labels in pending section to:
   - `Total applications currently waiting` (was: "Total waiting applications")

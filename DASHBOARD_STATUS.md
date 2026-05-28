@@ -74,5 +74,5 @@ Primary files required by dashboard loaders:
 
 - Overview KPI cards now show deltas against the previous period of the same length.
 - State and district comparison tables now include normalized efficiency columns.
-- Bottleneck Analysis now includes backlog scenario planning and direct chart callouts.
+- Bottleneck Analysis now includes backlog scenario planning, direct chart callouts, per-chart date controls, and a focused state comparison selector.
 - The dashboard links to the metric glossary so KPI terms are easier to trust and explain.

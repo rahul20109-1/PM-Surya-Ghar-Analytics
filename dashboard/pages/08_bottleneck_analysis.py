@@ -40,16 +40,6 @@ except Exception as e:
     st.error(f"Error loading data: {str(e)}")
     st.stop()
 
-# Date range selector for Bottleneck time analyses
-st.markdown("**Date range (Bottleneck analysis)**")
-filtered_datewise, start_dt, end_dt = apply_date_range_filter(datewise, "bottleneck")
-if start_dt and end_dt:
-    st.caption(f"Showing: {start_dt} ÔåÆ {end_dt}")
-
-# Use filtered_datewise for time-based analyses below
-if filtered_datewise is None or filtered_datewise.empty:
-    st.warning("No time-series data available for selected date range. Time-based charts will be empty.")
-
 # ============================================================================
 # HEADER
 # ============================================================================
@@ -72,7 +62,7 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-st.title("Process bottlenecks ÔÇö where applications stall")
+st.title("Process bottlenecks: where applications stall")
 st.markdown(
     """
 This analysis highlights stages where applications are delayed, dropped, or accumulate in backlog. Use it to prioritise operational interventions and state-level support.
@@ -497,6 +487,12 @@ with col2:
         help="Limit the list to the most important states for the selected issue.",
     )
 
+selected_focus_states = st.multiselect(
+    "Focus specific states",
+    sorted(state_analysis["state"].unique()),
+    help="Pick one or more states to compare directly. Leave empty to use the ranked top states view.",
+)
+
 # Prepare display data
 if issue_type == "Lowest application to installation rate":
     display_df = state_analysis_sorted.head(top_n)
@@ -515,6 +511,10 @@ else:
     display_df = state_analysis.nsmallest(top_n, "install_completion_rate")
     metric_col = "install_completion_rate"
     metric_name = "Installation completion rate"
+
+if selected_focus_states:
+    display_df = state_analysis[state_analysis["state"].isin(selected_focus_states)].copy()
+    display_df = display_df.sort_values(metric_col)
 
 st.subheader(f"Top {top_n} states by selected issue")
 
@@ -544,6 +544,9 @@ st.caption(
     "Source: state_master_clean.csv aggregated to the state level and ranked by the selected issue."
 )
 
+if selected_focus_states:
+    st.caption(f"Focused comparison for {len(selected_focus_states)} selected states.")
+
 st.markdown("---")
 
 # ============================================================================
@@ -552,145 +555,66 @@ st.markdown("---")
 
 st.header("4. Processing speed over time")
 
-st.markdown("**Date range**")
-filtered_datewise, start_date, end_date = apply_date_range_filter(
-    datewise, "bottleneck_time"
-)
-if start_date and end_date:
-    st.caption(f"Showing: {start_date} to {end_date}")
+col1, col2 = st.columns(2)
 
-avg_daily_apps = 0.0
-avg_daily_installs = 0.0
-daily_deficit = 0.0
-latest_gap = 0.0
-
-if filtered_datewise.empty:
-    st.info("No time-series data available for the selected range.")
-else:
-    # Analyze daily throughput
-    throughput_df = filtered_datewise[["rptdate", "applications", "installations"]].copy()
-    throughput_df = filter_all_zero_rows(
-        throughput_df, ["applications", "installations"]
+with col1:
+    st.subheader("4.1 Applications and installations over time")
+    st.markdown("**Date range**")
+    throughput_datewise, throughput_start_date, throughput_end_date = apply_date_range_filter(
+        datewise, "bottleneck_throughput"
     )
-    datewise_analysis = throughput_df.sort_values("rptdate")
-    datewise_analysis["rptdate"] = pd.to_datetime(datewise_analysis["rptdate"])
+    if throughput_start_date and throughput_end_date:
+        st.caption(f"Showing: {throughput_start_date} to {throughput_end_date}")
 
-    # Calculate rolling averages
-    datewise_analysis["apps_7d_avg"] = (
-        datewise_analysis["applications"].rolling(window=7, min_periods=1).mean()
-    )
-    datewise_analysis["installs_7d_avg"] = (
-        datewise_analysis["installations"].rolling(window=7, min_periods=1).mean()
-    )
-    datewise_analysis["gap_7d"] = (
-        datewise_analysis["apps_7d_avg"] - datewise_analysis["installs_7d_avg"]
-    ).round(0)
-
-    # Calculate backlog growth
-    datewise_analysis["cumulative_gap"] = (
-        datewise_analysis["applications"].cumsum()
-        - datewise_analysis["installations"].cumsum()
-    )
-
-    # Throughput metrics used for scenarios (compute before plotting so scenarios can be colocated)
-    latest_gap = datewise_analysis["cumulative_gap"].iloc[-1]
-    avg_daily_apps = datewise_analysis["applications"].mean()
-    avg_daily_installs = datewise_analysis["installations"].mean()
-    daily_deficit = avg_daily_apps - avg_daily_installs
-
-    if daily_deficit > 0:
-        years_to_clear = latest_gap / daily_deficit / 365
-        clearance_line = (
-            f"At the current rate, it will take about {years_to_clear:.1f} years to clear the backlog."
-        )
+    if throughput_datewise.empty:
+        st.info("No time-series data available for the selected range.")
+        avg_daily_apps = 0.0
+        avg_daily_installs = 0.0
+        daily_deficit = 0.0
+        latest_gap = 0.0
+        clearance_line = "No time-series data available for the selected range."
     else:
-        clearance_line = (
-            "At the current rate, backlog is not growing; clearance timing cannot be estimated."
-        )
+        throughput_df = throughput_datewise[["rptdate", "applications", "installations"]].copy()
+        throughput_df = filter_all_zero_rows(throughput_df, ["applications", "installations"])
+        throughput_analysis = throughput_df.sort_values("rptdate")
+        throughput_analysis["rptdate"] = pd.to_datetime(throughput_analysis["rptdate"])
 
-    # Build scenario rows once so we can display them beside the backlog chart
-    if latest_gap > 0 and daily_deficit != 0:
-        scenario_rows = [
-            {
-                "Scenario": "Current pace",
-                "Daily intake": f"{avg_daily_apps:,.0f}",
-                "Daily installations": f"{avg_daily_installs:,.0f}",
-                "Daily deficit": f"{daily_deficit:,.0f}",
-                "Years to clear": f"{(latest_gap / daily_deficit / 365):.1f}" if daily_deficit > 0 else "Not growing",
-            },
-            {
-                "Scenario": "+25% capacity",
-                "Daily intake": f"{avg_daily_apps:,.0f}",
-                "Daily installations": f"{avg_daily_installs * 1.25:,.0f}",
-                "Daily deficit": f"{(avg_daily_apps - avg_daily_installs * 1.25):,.0f}",
-                "Years to clear": f"{(latest_gap / (avg_daily_apps - avg_daily_installs * 1.25) / 365):.1f}"
-                if (avg_daily_apps - avg_daily_installs * 1.25) > 0
-                else "No backlog growth",
-            },
-            {
-                "Scenario": "-25% intake",
-                "Daily intake": f"{avg_daily_apps * 0.75:,.0f}",
-                "Daily installations": f"{avg_daily_installs:,.0f}",
-                "Daily deficit": f"{(avg_daily_apps * 0.75 - avg_daily_installs):,.0f}",
-                "Years to clear": f"{(latest_gap / (avg_daily_apps * 0.75 - avg_daily_installs) / 365):.1f}"
-                if (avg_daily_apps * 0.75 - avg_daily_installs) > 0
-                else "No backlog growth",
-            },
-        ]
-    else:
-        scenario_rows = [
-            {
-                "Scenario": "Current pace",
-                "Daily intake": f"{avg_daily_apps:,.0f}",
-                "Daily installations": f"{avg_daily_installs:,.0f}",
-                "Daily deficit": f"{daily_deficit:,.0f}",
-                "Years to clear": "Not applicable",
-            },
-            {
-                "Scenario": "+25% capacity",
-                "Daily intake": f"{avg_daily_apps:,.0f}",
-                "Daily installations": f"{avg_daily_installs * 1.25:,.0f}",
-                "Daily deficit": f"{(avg_daily_apps - avg_daily_installs * 1.25):,.0f}",
-                "Years to clear": "Not applicable",
-            },
-            {
-                "Scenario": "-25% intake",
-                "Daily intake": f"{avg_daily_apps * 0.75:,.0f}",
-                "Daily installations": f"{avg_daily_installs:,.0f}",
-                "Daily deficit": f"{(avg_daily_apps * 0.75 - avg_daily_installs):,.0f}",
-                "Years to clear": "Not applicable",
-            },
-        ]
+        throughput_analysis["apps_7d_avg"] = throughput_analysis["applications"].rolling(window=7, min_periods=1).mean()
+        throughput_analysis["installs_7d_avg"] = throughput_analysis["installations"].rolling(window=7, min_periods=1).mean()
+        throughput_analysis["cumulative_gap"] = throughput_analysis["applications"].cumsum() - throughput_analysis["installations"].cumsum()
 
-    col1, col2 = st.columns(2)
+        avg_daily_apps = throughput_analysis["applications"].mean()
+        avg_daily_installs = throughput_analysis["installations"].mean()
+        daily_deficit = avg_daily_apps - avg_daily_installs
+        latest_gap = throughput_analysis["cumulative_gap"].iloc[-1]
 
-    with col1:
-        st.subheader("7-day average applications and installations")
+        if daily_deficit > 0:
+            years_to_clear = latest_gap / daily_deficit / 365
+            clearance_line = f"At the current rate, it will take about {years_to_clear:.1f} years to clear the backlog."
+        else:
+            clearance_line = "At the current rate, backlog is not growing; clearance timing cannot be estimated."
 
         fig = go.Figure()
-
         fig.add_trace(
             go.Scatter(
-                x=datewise_analysis["rptdate"],
-                y=datewise_analysis["apps_7d_avg"],
+                x=throughput_analysis["rptdate"],
+                y=throughput_analysis["apps_7d_avg"],
                 name="Applications (7-day avg)",
                 mode="lines",
                 line=dict(color="#1f77b4", width=2),
                 hovertemplate="%{y:,.0f} applications - %{x|%Y-%m-%d}",
             )
         )
-
         fig.add_trace(
             go.Scatter(
-                x=datewise_analysis["rptdate"],
-                y=datewise_analysis["installs_7d_avg"],
+                x=throughput_analysis["rptdate"],
+                y=throughput_analysis["installs_7d_avg"],
                 name="Installations (7-day avg)",
                 mode="lines",
                 line=dict(color="#2ca02c", width=2),
                 hovertemplate="%{y:,.0f} installations - %{x|%Y-%m-%d}",
             )
         )
-
         fig.update_layout(
             height=400,
             hovermode="x unified",
@@ -707,15 +631,97 @@ else:
             "The selected date range controls the window shown here.",
         )
 
-    with col2:
-        st.subheader("Backlog growth over time")
+with col2:
+    st.subheader("4.2 Backlog growth over time")
+    st.markdown("**Date range**")
+    backlog_datewise, backlog_start_date, backlog_end_date = apply_date_range_filter(
+        datewise, "bottleneck_backlog"
+    )
+    if backlog_start_date and backlog_end_date:
+        st.caption(f"Showing: {backlog_start_date} to {backlog_end_date}")
+
+    if backlog_datewise.empty:
+        st.info("No time-series data available for the selected range.")
+    else:
+        backlog_df = backlog_datewise[["rptdate", "applications", "installations"]].copy()
+        backlog_df = filter_all_zero_rows(backlog_df, ["applications", "installations"])
+        backlog_analysis = backlog_df.sort_values("rptdate")
+        backlog_analysis["rptdate"] = pd.to_datetime(backlog_analysis["rptdate"])
+        backlog_analysis["cumulative_gap"] = backlog_analysis["applications"].cumsum() - backlog_analysis["installations"].cumsum()
+
+        backlog_latest_gap = backlog_analysis["cumulative_gap"].iloc[-1]
+        backlog_avg_daily_apps = backlog_analysis["applications"].mean()
+        backlog_avg_daily_installs = backlog_analysis["installations"].mean()
+        backlog_daily_deficit = backlog_avg_daily_apps - backlog_avg_daily_installs
+
+        if backlog_daily_deficit > 0:
+            backlog_years_to_clear = backlog_latest_gap / backlog_daily_deficit / 365
+            backlog_clearance_line = (
+                f"At the current rate, it will take about {backlog_years_to_clear:.1f} years to clear the backlog."
+            )
+        else:
+            backlog_clearance_line = (
+                "At the current rate, backlog is not growing; clearance timing cannot be estimated."
+            )
+
+        if backlog_latest_gap > 0 and backlog_daily_deficit != 0:
+            backlog_scenario_rows = [
+                {
+                    "Scenario": "Current pace",
+                    "Daily intake": f"{backlog_avg_daily_apps:,.0f}",
+                    "Daily installations": f"{backlog_avg_daily_installs:,.0f}",
+                    "Daily deficit": f"{backlog_daily_deficit:,.0f}",
+                    "Years to clear": f"{(backlog_latest_gap / backlog_daily_deficit / 365):.1f}" if backlog_daily_deficit > 0 else "Not growing",
+                },
+                {
+                    "Scenario": "+25% capacity",
+                    "Daily intake": f"{backlog_avg_daily_apps:,.0f}",
+                    "Daily installations": f"{backlog_avg_daily_installs * 1.25:,.0f}",
+                    "Daily deficit": f"{(backlog_avg_daily_apps - backlog_avg_daily_installs * 1.25):,.0f}",
+                    "Years to clear": f"{(backlog_latest_gap / (backlog_avg_daily_apps - backlog_avg_daily_installs * 1.25) / 365):.1f}"
+                    if (backlog_avg_daily_apps - backlog_avg_daily_installs * 1.25) > 0
+                    else "No backlog growth",
+                },
+                {
+                    "Scenario": "-25% intake",
+                    "Daily intake": f"{backlog_avg_daily_apps * 0.75:,.0f}",
+                    "Daily installations": f"{backlog_avg_daily_installs:,.0f}",
+                    "Daily deficit": f"{(backlog_avg_daily_apps * 0.75 - backlog_avg_daily_installs):,.0f}",
+                    "Years to clear": f"{(backlog_latest_gap / (backlog_avg_daily_apps * 0.75 - backlog_avg_daily_installs) / 365):.1f}"
+                    if (backlog_avg_daily_apps * 0.75 - backlog_avg_daily_installs) > 0
+                    else "No backlog growth",
+                },
+            ]
+        else:
+            backlog_scenario_rows = [
+                {
+                    "Scenario": "Current pace",
+                    "Daily intake": f"{backlog_avg_daily_apps:,.0f}",
+                    "Daily installations": f"{backlog_avg_daily_installs:,.0f}",
+                    "Daily deficit": f"{backlog_daily_deficit:,.0f}",
+                    "Years to clear": "Not applicable",
+                },
+                {
+                    "Scenario": "+25% capacity",
+                    "Daily intake": f"{backlog_avg_daily_apps:,.0f}",
+                    "Daily installations": f"{backlog_avg_daily_installs * 1.25:,.0f}",
+                    "Daily deficit": f"{(backlog_avg_daily_apps - backlog_avg_daily_installs * 1.25):,.0f}",
+                    "Years to clear": "Not applicable",
+                },
+                {
+                    "Scenario": "-25% intake",
+                    "Daily intake": f"{backlog_avg_daily_apps * 0.75:,.0f}",
+                    "Daily installations": f"{backlog_avg_daily_installs:,.0f}",
+                    "Daily deficit": f"{(backlog_avg_daily_apps * 0.75 - backlog_avg_daily_installs):,.0f}",
+                    "Years to clear": "Not applicable",
+                },
+            ]
 
         fig = go.Figure()
-
         fig.add_trace(
             go.Scatter(
-                x=datewise_analysis["rptdate"],
-                y=datewise_analysis["cumulative_gap"],
+                x=backlog_analysis["rptdate"],
+                y=backlog_analysis["cumulative_gap"],
                 name="Backlog (cumulative)",
                 mode="lines",
                 fill="tozeroy",
@@ -723,7 +729,6 @@ else:
                 hovertemplate="%{y:,.0f} pending applications - %{x|%Y-%m-%d}",
             )
         )
-
         fig.update_layout(
             height=400,
             hovermode="x",
@@ -733,8 +738,8 @@ else:
             legend=dict(title="Series", x=0.01, y=0.99),
         )
 
-        latest_backlog = datewise_analysis["cumulative_gap"].iloc[-1]
-        latest_backlog_date = datewise_analysis["rptdate"].iloc[-1]
+        latest_backlog = backlog_analysis["cumulative_gap"].iloc[-1]
+        latest_backlog_date = backlog_analysis["rptdate"].iloc[-1]
         fig.add_annotation(
             x=latest_backlog_date,
             y=latest_backlog,
@@ -749,9 +754,8 @@ else:
         )
 
         st.plotly_chart(fig, width="stretch")
-        # Present backlog clearance scenarios adjacent to the backlog chart for better context
         st.subheader("Backlog clearance scenarios")
-        st.dataframe(pd.DataFrame(scenario_rows), width="stretch", hide_index=True)
+        st.dataframe(pd.DataFrame(backlog_scenario_rows), width="stretch", hide_index=True)
         st.caption(
             "Scenarios compare the current flow against a 25% capacity increase or a 25% intake reduction to show how quickly the backlog could be reduced."
         )
@@ -759,22 +763,6 @@ else:
             "Backlog line shows how the application gap accumulates over time",
             "Source: datewise_clean.csv columns applications and installations.",
             "Filtered to the selected date range.",
-        )
-
-    # Throughput metrics
-    latest_gap = datewise_analysis["cumulative_gap"].iloc[-1]
-    avg_daily_apps = datewise_analysis["applications"].mean()
-    avg_daily_installs = datewise_analysis["installations"].mean()
-    daily_deficit = avg_daily_apps - avg_daily_installs
-
-    if daily_deficit > 0:
-        years_to_clear = latest_gap / daily_deficit / 365
-        clearance_line = (
-            f"At the current rate, it will take about {years_to_clear:.1f} years to clear the backlog."
-        )
-    else:
-        clearance_line = (
-            "At the current rate, backlog is not growing; clearance timing cannot be estimated."
         )
 
     st.markdown(
@@ -791,8 +779,6 @@ else:
     """,
         unsafe_allow_html=True,
     )
-
-    # scenarios are displayed beside the backlog chart above
 
 st.markdown("---")
 
