@@ -26,7 +26,7 @@ def filter_all_zero_rows(df, metric_cols):
     return df.loc[~all_zero].copy()
 
 
-def create_adoption_trend(datewise_df):
+def create_adoption_trend(datewise_df, start_date=None, end_date=None):
     """
     Create cumulative adoption trend chart.
 
@@ -39,6 +39,12 @@ def create_adoption_trend(datewise_df):
 
     # Prepare data
     df = datewise_df[["rptdate", "applications", "installations"]].copy()
+    # Ensure rptdate is datetime
+    df["rptdate"] = pd.to_datetime(df["rptdate"], errors="coerce")
+    if start_date is not None:
+        df = df[df["rptdate"] >= pd.to_datetime(start_date)]
+    if end_date is not None:
+        df = df[df["rptdate"] <= pd.to_datetime(end_date)]
     df = filter_all_zero_rows(df, ["applications", "installations"])
     df["rptdate"] = pd.to_datetime(df["rptdate"])
     df = df.sort_values("rptdate")

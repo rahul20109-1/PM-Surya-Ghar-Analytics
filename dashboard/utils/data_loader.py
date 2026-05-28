@@ -48,3 +48,65 @@ def load_data():
         raise FileNotFoundError(f"Failed to load data files: {str(e)}")
     except Exception as e:
         raise Exception(f"Error loading data: {str(e)}")
+
+
+def apply_date_range_filter(df, key_prefix=None):
+    """
+    Helper: apply a date-range selection UI and filter a dataframe with 'rptdate'.
+
+    Returns: (filtered_df, start_date, end_date)
+    """
+    import streamlit as st
+    df = df.copy()
+    if "rptdate" not in df.columns:
+        return df, None, None
+
+    df["rptdate"] = pd.to_datetime(df["rptdate"], errors="coerce")
+    df = df.dropna(subset=["rptdate"])
+    if df.empty:
+        return df, None, None
+
+    min_date = df["rptdate"].min().date()
+    max_date = df["rptdate"].max().date()
+    full_days = (max_date - min_date).days
+    default_start = (pd.Timestamp(max_date) - pd.Timedelta(days=365)).date()
+    if default_start < min_date:
+        default_start = min_date
+
+    preset_options = [
+        "Last 30 days",
+        "Last 90 days",
+        "Year to date",
+        "Last 12 months",
+        "All",
+        "Custom",
+    ]
+    preset_index = 3 if full_days > 365 else 4
+    preset = st.selectbox("Quick range", preset_options, index=preset_index, key=(f"{key_prefix}_preset" if key_prefix else None))
+
+    if preset == "Custom":
+        start_date, end_date = st.date_input("Custom range", value=(default_start, max_date), key=(f"{key_prefix}_custom" if key_prefix else None))
+    elif preset == "Last 30 days":
+        start_date = (pd.Timestamp(max_date) - pd.Timedelta(days=29)).date()
+        end_date = max_date
+    elif preset == "Last 90 days":
+        start_date = (pd.Timestamp(max_date) - pd.Timedelta(days=89)).date()
+        end_date = max_date
+    elif preset == "Year to date":
+        start_date = pd.Timestamp(max_date.year, 1, 1).date()
+        end_date = max_date
+    elif preset == "Last 12 months":
+        start_date = default_start
+        end_date = max_date
+    else:
+        start_date = min_date
+        end_date = max_date
+
+    if start_date < min_date:
+        start_date = min_date
+    if end_date > max_date:
+        end_date = max_date
+
+    mask = (df["rptdate"].dt.date >= start_date) & (df["rptdate"].dt.date <= end_date)
+    filtered = df.loc[mask].copy()
+    return filtered, start_date, end_date

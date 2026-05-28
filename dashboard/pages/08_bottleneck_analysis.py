@@ -20,7 +20,7 @@ import sys
 project_root = Path(__file__).parent.parent.parent
 sys.path.insert(0, str(project_root))
 
-from dashboard.utils.data_loader import load_data
+from dashboard.utils.data_loader import load_data, apply_date_range_filter
 from dashboard.utils.charts import filter_all_zero_rows
 
 # Configure page
@@ -39,69 +39,15 @@ except Exception as e:
     st.error(f"Error loading data: {str(e)}")
     st.stop()
 
+# Date range selector for Bottleneck time analyses
+st.markdown("**Date range (Bottleneck analysis)**")
+filtered_datewise, start_dt, end_dt = apply_date_range_filter(datewise, "bottleneck")
+if start_dt and end_dt:
+    st.caption(f"Showing: {start_dt} → {end_dt}")
 
-def apply_date_range_filter(df, key_prefix):
-    df = df.copy()
-    df["rptdate"] = pd.to_datetime(df["rptdate"], errors="coerce")
-    df = df.dropna(subset=["rptdate"])
-    if df.empty:
-        return df, None, None
-
-    min_date = df["rptdate"].min().date()
-    max_date = df["rptdate"].max().date()
-    full_days = (max_date - min_date).days
-    default_start = (pd.Timestamp(max_date) - pd.Timedelta(days=365)).date()
-    if default_start < min_date:
-        default_start = min_date
-
-    preset_options = [
-        "Last 30 days",
-        "Last 90 days",
-        "Year to date",
-        "Last 12 months",
-        "All",
-        "Custom",
-    ]
-    preset_index = 3 if full_days > 365 else 4
-    preset = st.selectbox(
-        "Quick range",
-        preset_options,
-        index=preset_index,
-        key=f"{key_prefix}_preset",
-    )
-
-    if preset == "Custom":
-        start_date, end_date = st.date_input(
-            "Custom range",
-            value=(default_start, max_date),
-            key=f"{key_prefix}_custom",
-        )
-    elif preset == "Last 30 days":
-        start_date = (pd.Timestamp(max_date) - pd.Timedelta(days=29)).date()
-        end_date = max_date
-    elif preset == "Last 90 days":
-        start_date = (pd.Timestamp(max_date) - pd.Timedelta(days=89)).date()
-        end_date = max_date
-    elif preset == "Year to date":
-        start_date = pd.Timestamp(max_date.year, 1, 1).date()
-        end_date = max_date
-    elif preset == "Last 12 months":
-        start_date = default_start
-        end_date = max_date
-    else:
-        start_date = min_date
-        end_date = max_date
-
-    if start_date < min_date:
-        start_date = min_date
-    if end_date > max_date:
-        end_date = max_date
-
-    mask = (df["rptdate"].dt.date >= start_date) & (
-        df["rptdate"].dt.date <= end_date
-    )
-    filtered = df.loc[mask].copy()
-    return filtered, start_date, end_date
+# Use filtered_datewise for time-based analyses below
+if filtered_datewise is None or filtered_datewise.empty:
+    st.warning("No time-series data available for selected date range. Time-based charts will be empty.")
 
 # ============================================================================
 # HEADER
