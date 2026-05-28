@@ -31,6 +31,12 @@ The following documentation and small code updates were applied to keep project 
 - Added a median size band label so the page surfaces the bucket containing the midpoint of system-size counts.
 - Kept the wording explicit that the distribution is bucketed because the cleaned data does not expose per-installation system-size bins.
 
+## Recent Dashboard Activity (Batch 5)
+
+- Added reusable chart captions and helper tooltips to improve chart clarity across the dashboard.
+- Updated the bottleneck analysis page with source notes for stage drop-off, backlog, state ranking, and approval-gap charts.
+- Kept the control text close to the visuals so users can interpret each chart without guessing.
+
 Instruction: After running cleaning and KPI regeneration, run:
 
 ```bash

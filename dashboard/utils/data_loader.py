@@ -82,10 +82,21 @@ def apply_date_range_filter(df, key_prefix=None):
         "Custom",
     ]
     preset_index = 3 if full_days > 365 else 4
-    preset = st.selectbox("Quick range", preset_options, index=preset_index, key=(f"{key_prefix}_preset" if key_prefix else None))
+    preset = st.selectbox(
+        "Quick range",
+        preset_options,
+        index=preset_index,
+        key=(f"{key_prefix}_preset" if key_prefix else None),
+        help="Pick a common date window or switch to Custom for an exact from/to range.",
+    )
 
     if preset == "Custom":
-        start_date, end_date = st.date_input("Custom range", value=(default_start, max_date), key=(f"{key_prefix}_custom" if key_prefix else None))
+        start_date, end_date = st.date_input(
+            "Custom range",
+            value=(default_start, max_date),
+            key=(f"{key_prefix}_custom" if key_prefix else None),
+            help="Choose the exact start and end dates for the chart.",
+        )
     elif preset == "Last 30 days":
         start_date = (pd.Timestamp(max_date) - pd.Timedelta(days=29)).date()
         end_date = max_date

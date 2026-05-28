@@ -22,7 +22,7 @@ sys.path.insert(0, str(project_root))
 
 # Import utility modules
 from dashboard.utils.data_loader import load_data
-from dashboard.utils.components import kpi_card, create_conversion_funnel
+from dashboard.utils.components import kpi_card, create_conversion_funnel, chart_caption
 from dashboard.utils.charts import (
     create_adoption_trend,
     create_state_scatter_chart,
@@ -346,10 +346,17 @@ elif page == "State Analysis":
                 "Installations completed",
                 "Application to installation rate",
             ],
+            help="Choose whether to rank by volume or efficiency.",
         )
 
     with col2:
-        show_top = st.slider("Number of states to show:", 5, 36, 10)
+        show_top = st.slider(
+            "Number of states to show:",
+            5,
+            36,
+            10,
+            help="Show a smaller list for a tighter comparison.",
+        )
 
     state_base_df = kpi_state[
         [
@@ -398,6 +405,7 @@ elif page == "State Analysis":
     ].apply(lambda x: f"{float(x):.1f}%")
 
     st.dataframe(display_table, use_container_width=True, hide_index=True)
+    st.caption("Source: kpis_state.csv. The table is sorted and filtered to the top states for the selected metric.")
 
     # Charts
     col1, col2 = st.columns(2)
@@ -408,14 +416,24 @@ elif page == "State Analysis":
             ["Grouped bars", "Scatter: volume vs conversion"],
             horizontal=True,
             key="state_chart_mode",
+            help="Switch between absolute volume comparison and the volume-versus-conversion scatter.",
         )
         if state_chart_mode == "Grouped bars":
             st.subheader("Applications and installations by state")
             fig = create_state_ranking_chart(state_data)
+            st.plotly_chart(fig, use_container_width=True)
+            chart_caption(
+                "Grouped bars compare applications submitted and installations completed",
+                "Source: kpis_state.csv columns applications and installations.",
+            )
         else:
             st.subheader("State volume vs conversion")
             fig = create_state_scatter_chart(state_data)
-        st.plotly_chart(fig, use_container_width=True)
+            st.plotly_chart(fig, use_container_width=True)
+            chart_caption(
+                "Scatter highlights high-volume states and conversion outliers",
+                "Source: kpis_state.csv columns applications, conversion_rate_app_to_install_pct, and subsidy_redeemed_amount.",
+            )
 
     with col2:
         st.subheader("Application to installation rate by state")
@@ -436,6 +454,10 @@ elif page == "State Analysis":
         )
         fig.update_layout(height=600, showlegend=False)
         st.plotly_chart(fig, use_container_width=True)
+        chart_caption(
+            "Horizontal bars rank states by application-to-installation rate",
+            "Source: kpis_state.csv column conversion_rate_app_to_install_pct.",
+        )
 
 elif page == "District Analysis":
     st.header("District comparison")
@@ -491,6 +513,7 @@ elif page == "District Analysis":
                 "Subsidy redeemed",
             ],
             key="district_sort_by",
+            help="Choose the district metric that drives the top/bottom ranking.",
         )
 
     with table_col2:
@@ -498,6 +521,7 @@ elif page == "District Analysis":
             "View:",
             ["Top districts", "Bottom districts"],
             key="district_view",
+            help="Switch between the highest and lowest values for the selected metric.",
         )
 
     with table_col3:
@@ -506,6 +530,7 @@ elif page == "District Analysis":
             [10, 25, 50],
             index=1,
             key="district_rows_per_page",
+            help="Control how many districts appear on each page.",
         )
 
     display_cols = [
@@ -582,6 +607,8 @@ elif page == "District Analysis":
         f"Showing rows {start_index + 1} to {min(end_index, total_rows)} of {total_rows}"
     )
     st.dataframe(page_data, use_container_width=True, hide_index=True)
+    st.caption(
+        "Source: district_clean.csv. The download button exports the full filtered, sorted result set.")
 
     csv_data = sorted_display_data.to_csv(index=False).encode("utf-8")
     st.download_button(
@@ -663,6 +690,11 @@ elif page == "Trends":
         )
 
         st.plotly_chart(fig, use_container_width=True)
+        chart_caption(
+            "Cumulative view shows the running total for applications and installations",
+            "Source: datewise_clean.csv columns rptdate, applications, and installations.",
+            "Filtered to the selected date range.",
+        )
 
     else:
         st.subheader("Daily applications and installations")
@@ -723,6 +755,11 @@ elif page == "Trends":
         )
 
         st.plotly_chart(fig, use_container_width=True)
+        chart_caption(
+            "Daily view adds 7-day averages to smooth day-to-day noise",
+            "Source: datewise_clean.csv columns rptdate, applications, and installations.",
+            "The dashed lines show the rolling average overlay.",
+        )
 
 elif page == "Capacity Metrics":
     st.header("Capacity and system size")
@@ -781,6 +818,10 @@ elif page == "Capacity Metrics":
                 color_discrete_sequence=["#1f77b4", "#ff7f0e"],
             )
             st.plotly_chart(fig, use_container_width=True)
+            chart_caption(
+                "Pie chart shows the residential and RWA mix",
+                "Source: kpis_national.csv columns residential_percentage and rwa_percentage.",
+            )
 
     with col2:
         st.subheader("Systems up to 10 kW and above 10 kW")
@@ -818,6 +859,8 @@ elif page == "Capacity Metrics":
             "Histogram-style bucket view based on the available system-size counts in the cleaned data."
         )
         st.metric("Median size band", median_band)
+        st.caption(
+            "Source: datewise_clean.csv columns upto_10_kw and above_10_kw. The median is shown as the bucket containing the midpoint, not a per-installation median.")
 
 elif page == "About":
     st.header("About this dashboard")

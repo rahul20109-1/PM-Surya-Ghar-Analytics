@@ -22,6 +22,7 @@ sys.path.insert(0, str(project_root))
 
 from dashboard.utils.data_loader import load_data, apply_date_range_filter
 from dashboard.utils.charts import filter_all_zero_rows
+from dashboard.utils.components import chart_caption
 
 # Configure page
 st.set_page_config(page_title="Bottleneck Analysis", layout="wide")
@@ -223,6 +224,10 @@ with col1:
             template="plotly_white",
         )
         st.plotly_chart(fig, use_container_width=True)
+        chart_caption(
+            "Funnel counts stage-by-stage drop-off from application submission to subsidy redeem",
+            "Source: state_master_clean.csv columns application_status, feasibility_approved, vendor_selected, installation, inspection_approved, and total_redeem.",
+        )
 
 with col2:
     st.subheader("Drop-off rate by stage")
@@ -258,6 +263,10 @@ with col2:
         )
         fig.update_xaxes(tickfont=dict(size=10))
         st.plotly_chart(fig, use_container_width=True)
+        chart_caption(
+            "Bars show the percent lost between adjacent funnel stages",
+            "Source: same stage counts from state_master_clean.csv.",
+        )
 
 # Critical insight
 st.markdown(
@@ -365,6 +374,10 @@ with col1:
             yaxis_title="Stage",
         )
         st.plotly_chart(fig, use_container_width=True)
+        chart_caption(
+            "Pending counts identify the stage where applications accumulate",
+            "Source: state_master_clean.csv stage totals compared between adjacent steps.",
+        )
 
 with col2:
     st.subheader("Waiting share by stage")
@@ -395,6 +408,10 @@ with col2:
             yaxis_title="Stage",
         )
         st.plotly_chart(fig, use_container_width=True)
+        chart_caption(
+            "Waiting share shows where backlog is largest relative to volume entering the stage",
+            "Source: pending counts derived from state_master_clean.csv.",
+        )
 
 st.markdown("---")
 
@@ -468,10 +485,17 @@ with col1:
             "Lowest installation completion rate",
         ],
         horizontal=True,
+        help="Choose which state-level bottleneck is shown first.",
     )
 
 with col2:
-    top_n = st.slider("Number of states to show:", 5, 36, 15)
+    top_n = st.slider(
+        "Number of states to show:",
+        5,
+        36,
+        15,
+        help="Limit the list to the most important states for the selected issue.",
+    )
 
 # Prepare display data
 if issue_type == "Lowest application to installation rate":
@@ -515,6 +539,9 @@ table_df[metric_name] = table_df[metric_name].apply(lambda x: f"{x:.1f}%")
 st.dataframe(table_df, use_container_width=True, hide_index=True)
 st.caption(
     "Tip: Click column headers to sort. Use this list to prioritise on-the-ground support and to pick states for focused diagnostics."
+)
+st.caption(
+    "Source: state_master_clean.csv aggregated to the state level and ranked by the selected issue."
 )
 
 st.markdown("---")
@@ -604,6 +631,11 @@ else:
         )
 
         st.plotly_chart(fig, use_container_width=True)
+        chart_caption(
+            "7-day averages smooth the daily throughput series",
+            "Source: datewise_clean.csv columns applications and installations.",
+            "The selected date range controls the window shown here.",
+        )
 
     with col2:
         st.subheader("Backlog growth over time")
@@ -632,6 +664,11 @@ else:
         )
 
         st.plotly_chart(fig, use_container_width=True)
+        chart_caption(
+            "Backlog line shows how the application gap accumulates over time",
+            "Source: datewise_clean.csv columns applications and installations.",
+            "Filtered to the selected date range.",
+        )
 
     # Throughput metrics
     latest_gap = datewise_analysis["cumulative_gap"].iloc[-1]
@@ -725,6 +762,10 @@ with col1:
         height=400, showlegend=False, xaxis_title="Feasibility approval rate (%)"
     )
     st.plotly_chart(fig, use_container_width=True)
+    chart_caption(
+        "Lower feasibility approval rates can indicate tighter reviews or more incomplete applications",
+        "Source: state_master_clean.csv columns feasibility_approved and vendor_selected.",
+    )
 
 with col2:
     st.subheader("States with lower inspection approval rates")
@@ -747,6 +788,10 @@ with col2:
         height=400, showlegend=False, xaxis_title="Inspection approval rate (%)"
     )
     st.plotly_chart(fig, use_container_width=True)
+    chart_caption(
+        "Lower inspection approval rates show where completed installations are not clearing inspection",
+        "Source: state_master_clean.csv columns inspection_approved and installation.",
+    )
 
 st.markdown("---")
 

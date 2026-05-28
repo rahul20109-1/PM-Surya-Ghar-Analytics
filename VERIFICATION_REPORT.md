@@ -55,3 +55,5 @@ Dashboard notes (2026-05-28): Batch 2 added a State Analysis chart toggle that s
 Dashboard notes (2026-05-28): Batch 3 moved the chart toggle closer to the State Analysis graph and added paginated/top-N district table controls with CSV export for the current filtered view.
 
 Dashboard notes (2026-05-28): Batch 4 added a bucketed system-size distribution chart and a median size band label on Capacity Metrics. The page now makes clear that the data only supports the available `up to 10 kW` / `above 10 kW` buckets.
+
+Dashboard notes (2026-05-28): Batch 5 added consistent chart captions and helper tooltips across the dashboard, including the bottleneck analysis page. The new notes keep source fields and chart intent explicit for users.

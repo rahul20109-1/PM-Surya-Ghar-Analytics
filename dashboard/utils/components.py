@@ -79,3 +79,19 @@ def create_conversion_funnel(funnel_data):
     )
     
     return fig
+
+
+def chart_caption(label, source, note=None):
+    """
+    Show a short, consistent chart caption.
+
+    Args:
+        label (str): Plain-language chart description.
+        source (str): Source data or calculation note.
+        note (str | None): Optional extra context.
+    """
+
+    parts = [f"{label}.", source]
+    if note:
+        parts.append(note)
+    st.caption(" ".join(parts))
