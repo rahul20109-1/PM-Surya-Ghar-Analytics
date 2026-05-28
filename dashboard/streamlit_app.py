@@ -312,8 +312,6 @@ if page == "Overview":
     )
     gap_delta = current_gap - previous_gap
 
-    st.markdown("---")
-
     # Row 1: Core volume metrics placed next to date selector
     with col1:
         kpi_card(
