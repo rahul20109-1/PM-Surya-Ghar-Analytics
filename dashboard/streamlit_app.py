@@ -234,66 +234,7 @@ if page == "Overview":
         if start_dt and end_dt:
             st.caption(f"Showing: {start_dt} → {end_dt}")
 
-    # Determine KPI windows: use selected range if provided, otherwise default to last 12 months
-    if datewise_local.empty:
-        current_window = {"applications": 0, "installations": 0, "inspections": 0, "subsidy_redeemed": 0}
-        previous_window = current_window.copy()
-    else:
-        min_date = datewise_local["rptdate"].min().date()
-        max_date = datewise_local["rptdate"].max().date()
-        default_start = (pd.Timestamp(max_date) - pd.Timedelta(days=365)).date()
-        if default_start < min_date:
-            default_start = min_date
-
-        if start_dt and end_dt:
-            # use the user-selected range
-            sel_start = start_dt
-            sel_end = end_dt
-        else:
-            sel_start = default_start
-            sel_end = max_date
-
-        selected_days = max((pd.Timestamp(sel_end).date() - pd.Timestamp(sel_start).date()).days + 1, 1)
-        previous_end = (pd.Timestamp(sel_start) - pd.Timedelta(days=1)).date()
-        previous_start = (pd.Timestamp(previous_end) - pd.Timedelta(days=selected_days - 1)).date()
-        current_window = summarize_period_totals(datewise_local, sel_start, sel_end)
-        previous_window = summarize_period_totals(datewise_local, previous_start, previous_end)
-
-    current_gap = current_window["applications"] - current_window["installations"]
-    previous_gap = previous_window["applications"] - previous_window["installations"]
-
-    app_delta = current_window["applications"] - previous_window["applications"]
-    install_delta = current_window["installations"] - previous_window["installations"]
-    inspection_delta = current_window["inspections"] - previous_window["inspections"]
-    subsidy_delta = current_window["subsidy_redeemed"] - previous_window["subsidy_redeemed"]
-    app_to_install_delta = (
-        (current_window["installations"] / current_window["applications"] * 100)
-        if current_window["applications"] > 0
-        else 0
-    ) - (
-        (previous_window["installations"] / previous_window["applications"] * 100)
-        if previous_window["applications"] > 0
-        else 0
-    )
-    install_to_inspection_delta = (
-        (current_window["inspections"] / current_window["installations"] * 100)
-        if current_window["installations"] > 0
-        else 0
-    ) - (
-        (previous_window["inspections"] / previous_window["installations"] * 100)
-        if previous_window["installations"] > 0
-        else 0
-    )
-    app_to_subsidy_delta = (
-        (current_window["subsidy_redeemed"] / current_window["applications"] * 100)
-        if current_window["applications"] > 0
-        else 0
-    ) - (
-        (previous_window["subsidy_redeemed"] / previous_window["applications"] * 100)
-        if previous_window["applications"] > 0
-        else 0
-    )
-    gap_delta = current_gap - previous_gap
+    # Overview snapshot KPIs use cumulative national totals (no date filtering or deltas)
 
     # Row 1: Core volume metrics (cumulative national totals)
     col1, col2, col3, col4 = st.columns(4)
@@ -302,7 +243,6 @@ if page == "Overview":
         kpi_card(
             title="Applications submitted",
             value=total_apps,
-            delta=f"{app_delta:+,}",
             format_type="number",
         )
 
@@ -310,7 +250,6 @@ if page == "Overview":
         kpi_card(
             title="Installations completed",
             value=total_installs,
-            delta=f"{install_delta:+,}",
             format_type="number",
         )
 
@@ -318,7 +257,6 @@ if page == "Overview":
         kpi_card(
             title="Inspections approved",
             value=total_inspections,
-            delta=f"{inspection_delta:+,}",
             format_type="number",
         )
 
@@ -326,7 +264,6 @@ if page == "Overview":
         kpi_card(
             title="Subsidy redeemed amount",
             value=total_subsidy_redeemed_crore,
-            delta=f"{subsidy_delta / 1e7:+,.2f} crore",
             format_type="decimal",
             suffix=" crore",
         )
@@ -340,7 +277,6 @@ if page == "Overview":
         kpi_card(
             title="Application to installation rate",
             value=app_to_install_rate,
-            delta=f"{app_to_install_delta:+.1f} pp",
             format_type="percent",
         )
 
@@ -348,7 +284,6 @@ if page == "Overview":
         kpi_card(
             title="Installation to inspection rate",
             value=install_to_inspection_rate,
-            delta=f"{install_to_inspection_delta:+.1f} pp",
             format_type="percent",
         )
 
@@ -356,7 +291,6 @@ if page == "Overview":
         kpi_card(
             title="Application to subsidy rate",
             value=app_to_subsidy_rate,
-            delta=f"{app_to_subsidy_delta:+.1f} pp",
             format_type="percent",
         )
 
@@ -364,13 +298,10 @@ if page == "Overview":
         kpi_card(
             title="Applications not yet installed",
             value=apps_not_installed,
-            delta=f"{gap_delta:+,}",
             format_type="number",
         )
 
-    st.caption(
-        "KPI deltas compare the selected date range with the immediately preceding period of the same length."
-    )
+    # KPI cards on the snapshot show cumulative national totals; date filters control the adoption trend chart only.
 
     st.markdown("---")
 
