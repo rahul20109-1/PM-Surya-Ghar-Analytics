@@ -1049,17 +1049,31 @@ elif page == "Capacity Metrics":
                 ">10 kW"
             )
 
-            # Evenly distribute the upto_10kw count across the first 10 buckets
+            # Distribute the upto_10kw count across the first 10 buckets using
+            # a simple heuristic that weights smaller system sizes more heavily.
+            # Use mid-point inverse weighting (1 / midpoint) to bias toward small systems.
             try:
                 upto_10kw_val = int(upto_10kw)
             except Exception:
                 upto_10kw_val = 0
-            per_bucket = upto_10kw_val // 10
-            remainder = upto_10kw_val % 10
 
-            counts = [per_bucket] * 10
-            for i in range(remainder):
-                counts[i] += 1
+            midpoints = [0.5 + i for i in range(0, 10)]  # 0.5, 1.5, ..., 9.5
+            weights = [1.0 / m if m > 0 else 0 for m in midpoints]
+            total_weight = sum(weights)
+            if total_weight == 0 or upto_10kw_val == 0:
+                counts = [0] * 10
+            else:
+                raw_counts = [w / total_weight * upto_10kw_val for w in weights]
+                # Round toward integers while preserving sum
+                counts = [int(x) for x in raw_counts]
+                shortfall = upto_10kw_val - sum(counts)
+                # distribute remaining ones to the smallest buckets first
+                idx = 0
+                while shortfall > 0:
+                    counts[idx % 10] += 1
+                    idx += 1
+                    shortfall -= 1
+
             counts.append(int(above_10kw))
 
             capacity_df = pd.DataFrame({"Size": fine_labels, "Count": counts})
