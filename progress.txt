@@ -26,6 +26,7 @@ RECENT ACTIVITY (2026-05-28 - 2026-05-28):
 - Fixed `pending_vendor_selection` calculation in `scripts/02_kpi_calculation.py`.
 - Documentation updated: `README.md`, `DATA_CLEANING_GUIDE.md`, `DASHBOARD_STATUS.md`, `BACKEND_STRUCTURE.md`, `VERIFICATION_REPORT.md`, `lessons.md`, `content_change.md`.
 - Dashboard improvements: Added Overview date-range selector, centralized date-range helper, Trends 7-day rolling averages, and wired Bottleneck page to date-range filtering (Batch 1).
+- Dashboard improvements: Added State Analysis toggle for grouped bars vs scatter (volume vs conversion) and introduced `create_state_scatter_chart()` (Batch 2).
 
 QUALITY NOTES
 - Headline metrics aligned to current KPI exports

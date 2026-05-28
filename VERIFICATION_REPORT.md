@@ -49,3 +49,5 @@ All portfolio headline metrics should reference this report and the current KPI 
 
 --
 Validation notes (2026-05-28): Initial validation failed because subsidy in `kpis_national.csv` was being compared to `datewise_clean.csv`'s `subsidyredeemed` column. I updated the validation script to use `state_master_clean.csv` (`total_redeem_amt`) as the canonical subsidy source and re-ran the checks after fixing a KPI calculation bug. The validation script now passes against current artifacts. See `scripts/validate_kpis.py` for details.
+
+Dashboard notes (2026-05-28): Batch 2 added a State Analysis chart toggle that switches between grouped bars and a scatter plot of volume vs conversion, with bubble size mapped to subsidy redeemed amount.

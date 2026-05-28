@@ -62,6 +62,7 @@ If you want, I can:
 - Run the Streamlit app and capture screenshots of the updated pages.
 
 - Added `scripts/validate_kpis.py` and updated `scripts/02_kpi_calculation.py` to fix pending calculation; updated validation behavior to compare subsidy to state-level totals. These changes and the validation result were recorded in `VERIFICATION_REPORT.md` and `lessons.md`.
+- Added a State Analysis chart toggle in `dashboard/streamlit_app.py` so the page can switch between grouped bars and a scatter plot of volume vs conversion. The scatter uses subsidy redeemed amount as bubble size.
 
 ---
 

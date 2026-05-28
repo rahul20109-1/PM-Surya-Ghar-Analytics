@@ -145,6 +145,60 @@ def create_state_ranking_chart(state_data_df):
     return fig
 
 
+def create_state_scatter_chart(state_data_df):
+    """
+    Create a state scatter chart for volume versus conversion.
+
+    Args:
+        state_data_df (pd.DataFrame): State data with applications, installations,
+            conversion rate, and subsidy redeemed amount.
+
+    Returns:
+        go.Figure: Plotly figure object
+    """
+
+    df = state_data_df[
+        [
+            "state",
+            "applications",
+            "installations",
+            "conversion_rate_app_to_install_pct",
+            "subsidy_redeemed_amount",
+        ]
+    ].copy()
+    df = filter_all_zero_rows(df, ["applications", "installations"])
+
+    fig = px.scatter(
+        df,
+        x="applications",
+        y="conversion_rate_app_to_install_pct",
+        size="subsidy_redeemed_amount",
+        color="conversion_rate_app_to_install_pct",
+        hover_name="state",
+        size_max=40,
+        color_continuous_scale=["#ff7f0e", "#ffaa1f", "#ffcc66", "#1f77b4"],
+    )
+
+    fig.update_traces(
+        hovertemplate=(
+            "%{hovertext}<br>Applications: %{x:,}<br>"
+            "Conversion: %{y:.1f}%<br>"
+            "Subsidy redeemed: %{marker.size:,.0f}<extra></extra>"
+        )
+    )
+    fig.update_layout(
+        title="State volume vs conversion",
+        xaxis_title="Applications submitted",
+        yaxis_title="Application → Installation rate (%)",
+        height=500,
+        template="plotly_white",
+        margin=dict(l=20, r=20, t=40, b=20),
+        coloraxis_colorbar=dict(title="Conversion (%)"),
+    )
+
+    return fig
+
+
 def create_conversion_rate_chart(state_data_df):
     """
     Create horizontal bar chart for conversion rates.

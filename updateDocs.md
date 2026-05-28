@@ -13,6 +13,12 @@ The following documentation and small code updates were applied to keep project 
 - Fixed `pending_vendor_selection` calculation in `scripts/02_kpi_calculation.py` (now computed as `applications - vendor_selected`).
 - Updated docs to reference the validation step and the small changes: `README.md`, `DATA_CLEANING_GUIDE.md`, `DASHBOARD_STATUS.md`, `BACKEND_STRUCTURE.md`, `VERIFICATION_REPORT.md`, `lessons.md`, `content_change.md`, and `progress.txt`.
 
+## Recent Dashboard Activity (2026-05-28)
+
+- Added a state comparison chart toggle in `dashboard/streamlit_app.py` so users can switch between grouped bars and a scatter plot of volume vs conversion.
+- Added `dashboard.utils.charts.create_state_scatter_chart()` to visualize state volume, conversion, and subsidy size in one view.
+- Updated dashboard docs and status notes after the Batch 2 change.
+
 Instruction: After running cleaning and KPI regeneration, run:
 
 ```bash

@@ -25,6 +25,7 @@ from dashboard.utils.data_loader import load_data
 from dashboard.utils.components import kpi_card, create_conversion_funnel
 from dashboard.utils.charts import (
     create_adoption_trend,
+    create_state_scatter_chart,
     create_state_ranking_chart,
     filter_all_zero_rows,
 )
@@ -350,12 +351,19 @@ elif page == "State Analysis":
     with col2:
         show_top = st.slider("Number of states to show:", 5, 36, 10)
 
+    chart_mode = st.radio(
+        "State volume chart:",
+        ["Grouped bars", "Scatter: volume vs conversion"],
+        horizontal=True,
+    )
+
     state_base_df = kpi_state[
         [
             "state",
             "applications",
             "installations",
             "conversion_rate_app_to_install_pct",
+            "subsidy_redeemed_amount",
         ]
     ].copy()
     state_base_df = filter_all_zero_rows(
@@ -401,8 +409,12 @@ elif page == "State Analysis":
     col1, col2 = st.columns(2)
 
     with col1:
-        st.subheader("Applications and installations by state")
-        fig = create_state_ranking_chart(state_data)
+        if chart_mode == "Grouped bars":
+            st.subheader("Applications and installations by state")
+            fig = create_state_ranking_chart(state_data)
+        else:
+            st.subheader("State volume vs conversion")
+            fig = create_state_scatter_chart(state_data)
         st.plotly_chart(fig, use_container_width=True)
 
     with col2:
