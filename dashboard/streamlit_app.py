@@ -1010,6 +1010,11 @@ elif page == "Capacity Metrics":
             if capacity_df["Count"].sum() == 0:
                 st.info("No system-size records available for the selected range.")
             else:
+                # Add percent column for clarity
+                capacity_df["Percent"] = (
+                    capacity_df["Count"] / capacity_df["Count"].sum() * 100
+                ).round(1)
+
                 fig = px.bar(
                     capacity_df,
                     x="Size",
@@ -1019,6 +1024,10 @@ elif page == "Capacity Metrics":
                 )
                 fig.update_layout(showlegend=False, height=420)
                 st.plotly_chart(fig, width="stretch")
+
+                # Show a simple table with counts and percentage
+                st.subheader("System size distribution table")
+                st.dataframe(capacity_df[["Size", "Count", "Percent"]], width="stretch")
 
             st.metric("Median size band", median_band)
         else:
@@ -1040,6 +1049,11 @@ elif page == "Capacity Metrics":
             if capacity_df.empty:
                 st.info("No non-zero system size data available.")
             else:
+                # Add percent column
+                capacity_df["Percent"] = (
+                    capacity_df["Count"] / capacity_df["Count"].sum() * 100
+                ).round(1)
+
                 fig = px.bar(
                     capacity_df,
                     x="Size",
@@ -1050,6 +1064,9 @@ elif page == "Capacity Metrics":
                 )
                 fig.update_layout(showlegend=False, height=400)
                 st.plotly_chart(fig, width="stretch")
+
+                st.subheader("System size distribution table")
+                st.dataframe(capacity_df, width="stretch")
 
             st.caption(
                 "Histogram-style bucket view based on the available system-size counts in the cleaned data. Finer per-installation buckets require a 'system_size_kw' column in the cleaned dataset."

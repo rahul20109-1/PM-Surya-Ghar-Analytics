@@ -45,6 +45,7 @@ RECENT ACTIVITY (2026-05-29):
 - Moved State Comparison chart-type selector to render under the chart heading for improved UX (`dashboard/streamlit_app.py`).
 - Added `scripts/inspect_state_master.py` to help reproduce import/data issues and inspect `state_master` columns locally.
 - Ran quick syntax check (`python -m py_compile`) on modified modules; no syntax errors found. Attempted to start Streamlit locally but the `streamlit` launcher is not available on the detected Python path on this machine.
+ - Added system-size distribution table and percent column to the Capacity page when per-installation `system_size_kw` exists; fallback table added for aggregate buckets.
 
 WHAT I AM IMPLEMENTING?
 - None (idle)
