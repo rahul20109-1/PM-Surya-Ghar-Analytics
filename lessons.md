@@ -68,3 +68,8 @@ Trade-off:
 
 - A weekday curve is often easier to read than a dense heatmap when the goal is to show weekly seasonality.
 - Smooth line charts with markers are a better default when the audience needs pattern recognition more than cell-by-cell comparison.
+
+## 8. Lag Chart Constraint (2026-05-28)
+
+- The cleaned dataset does not expose application-to-installation timestamps, so a true case-level lag distribution is not available.
+- A useful proxy is the daily applications-minus-installations gap, which measures backlog pressure rather than turnaround time.

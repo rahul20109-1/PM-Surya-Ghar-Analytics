@@ -910,6 +910,41 @@ elif page == "Trends":
             "Filtered to the selected date range.",
         )
 
+    st.markdown("---")
+    st.subheader("Installation lag distribution")
+    st.caption(
+        "This is a proxy distribution built from the daily applications-minus-installations gap in the selected period. The data does not contain per-application lag timestamps, so this shows backlog pressure rather than case-level turnaround time."
+    )
+
+    lag_series = (datewise_sorted["applications"] - datewise_sorted["installations"]).dropna()
+
+    if lag_series.empty:
+        st.info("No lag data available for the selected range.")
+    else:
+        lag_df = pd.DataFrame({"Daily gap": lag_series.astype(float)})
+        fig = px.histogram(
+            lag_df,
+            x="Daily gap",
+            nbins=30,
+            color_discrete_sequence=["#1f77b4"],
+            opacity=0.85,
+            title="Distribution of daily application backlog gap",
+        )
+        fig.add_vline(x=0, line_width=2, line_dash="dash", line_color="#d62728")
+        fig.update_layout(
+            height=420,
+            template="plotly_white",
+            xaxis_title="Daily applications minus installations",
+            yaxis_title="Number of days",
+            bargap=0.08,
+        )
+        st.plotly_chart(fig, width="stretch")
+        chart_caption(
+            "Histogram shows how often the daily intake-outtake gap is small or large",
+            "Source: datewise_clean.csv columns rptdate, applications, and installations.",
+            "The red dashed line marks the point where installations match daily applications.",
+        )
+
 elif page == "Capacity Metrics":
     st.header("Capacity and system size")
 
