@@ -427,6 +427,13 @@ elif page == "State Analysis":
             help="Show a smaller list for a tighter comparison.",
         )
 
+    # Optional: allow explicit selection of states to compare
+    selected_states = st.multiselect(
+        "Select specific states to compare (optional):",
+        options=sorted(state_base_df["state"].tolist()),
+        help="If selected, only these states will be shown in the table and charts.",
+    )
+
     state_base_df = kpi_state[
         [
             "state",
@@ -448,18 +455,24 @@ elif page == "State Analysis":
         0,
     ).round(0)
 
-    # Prepare sorted data
-    if sort_by == "Applications submitted":
-        state_data = state_base_df.nlargest(show_top, "applications")
-    elif sort_by == "Installations completed":
-        state_data = state_base_df.nlargest(show_top, "installations")
+    # Prepare sorted data (or use explicit selection)
+    if selected_states:
+        state_data = state_base_df[state_base_df["state"].isin(selected_states)].copy()
     else:
-        state_data = state_base_df.nlargest(
-            show_top, "conversion_rate_app_to_install_pct"
-        )
+        if sort_by == "Applications submitted":
+            state_data = state_base_df.nlargest(show_top, "applications")
+        elif sort_by == "Installations completed":
+            state_data = state_base_df.nlargest(show_top, "installations")
+        else:
+            state_data = state_base_df.nlargest(
+                show_top, "conversion_rate_app_to_install_pct"
+            )
 
     # Display table
-    st.subheader(f"Top {show_top} states")
+    if selected_states:
+        st.subheader(f"Selected states ({len(selected_states)})")
+    else:
+        st.subheader(f"Top {show_top} states")
 
     # Prepare a recruiter-friendly display table
     display_table = state_data[
@@ -476,7 +489,7 @@ elif page == "State Analysis":
         "State",
         "Applications submitted",
         "Installations completed",
-        "Application ÔåÆ Installation (%)",
+        "Application → Installation (%)",
         "Installations per 1,000 applications",
         "Subsidy per installation (₹)",
     ]
@@ -928,43 +941,79 @@ elif page == "Capacity Metrics":
             )
 
     with col2:
-        st.subheader("Systems up to 10 kW and above 10 kW")
+        st.subheader("System size distribution")
 
-        # Calculate up to 10kW and above 10kW
-        upto_10kw = datewise["upto_10_kw"].sum()
-        above_10kw = datewise["above_10_kw"].sum()
-        total_systems = upto_10kw + above_10kw
-        median_band = "Up to 10 kW" if upto_10kw >= (total_systems / 2) else "Above 10 kW"
-
-        capacity_data = {
-            "Size": ["Up to 10 kW", "Above 10 kW"],
-            "Count": [int(upto_10kw), int(above_10kw)],
-        }
-        capacity_df = pd.DataFrame(capacity_data)
-        capacity_df = filter_all_zero_rows(capacity_df, ["Count"])
-
-        import plotly.express as px
-
-        if capacity_df.empty:
-            st.info("No non-zero system size data available.")
-        else:
-            fig = px.bar(
-                capacity_df,
-                x="Size",
-                y="Count",
-                color="Size",
-                color_discrete_sequence=["#2ca02c", "#d62728"],
-                title="System size counts",
-            )
-            fig.update_layout(showlegend=False, height=400)
-            st.plotly_chart(fig, width="stretch")
-
-        st.caption(
-            "Histogram-style bucket view based on the available system-size counts in the cleaned data."
+        # Date range filter for capacity view
+        st.markdown("**Date range (Capacity view)**")
+        cap_filtered_datewise, cap_start, cap_end = apply_date_range_filter(
+            datewise, "capacity"
         )
-        st.metric("Median size band", median_band)
-        st.caption(
-            "Source: datewise_clean.csv columns upto_10_kw and above_10_kw. The median is shown as the bucket containing the midpoint, not a per-installation median.")
+        if cap_start and cap_end:
+            st.caption(f"Showing: {cap_start} → {cap_end}")
+
+        # If there is a per-installation 'system_size_kw' column, bucket into 0-1,1-2,...,>10
+        if cap_filtered_datewise is not None and "system_size_kw" in cap_filtered_datewise.columns:
+            bins = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, float("inf")]
+            labels = ["0-1 kW", "1-2 kW", "2-3 kW", "3-4 kW", "4-5 kW", "5-6 kW", "6-7 kW", "7-8 kW", "8-9 kW", "9-10 kW", ">10 kW"]
+            cap_filtered_datewise["size_bucket"] = pd.cut(cap_filtered_datewise["system_size_kw"], bins=bins, labels=labels, right=False)
+            bucket_counts = cap_filtered_datewise["size_bucket"].value_counts().reindex(labels).fillna(0).astype(int)
+            capacity_df = pd.DataFrame({"Size": labels, "Count": bucket_counts.values})
+            median_band = capacity_df.loc[capacity_df["Count"].cumsum() >= capacity_df["Count"].sum() / 2, "Size"].iloc[0]
+            import plotly.express as px
+
+            if capacity_df["Count"].sum() == 0:
+                st.info("No system-size records available for the selected range.")
+            else:
+                fig = px.bar(
+                    capacity_df,
+                    x="Size",
+                    y="Count",
+                    color="Size",
+                    title="System size counts",
+                )
+                fig.update_layout(showlegend=False, height=420)
+                st.plotly_chart(fig, width="stretch")
+
+            st.metric("Median size band", median_band)
+            st.caption(
+                "Source: per-installation system size column 'system_size_kw' in the cleaned data."
+            )
+        else:
+            # Fallback to available aggregate buckets
+            upto_10kw = cap_filtered_datewise["upto_10_kw"].sum() if cap_filtered_datewise is not None else datewise["upto_10_kw"].sum()
+            above_10kw = cap_filtered_datewise["above_10_kw"].sum() if cap_filtered_datewise is not None else datewise["above_10_kw"].sum()
+            total_systems = upto_10kw + above_10kw
+            median_band = "Up to 10 kW" if upto_10kw >= (total_systems / 2) else "Above 10 kW"
+
+            capacity_data = {
+                "Size": ["Up to 10 kW", "Above 10 kW"],
+                "Count": [int(upto_10kw), int(above_10kw)],
+            }
+            capacity_df = pd.DataFrame(capacity_data)
+            capacity_df = filter_all_zero_rows(capacity_df, ["Count"])
+
+            import plotly.express as px
+
+            if capacity_df.empty:
+                st.info("No non-zero system size data available.")
+            else:
+                fig = px.bar(
+                    capacity_df,
+                    x="Size",
+                    y="Count",
+                    color="Size",
+                    color_discrete_sequence=["#2ca02c", "#d62728"],
+                    title="System size counts",
+                )
+                fig.update_layout(showlegend=False, height=400)
+                st.plotly_chart(fig, width="stretch")
+
+            st.caption(
+                "Histogram-style bucket view based on the available system-size counts in the cleaned data. Finer per-installation buckets require a 'system_size_kw' column in the cleaned dataset."
+            )
+            st.metric("Median size band", median_band)
+            st.caption(
+                "Source: datewise_clean.csv columns upto_10_kw and above_10_kw. The median is shown as the bucket containing the midpoint, not a per-installation median.")
 
 elif page == "About":
     st.header("About this dashboard")
