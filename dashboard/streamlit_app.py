@@ -223,16 +223,10 @@ if page == "Overview":
 
     st.subheader("Applications and installations over time")
 
-    # Date range selector (affects KPIs and the adoption trend)
+    # Note: date range selector is shown with the adoption-trend chart below.
     datewise_local = datewise.copy()
     datewise_local["rptdate"] = pd.to_datetime(datewise_local["rptdate"], errors="coerce")
     datewise_local = datewise_local.dropna(subset=["rptdate"]) if not datewise_local.empty else datewise_local
-    chart_filter_col, chart_spacer_col = st.columns([1, 3])
-    with chart_filter_col:
-        st.markdown("**Date range**")
-        filtered_datewise, start_dt, end_dt = apply_date_range_filter(datewise, "overview")
-        if start_dt and end_dt:
-            st.caption(f"Showing: {start_dt} → {end_dt}")
 
     # Overview snapshot KPIs use cumulative national totals (no date filtering or deltas)
 
@@ -308,7 +302,8 @@ if page == "Overview":
     chart_filter_col, chart_spacer_col = st.columns([1, 3])
     with chart_filter_col:
         st.markdown("**Date range**")
-        filtered_datewise, start_dt, end_dt = apply_date_range_filter(datewise, "overview")
+        # Single date selector for the adoption-trend chart only; use a unique key prefix
+        filtered_datewise, start_dt, end_dt = apply_date_range_filter(datewise, "overview_chart")
         if start_dt and end_dt:
             st.caption(f"Showing: {start_dt} → {end_dt}")
 
