@@ -34,6 +34,13 @@ def get_data():
     return load_data()
 
 
+try:
+    kpi_national, kpi_state, kpi_district, datewise, state_master, district = get_data()
+except Exception as e:
+    st.error(f"Error loading data: {str(e)}")
+    st.stop()
+
+
 # Custom styling
 st.markdown(
     """
