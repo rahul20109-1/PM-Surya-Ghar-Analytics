@@ -202,37 +202,41 @@ except Exception as e:
 # PAGE ROUTING
 # ============================================================================
 
-    # Date range selector for the adoption-trend chart (kept for the chart only)
-    datewise_local = datewise.copy()
-    datewise_local["rptdate"] = pd.to_datetime(datewise_local["rptdate"], errors="coerce")
-    datewise_local = datewise_local.dropna(subset=["rptdate"]) if not datewise_local.empty else datewise_local
+if page == "Overview":
+    # ========================================================================
+    # OVERVIEW PAGE - Main Dashboard
+    # ========================================================================
 
     st.write("""
     Quick snapshot of program scale and operational progress. Use these numbers to understand program reach (volume), execution (installations and inspections), and financial progress (subsidy redeemed).
     """)
 
     total_apps = int(kpi_national["total_applications"].values[0])
-        # Single date selector for the adoption-trend chart only; use a unique key prefix
-        filtered_datewise, start_dt, end_dt = apply_date_range_filter(datewise, "overview_chart")
-        if start_dt and end_dt:
-            st.caption(f"Showing: {start_dt} → {end_dt}")
+    total_installs = int(kpi_national["total_installations"].values[0])
+    total_inspections = int(kpi_national["total_inspections"].values[0])
+    total_subsidy_redeemed = int(kpi_national["total_subsidy_redeemed"].values[0])
+    total_subsidy_redeemed_crore = total_subsidy_redeemed / 1e7
+    app_to_install_rate = float(
+        kpi_national["conversion_rate_app_to_install"].values[0]
     )
     install_to_inspection_rate = float(
         kpi_national["conversion_rate_install_to_inspection"].values[0]
     )
     app_to_subsidy_rate = float(
-            value=False,
-        )
+        kpi_national["conversion_rate_app_to_subsidy"].values[0]
+    )
+    apps_not_installed = max(total_apps - total_installs, 0)
 
+    st.markdown("---")
 
-        period_app_to_subsidy_rate = (
+    # Row 1: Core volume metrics
+    col1, col2, col3, col4 = st.columns(4)
 
-        with col4:
-    # Row 1: Core volume metrics (always cumulative national totals)
     with col1:
         kpi_card(
             title="Applications submitted",
             value=total_apps,
+            delta=None,
             format_type="number",
         )
 
@@ -240,6 +244,7 @@ except Exception as e:
         kpi_card(
             title="Installations completed",
             value=total_installs,
+            delta=None,
             format_type="number",
         )
 
@@ -247,6 +252,7 @@ except Exception as e:
         kpi_card(
             title="Inspections approved",
             value=total_inspections,
+            delta=None,
             format_type="number",
         )
 
@@ -254,56 +260,7 @@ except Exception as e:
         kpi_card(
             title="Subsidy redeemed amount",
             value=total_subsidy_redeemed_crore,
-            format_type="decimal",
-            suffix=" crore",
-        )
-        with col1:
-            kpi_card(
-                title="Applications submitted",
-                value=total_apps,
-                format_type="number",
-            )
-
-        with col2:
-            kpi_card(
-                title="Installations completed",
-                value=total_installs,
-                format_type="number",
-            )
-
-        with col3:
-            kpi_card(
-                title="Inspections approved",
-                value=total_inspections,
-                format_type="number",
-            )
-
-        with col4:
-            kpi_card(
-                title="Subsidy redeemed amount",
-                value=total_subsidy_redeemed_crore,
-                format_type="decimal",
-                suffix=" crore",
-            )
-
-    with col2:
-        kpi_card(
-            title="Installations completed",
-            value=total_installs,
-            format_type="number",
-        )
-
-    with col3:
-        kpi_card(
-            title="Inspections approved",
-            value=total_inspections,
-            format_type="number",
-        )
-
-    with col4:
-        kpi_card(
-            title="Subsidy redeemed amount",
-            value=total_subsidy_redeemed_crore,
+            delta=None,
             format_type="decimal",
             suffix=" crore",
         )
@@ -317,6 +274,7 @@ except Exception as e:
         kpi_card(
             title="Application to installation rate",
             value=app_to_install_rate,
+            delta=None,
             format_type="percent",
         )
 
@@ -324,6 +282,7 @@ except Exception as e:
         kpi_card(
             title="Installation to inspection rate",
             value=install_to_inspection_rate,
+            delta=None,
             format_type="percent",
         )
 
@@ -331,6 +290,7 @@ except Exception as e:
         kpi_card(
             title="Application to subsidy rate",
             value=app_to_subsidy_rate,
+            delta=None,
             format_type="percent",
         )
 
@@ -338,67 +298,66 @@ except Exception as e:
         kpi_card(
             title="Applications not yet installed",
             value=apps_not_installed,
+            delta=None,
             format_type="number",
         )
 
-    # KPI cards on the snapshot show cumulative national totals; date filters control the adoption trend chart only.
-
     st.markdown("---")
 
-    # Reuse the previously selected date range (above) for the adoption trend chart
+    # Row 3: Trend
+    st.subheader("Applications and installations over time")
+    st.markdown("**Date range**")
+    filtered_datewise, start_date, end_date = apply_date_range_filter(
+        datewise, "overview"
+    )
+    if start_date and end_date:
+        st.caption(f"Showing: {start_date} to {end_date}")
+
     if filtered_datewise.empty:
         st.info("No time-series data available for the selected range.")
     else:
-        fig = create_adoption_trend(filtered_datewise, start_date=start_dt, end_date=end_dt)
-        st.plotly_chart(fig, width="stretch")
+        fig = create_adoption_trend(filtered_datewise)
+        st.plotly_chart(fig, use_container_width=True)
 
     st.markdown("---")
+
     # Row 5: Conversion Funnel
-    st.subheader("How applications move through the selected period")
+    st.subheader("How applications move through journey stages captured in the data")
     st.caption(
-        "This funnel is filtered using the date grain available in `datewise_clean.csv`. "
-        "Feasibility approval and vendor selection are not present at the same daily grain, so the filtered funnel focuses on stages that can be measured consistently over time."
+        "Stages shown below reflect the scheme journey steps available in the source data. "
+        "Consumer registration, agreement upload, and subsidy approval or disbursal are not captured in this dataset."
     )
 
-    funnel_filter_col, funnel_spacer_col = st.columns([1, 3])
-    with funnel_filter_col:
-        st.markdown("**Date range**")
-        funnel_datewise, funnel_start_dt, funnel_end_dt = apply_date_range_filter(
-            datewise, "overview_funnel"
-        )
-        if funnel_start_dt and funnel_end_dt:
-            st.caption(f"Showing: {funnel_start_dt} → {funnel_end_dt}")
+    funnel_data = {
+        "Stage": [
+            "Application submission",
+            "Feasibility approval",
+            "Vendor selection",
+            "Installation completed",
+            "Project inspection by DISCOM",
+            "Subsidy redeem",
+        ],
+        "Count": [
+            int(state_master["application_status"].sum()),
+            int(state_master["feasibility_approved"].sum()),
+            int(state_master["vendor_selected"].sum()),
+            int(state_master["installation"].sum()),
+            int(state_master["inspection_approved"].sum()),
+            int(state_master["total_redeem"].sum()),
+        ],
+    }
 
-    funnel_data = None
-    if funnel_datewise.empty:
-        st.info("No time-series data available for the selected funnel range.")
+    funnel_df = pd.DataFrame(funnel_data)
+    funnel_df = filter_all_zero_rows(funnel_df, ["Count"]) 
+    if funnel_df.empty:
+        st.info("No non-zero stage data available for this period.")
     else:
-        funnel_data = {
-            "Stage": [
-                "Application submission",
-                "Installation completed",
-                "Project inspection by DISCOM",
-                "Subsidy redeemed",
-            ],
-            "Count": [
-                int(funnel_datewise["applications"].sum()),
-                int(funnel_datewise["installations"].sum()),
-                int(funnel_datewise["inspection"].sum()),
-                int(funnel_datewise["subsidyredeemed"].sum()),
-            ],
+        cleaned_funnel = {
+            "Stage": funnel_df["Stage"].tolist(),
+            "Count": funnel_df["Count"].tolist(),
         }
-
-        funnel_df = pd.DataFrame(funnel_data)
-        funnel_df = filter_all_zero_rows(funnel_df, ["Count"])
-        if funnel_df.empty:
-            st.info("No non-zero stage data available for this period.")
-        else:
-            cleaned_funnel = {
-                "Stage": funnel_df["Stage"].tolist(),
-                "Count": funnel_df["Count"].tolist(),
-            }
-            fig = create_conversion_funnel(cleaned_funnel)
-            st.plotly_chart(fig, width="stretch")
+        fig = create_conversion_funnel(cleaned_funnel)
+        st.plotly_chart(fig, use_container_width=True)
 
 elif page == "State Analysis":
     st.header("State comparison")
