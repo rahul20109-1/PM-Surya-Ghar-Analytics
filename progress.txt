@@ -1,7 +1,7 @@
 PM SURYA GHAR ANALYTICS - PROJECT STATUS
 Last Updated: March 17, 2026
 Overall Status: COMPLETE
-Last Update: 2026-05-28 — Added KPI validation script, state chart controls, and district pagination
+Last Update: 2026-05-28 — Added KPI validation script, state chart controls, district pagination, and capacity bucket view
 
 COMPLETED
 - Foundation and environment setup
@@ -28,6 +28,7 @@ RECENT ACTIVITY (2026-05-28 - 2026-05-28):
 - Dashboard improvements: Added Overview date-range selector, centralized date-range helper, Trends 7-day rolling averages, and wired Bottleneck page to date-range filtering (Batch 1).
 - Dashboard improvements: Added State Analysis toggle for grouped bars vs scatter (volume vs conversion) and introduced `create_state_scatter_chart()` (Batch 2).
 - Dashboard improvements: Moved the State Analysis chart toggle next to the graph and added paginated/top-N district table controls with CSV export (Batch 3).
+- Dashboard improvements: Added a bucketed system-size distribution chart and median size band label on Capacity Metrics (Batch 4).
 
 QUALITY NOTES
 - Headline metrics aligned to current KPI exports

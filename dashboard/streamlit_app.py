@@ -788,6 +788,8 @@ elif page == "Capacity Metrics":
         # Calculate up to 10kW and above 10kW
         upto_10kw = datewise["upto_10_kw"].sum()
         above_10kw = datewise["above_10_kw"].sum()
+        total_systems = upto_10kw + above_10kw
+        median_band = "Up to 10 kW" if upto_10kw >= (total_systems / 2) else "Above 10 kW"
 
         capacity_data = {
             "Size": ["Up to 10 kW", "Above 10 kW"],
@@ -811,6 +813,11 @@ elif page == "Capacity Metrics":
             )
             fig.update_layout(showlegend=False, height=400)
             st.plotly_chart(fig, use_container_width=True)
+
+        st.caption(
+            "Histogram-style bucket view based on the available system-size counts in the cleaned data."
+        )
+        st.metric("Median size band", median_band)
 
 elif page == "About":
     st.header("About this dashboard")

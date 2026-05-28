@@ -25,6 +25,12 @@ The following documentation and small code updates were applied to keep project 
 - Added paginated/top-N district table controls in `dashboard/streamlit_app.py` with rank-by, top/bottom view, rows-per-page, and CSV export.
 - Kept the district table focused on the currently selected state while allowing the filtered dataset to be downloaded for offline review.
 
+## Recent Dashboard Activity (Batch 4)
+
+- Added a bucketed system-size distribution chart on Capacity Metrics using the available `upto_10_kw` and `above_10_kw` counts.
+- Added a median size band label so the page surfaces the bucket containing the midpoint of system-size counts.
+- Kept the wording explicit that the distribution is bucketed because the cleaned data does not expose per-installation system-size bins.
+
 Instruction: After running cleaning and KPI regeneration, run:
 
 ```bash

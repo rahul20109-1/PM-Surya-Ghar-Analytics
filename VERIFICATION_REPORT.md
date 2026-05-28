@@ -53,3 +53,5 @@ Validation notes (2026-05-28): Initial validation failed because subsidy in `kpi
 Dashboard notes (2026-05-28): Batch 2 added a State Analysis chart toggle that switches between grouped bars and a scatter plot of volume vs conversion, with bubble size mapped to subsidy redeemed amount.
 
 Dashboard notes (2026-05-28): Batch 3 moved the chart toggle closer to the State Analysis graph and added paginated/top-N district table controls with CSV export for the current filtered view.
+
+Dashboard notes (2026-05-28): Batch 4 added a bucketed system-size distribution chart and a median size band label on Capacity Metrics. The page now makes clear that the data only supports the available `up to 10 kW` / `above 10 kW` buckets.
