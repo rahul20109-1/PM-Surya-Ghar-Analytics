@@ -39,6 +39,7 @@ RECENT ACTIVITY (2026-05-28 - 2026-05-28):
 - Documentation sync: Updated all project status docs so the next session can resume from the current dashboard state without re-checking the history.
 - Overview funnel now has its own date-range selector and uses daily-grain counts from `datewise_clean.csv`.
 - Trends page now includes a weekday seasonality curve and a daily installation lag proxy distribution.
+ - Trends page now includes a weekday seasonality curve. The daily installation lag proxy distribution was removed (2026-05-28) per project policy: only show charts with case-level data.
 
 WHAT I AM IMPLEMENTING?
 - None (idle)

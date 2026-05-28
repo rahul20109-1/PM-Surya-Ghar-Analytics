@@ -910,6 +910,21 @@ elif page == "Trends":
             "Filtered to the selected date range.",
         )
 
+        # Provide a CSV download of the filtered trend data for user export
+        try:
+            csv_bytes = datewise_sorted.to_csv(index=False).encode("utf-8")
+            safe_start = str(start_date).replace(' ', '_') if start_date is not None else 'start'
+            safe_end = str(end_date).replace(' ', '_') if end_date is not None else 'end'
+            st.download_button(
+                "Download filtered trends CSV",
+                data=csv_bytes,
+                file_name=f"trends_{safe_start}_{safe_end}.csv",
+                mime="text/csv",
+            )
+        except Exception:
+            # If download fails for any reason, do not block the page
+            pass
+
     # Installation lag distribution chart removed per project policy: only show charts
     # that are directly supported by case-level data. See project notes in progress.txt.
 
