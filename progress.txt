@@ -41,6 +41,11 @@ RECENT ACTIVITY (2026-05-28 - 2026-05-28):
 - Trends page now includes a weekday seasonality curve and a daily installation lag proxy distribution.
  - Trends page now includes a weekday seasonality curve. The daily installation lag proxy distribution was removed (2026-05-28) per project policy: only show charts with case-level data.
 
+RECENT ACTIVITY (2026-05-29):
+- Moved State Comparison chart-type selector to render under the chart heading for improved UX (`dashboard/streamlit_app.py`).
+- Added `scripts/inspect_state_master.py` to help reproduce import/data issues and inspect `state_master` columns locally.
+- Ran quick syntax check (`python -m py_compile`) on modified modules; no syntax errors found. Attempted to start Streamlit locally but the `streamlit` launcher is not available on the detected Python path on this machine.
+
 WHAT I AM IMPLEMENTING?
 - None (idle)
 

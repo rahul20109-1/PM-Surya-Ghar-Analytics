@@ -483,6 +483,8 @@ elif page == "State Analysis":
     col1, col2 = st.columns(2)
 
     with col1:
+        # Heading first, then present the chart-type selector underneath it
+        st.subheader("Applications and installations by state")
         state_chart_mode = st.radio(
             "Chart type",
             ["Grouped bars", "Scatter: volume vs conversion"],
@@ -490,8 +492,8 @@ elif page == "State Analysis":
             key="state_chart_mode",
             help="Switch between absolute volume comparison and the volume-versus-conversion scatter.",
         )
+
         if state_chart_mode == "Grouped bars":
-            st.subheader("Applications and installations by state")
             fig = create_state_ranking_chart(state_data)
             st.plotly_chart(fig, width="stretch")
             chart_caption(
@@ -499,7 +501,6 @@ elif page == "State Analysis":
                 "",
             )
         else:
-            st.subheader("State volume vs conversion")
             fig = create_state_scatter_chart(state_data)
             st.plotly_chart(fig, width="stretch")
             chart_caption(
