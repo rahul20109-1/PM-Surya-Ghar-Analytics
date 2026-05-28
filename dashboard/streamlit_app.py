@@ -210,10 +210,13 @@ if page == "Overview":
     apps_not_installed = max(total_apps - total_installs, 0)
 
     st.subheader("Applications and installations over time")
-    st.markdown("**Date range**")
-    filtered_datewise, start_dt, end_dt = apply_date_range_filter(datewise, "overview")
-    if start_dt and end_dt:
-        st.caption(f"Showing: {start_dt} → {end_dt}")
+    # Place the date-range selector beside the KPIs so deltas and filters are visually grouped
+    date_col, _ = st.columns([1, 4])
+    with date_col:
+        st.markdown("**Date range**")
+        filtered_datewise, start_dt, end_dt = apply_date_range_filter(datewise, "overview")
+        if start_dt and end_dt:
+            st.caption(f"Showing: {start_dt} → {end_dt}")
 
     if start_dt and end_dt:
         selected_days = max((end_dt - start_dt).days + 1, 1)

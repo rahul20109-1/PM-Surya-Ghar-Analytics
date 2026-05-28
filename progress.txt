@@ -34,6 +34,7 @@ RECENT ACTIVITY (2026-05-28 - 2026-05-28):
 - UI improvements: Collapsed the sidebar by default, migrated the dashboard off deprecated Streamlit width calls, and added a validation note for approval-rate hotspots.
 - UX and content improvements: Added KPI delta badges on the Overview, normalized efficiency columns in state and district tables, backlog scenario planning, chart callouts, and a metric glossary.
 - Documentation sync: Updated all project status docs so the next session can resume from the current dashboard state without re-checking the history.
+ - Recent UX fixes (2026-05-28): Colocated backlog scenarios beside backlog chart, tightened Overview date-range placement near KPI deltas, and reframed approval-rate wording to "processing ratio". Code and docs updated accordingly.
 
 QUALITY NOTES
 - Headline metrics aligned to current KPI exports

@@ -592,6 +592,76 @@ else:
         - datewise_analysis["installations"].cumsum()
     )
 
+    # Throughput metrics used for scenarios (compute before plotting so scenarios can be colocated)
+    latest_gap = datewise_analysis["cumulative_gap"].iloc[-1]
+    avg_daily_apps = datewise_analysis["applications"].mean()
+    avg_daily_installs = datewise_analysis["installations"].mean()
+    daily_deficit = avg_daily_apps - avg_daily_installs
+
+    if daily_deficit > 0:
+        years_to_clear = latest_gap / daily_deficit / 365
+        clearance_line = (
+            f"At the current rate, it will take about {years_to_clear:.1f} years to clear the backlog."
+        )
+    else:
+        clearance_line = (
+            "At the current rate, backlog is not growing; clearance timing cannot be estimated."
+        )
+
+    # Build scenario rows once so we can display them beside the backlog chart
+    if latest_gap > 0 and daily_deficit != 0:
+        scenario_rows = [
+            {
+                "Scenario": "Current pace",
+                "Daily intake": f"{avg_daily_apps:,.0f}",
+                "Daily installations": f"{avg_daily_installs:,.0f}",
+                "Daily deficit": f"{daily_deficit:,.0f}",
+                "Years to clear": f"{(latest_gap / daily_deficit / 365):.1f}" if daily_deficit > 0 else "Not growing",
+            },
+            {
+                "Scenario": "+25% capacity",
+                "Daily intake": f"{avg_daily_apps:,.0f}",
+                "Daily installations": f"{avg_daily_installs * 1.25:,.0f}",
+                "Daily deficit": f"{(avg_daily_apps - avg_daily_installs * 1.25):,.0f}",
+                "Years to clear": f"{(latest_gap / (avg_daily_apps - avg_daily_installs * 1.25) / 365):.1f}"
+                if (avg_daily_apps - avg_daily_installs * 1.25) > 0
+                else "No backlog growth",
+            },
+            {
+                "Scenario": "-25% intake",
+                "Daily intake": f"{avg_daily_apps * 0.75:,.0f}",
+                "Daily installations": f"{avg_daily_installs:,.0f}",
+                "Daily deficit": f"{(avg_daily_apps * 0.75 - avg_daily_installs):,.0f}",
+                "Years to clear": f"{(latest_gap / (avg_daily_apps * 0.75 - avg_daily_installs) / 365):.1f}"
+                if (avg_daily_apps * 0.75 - avg_daily_installs) > 0
+                else "No backlog growth",
+            },
+        ]
+    else:
+        scenario_rows = [
+            {
+                "Scenario": "Current pace",
+                "Daily intake": f"{avg_daily_apps:,.0f}",
+                "Daily installations": f"{avg_daily_installs:,.0f}",
+                "Daily deficit": f"{daily_deficit:,.0f}",
+                "Years to clear": "Not applicable",
+            },
+            {
+                "Scenario": "+25% capacity",
+                "Daily intake": f"{avg_daily_apps:,.0f}",
+                "Daily installations": f"{avg_daily_installs * 1.25:,.0f}",
+                "Daily deficit": f"{(avg_daily_apps - avg_daily_installs * 1.25):,.0f}",
+                "Years to clear": "Not applicable",
+            },
+            {
+                "Scenario": "-25% intake",
+                "Daily intake": f"{avg_daily_apps * 0.75:,.0f}",
+                "Daily installations": f"{avg_daily_installs:,.0f}",
+                "Daily deficit": f"{(avg_daily_apps * 0.75 - avg_daily_installs):,.0f}",
+                "Years to clear": "Not applicable",
+            },
+        ]
+
     col1, col2 = st.columns(2)
 
     with col1:
@@ -679,6 +749,12 @@ else:
         )
 
         st.plotly_chart(fig, width="stretch")
+        # Present backlog clearance scenarios adjacent to the backlog chart for better context
+        st.subheader("Backlog clearance scenarios")
+        st.dataframe(pd.DataFrame(scenario_rows), width="stretch", hide_index=True)
+        st.caption(
+            "Scenarios compare the current flow against a 25% capacity increase or a 25% intake reduction to show how quickly the backlog could be reduced."
+        )
         chart_caption(
             "Backlog line shows how the application gap accumulates over time",
             "Source: datewise_clean.csv columns applications and installations.",
@@ -716,64 +792,7 @@ else:
         unsafe_allow_html=True,
     )
 
-    st.subheader("Backlog clearance scenarios")
-    if latest_gap > 0 and daily_deficit != 0:
-        scenario_rows = [
-            {
-                "Scenario": "Current pace",
-                "Daily intake": f"{avg_daily_apps:,.0f}",
-                "Daily installations": f"{avg_daily_installs:,.0f}",
-                "Daily deficit": f"{daily_deficit:,.0f}",
-                "Years to clear": f"{(latest_gap / daily_deficit / 365):.1f}" if daily_deficit > 0 else "Not growing",
-            },
-            {
-                "Scenario": "+25% capacity",
-                "Daily intake": f"{avg_daily_apps:,.0f}",
-                "Daily installations": f"{avg_daily_installs * 1.25:,.0f}",
-                "Daily deficit": f"{(avg_daily_apps - avg_daily_installs * 1.25):,.0f}",
-                "Years to clear": f"{(latest_gap / (avg_daily_apps - avg_daily_installs * 1.25) / 365):.1f}"
-                if (avg_daily_apps - avg_daily_installs * 1.25) > 0
-                else "No backlog growth",
-            },
-            {
-                "Scenario": "-25% intake",
-                "Daily intake": f"{avg_daily_apps * 0.75:,.0f}",
-                "Daily installations": f"{avg_daily_installs:,.0f}",
-                "Daily deficit": f"{(avg_daily_apps * 0.75 - avg_daily_installs):,.0f}",
-                "Years to clear": f"{(latest_gap / (avg_daily_apps * 0.75 - avg_daily_installs) / 365):.1f}"
-                if (avg_daily_apps * 0.75 - avg_daily_installs) > 0
-                else "No backlog growth",
-            },
-        ]
-    else:
-        scenario_rows = [
-            {
-                "Scenario": "Current pace",
-                "Daily intake": f"{avg_daily_apps:,.0f}",
-                "Daily installations": f"{avg_daily_installs:,.0f}",
-                "Daily deficit": f"{daily_deficit:,.0f}",
-                "Years to clear": "Not applicable",
-            },
-            {
-                "Scenario": "+25% capacity",
-                "Daily intake": f"{avg_daily_apps:,.0f}",
-                "Daily installations": f"{avg_daily_installs * 1.25:,.0f}",
-                "Daily deficit": f"{(avg_daily_apps - avg_daily_installs * 1.25):,.0f}",
-                "Years to clear": "Not applicable",
-            },
-            {
-                "Scenario": "-25% intake",
-                "Daily intake": f"{avg_daily_apps * 0.75:,.0f}",
-                "Daily installations": f"{avg_daily_installs:,.0f}",
-                "Daily deficit": f"{(avg_daily_apps * 0.75 - avg_daily_installs):,.0f}",
-                "Years to clear": "Not applicable",
-            },
-        ]
-
-    st.dataframe(pd.DataFrame(scenario_rows), width="stretch", hide_index=True)
-    st.caption(
-        "Scenarios compare the current flow against a 25% capacity increase or a 25% intake reduction to show how quickly the backlog could be reduced."
-    )
+    # scenarios are displayed beside the backlog chart above
 
 st.markdown("---")
 
@@ -781,11 +800,11 @@ st.markdown("---")
 # SECTION 5: APPROVAL RATE ANOMALIES
 # ============================================================================
 
-st.header("5. Approval rate gaps")
+st.header("5. Processing ratio gaps (diagnostic hotspot)")
 
 state_approval_note = (
-    "Note: if an approval rate exceeds 100%, the source records are not aligned at the same grain, "
-    "so treat the chart as a hotspot indicator rather than a literal pass rate."
+    "Note: these are processing ratios computed from different source grains and may exceed 100%. "
+    "Treat them as diagnostic hotspots rather than literal pass rates."
 )
 
 # Calculate approval rates by state
