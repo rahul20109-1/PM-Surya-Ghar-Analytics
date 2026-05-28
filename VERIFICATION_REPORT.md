@@ -59,3 +59,5 @@ Dashboard notes (2026-05-28): Batch 3 moved the chart toggle closer to the State
 Dashboard notes (2026-05-28): Batch 4 added a bucketed system-size distribution chart and a median size band label on Capacity Metrics. The page now makes clear that the data only supports the available `up to 10 kW` / `above 10 kW` buckets.
 
 Dashboard notes (2026-05-28): Batch 5 added consistent chart captions and helper tooltips across the dashboard, including the bottleneck analysis page. The new notes keep source fields and chart intent explicit for users.
+
+Dashboard notes (2026-05-28): Batch 7 added KPI delta badges on the Overview, normalized metrics in state and district comparisons, backlog clearance scenarios, bottleneck chart callouts, and a metric glossary. The dashboard now reads more like a guided analysis product and less like a static report.

@@ -55,3 +55,8 @@ If validation fails, investigate the mismatched aggregates and re-run cleaning o
 - Treat raw_data/ as immutable input.
 - Run KPI generation after cleaning completion.
 - Treat cleaned outputs as source inputs for dashboards and notebooks.
+
+## 7. Downstream Context
+
+- The dashboard now uses glossary-backed KPI definitions, so cleaning and validation notes should stay aligned with `docs/metric_glossary.md`.
+- When changing source columns or aggregation logic, update the glossary and validation notes together to avoid stale metric explanations.

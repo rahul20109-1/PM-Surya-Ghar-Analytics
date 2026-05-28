@@ -69,3 +69,10 @@ Primary files required by dashboard loaders:
 - Keep screenshots or short demo recording for interview walkthroughs
 - Pair dashboard demo with KPI verification notebook to show analytical rigor
 - Use this file as operational reference, not as implementation history log
+
+## Latest Dashboard Enhancements
+
+- Overview KPI cards now show deltas against the previous period of the same length.
+- State and district comparison tables now include normalized efficiency columns.
+- Bottleneck Analysis now includes backlog scenario planning and direct chart callouts.
+- The dashboard links to the metric glossary so KPI terms are easier to trust and explain.

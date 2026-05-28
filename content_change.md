@@ -64,6 +64,12 @@ If you want, I can:
 - Added `scripts/validate_kpis.py` and updated `scripts/02_kpi_calculation.py` to fix pending calculation; updated validation behavior to compare subsidy to state-level totals. These changes and the validation result were recorded in `VERIFICATION_REPORT.md` and `lessons.md`.
 - Added a State Analysis chart toggle in `dashboard/streamlit_app.py` so the page can switch between grouped bars and a scatter plot of volume vs conversion. The scatter uses subsidy redeemed amount as bubble size.
 
+## Recent Dashboard + Docs Sync (2026-05-28)
+
+- Added KPI delta badges on the Overview, normalized metrics in the state and district comparisons, backlog clearance scenarios, and chart callouts in the bottleneck page.
+- Added `docs/metric_glossary.md` so KPI definitions, normalized metrics, and bottleneck formulas are easy to reference.
+- Synchronized the repository status docs (`progress.txt`, `updateDocs.md`, `VERIFICATION_REPORT.md`, `DASHBOARD_STATUS.md`, `PROJECT_COMPLETION_SUMMARY.md`, `lessons.md`) so the next session can resume from the correct checkpoint.
+
 ---
 
 End of content_change.md

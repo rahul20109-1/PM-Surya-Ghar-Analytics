@@ -67,3 +67,8 @@ Note: KPI totals are computed from datewise_clean.csv.
 
 - Notebooks: validation and exploratory analysis
 - Dashboard: stakeholder-facing interactive reporting
+
+## 7. Metric Definitions Reference
+
+- Main KPI and normalized metric definitions are documented in `docs/metric_glossary.md`.
+- The glossary covers core totals, efficiency metrics, bottleneck formulas, and backlog scenario terms.

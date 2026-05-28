@@ -44,11 +44,11 @@ For hiring review, present this repository as:
 - Rebuilt messy public CSV inputs into validated KPI outputs and a repeatable dashboard workflow.
 - Analyzed 6M+ records across 36 states, 792 districts, and 84 DISCOMs.
 - Added interactive diagnostics for trends, bottlenecks, state comparison, and district drilldowns.
+- Added KPI deltas, normalized comparisons, backlog scenarios, and a metric glossary to strengthen the narrative for recruiters.
 - Documented the pipeline so the work is easy to explain in interviews and easy to extend later.
 
 ## Optional Next Enhancements
 
 - Public deployment and shareable live link
 - Automated data quality checks in CI
-- Data dictionary for cleaned KPI outputs
 - Story-driven findings page for non-technical stakeholders
