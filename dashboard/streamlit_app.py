@@ -29,6 +29,7 @@ from dashboard.utils.charts import (
     create_state_ranking_chart,
     filter_all_zero_rows,
 )
+import runpy
 
 # Configure Streamlit
 st.set_page_config(
@@ -1072,6 +1073,15 @@ elif page == "Capacity Metrics":
             st.metric("Median size band", median_band)
             st.caption(
                 "Source: datewise_clean.csv columns upto_10_kw and above_10_kw. The median is shown as the bucket containing the midpoint, not a per-installation median.")
+
+elif page == "Bottleneck Analysis":
+    # Execute the Bottleneck Analysis page as a standalone script so its Streamlit
+    # content renders in place. The page file name begins with digits so importlib
+    # can't import it as a regular module; use runpy to execute the file by path.
+    runpy.run_path(
+        str(project_root / "dashboard" / "pages" / "08_bottleneck_analysis.py"),
+        run_name="__main__",
+    )
 
 elif page == "About":
     st.header("About this dashboard")
