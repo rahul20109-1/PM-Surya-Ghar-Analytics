@@ -76,7 +76,7 @@ st.markdown(
     unsafe_allow_html=True,
 )
 st.markdown(
-    '<div class="sub-header">Executive decision-support dashboard for PM Surya Ghar, providing a clear view of program scale, implementation performance, and bottlenecks requiring targeted intervention.</div>',
+    '<div class="sub-header">Decision-support dashboard for PM Surya Ghar, providing a clear view of program scale, implementation performance, and bottlenecks requiring targeted intervention.</div>',
     unsafe_allow_html=True,
 )
 
