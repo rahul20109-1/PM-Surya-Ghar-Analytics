@@ -45,6 +45,7 @@ RECENT ACTIVITY (2026-05-29):
 - Added `scripts/inspect_state_master.py` to help reproduce import/data issues and inspect `state_master` columns locally.
 - Ran quick syntax check (`python -m py_compile`) on modified modules; no syntax errors found. Attempted to start Streamlit locally but the `streamlit` launcher is not available on the detected Python path on this machine.
 - Documentation sync (2026-05-29): Corrected stale portfolio claims (district count and page coverage) and aligned status docs to current sidebar navigation.
+- Content fixes (2026-05-29): Fixed mojibake characters (→, –) throughout dashboard pages; removed references to non-exposed pages (Capacity Metrics, Bottleneck Analysis) from About section; updated "What we checked" capitalization; updated Last Updated date to May 29, 2026.
 
 WHAT I AM IMPLEMENTING?
 - None (idle)

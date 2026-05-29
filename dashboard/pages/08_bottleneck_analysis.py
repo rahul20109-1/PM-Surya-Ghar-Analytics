@@ -24,8 +24,9 @@ from dashboard.utils.data_loader import load_data, apply_date_range_filter
 from dashboard.utils.charts import filter_all_zero_rows
 from dashboard.utils.components import chart_caption
 
-# Configure page
-st.set_page_config(page_title="Bottleneck Analysis", layout="wide")
+# Page configuration is set centrally in `dashboard/streamlit_app.py`.
+# Avoid calling `st.set_page_config` here to prevent duplicate page title
+# showing in the sidebar when this page is executed via `runpy.run_path`.
 
 
 # Load data
@@ -60,7 +61,7 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-st.title("Process bottlenecks: where applications stall")
+st.header("Process bottlenecks: where applications stall")
 st.markdown(
     """
 This analysis highlights stages where applications are delayed, dropped, or accumulate in backlog. Use it to prioritise operational interventions and state-level support.
@@ -203,7 +204,7 @@ with col1:
             )
         )
 
-        fig.update_traces(hovertemplate="%{x:,} applications ÔÇö %{y}")
+        fig.update_traces(hovertemplate="%{x:,} applications – %{y}")
         fig.update_layout(
             title="Stage flow (counts & cumulative%)",
             height=520,
@@ -238,7 +239,7 @@ with col2:
         fig.update_traces(
             texttemplate="%{text:.1f}%",
             textposition="outside",
-            hovertemplate="%{y:.1f}% dropout ÔÇö %{x}",
+            hovertemplate="%{y:.1f}% dropout – %{x}",
         )
         fig.update_layout(
             height=500,
@@ -258,7 +259,7 @@ with col2:
 st.markdown(
     """
 <div class="insight-box">
-<strong>Key insight:</strong> The largest operational loss occurs between <strong>{}</strong> and <strong>{}</strong> ÔÇö a {pct:.1f}% reduction from the prior stage. Approximately <strong>{loss:,}</strong> applications do not progress at this handoff.
+<strong>Key insight:</strong> The largest operational loss occurs between <strong>{}</strong> and <strong>{}</strong> – a {pct:.1f}% reduction from the prior stage. Approximately <strong>{loss:,}</strong> applications do not progress at this handoff.
 <br><em>Suggested next step:</em> Investigate handoff procedures, vendor capacity, and local queues in the affected states.
 </div>
 """.format(prev_stage, worst_stage, pct=worst_dropout, loss=int(worst_loss)),
@@ -351,7 +352,7 @@ with col1:
         fig.update_traces(
             texttemplate="%{text:,.0f}",
             textposition="outside",
-            hovertemplate="%{x:,.0f} applications waiting ÔÇö %{y}",
+            hovertemplate="%{x:,.0f} applications waiting – %{y}",
         )
         fig.update_layout(
             height=400,
@@ -385,7 +386,7 @@ with col2:
         fig.update_traces(
             texttemplate="%{text:.1f}%",
             textposition="outside",
-            hovertemplate="%{x:.1f}% waiting ÔÇö %{y}",
+            hovertemplate="%{x:.1f}% waiting – %{y}",
         )
         fig.update_layout(
             height=400,
@@ -839,13 +840,13 @@ st.markdown("---")
 
 st.markdown(
     f"""
-### ­ƒôï Executive summary
+### Executive summary
 
 Key takeaways for program managers and recruiters:
 
-- **Priority issue:** The largest operational loss is between **{prev_stage}** and **{worst_stage}** ÔÇö this handoff should be investigated first.
+- **Priority issue:** The largest operational loss is between **{prev_stage}** and **{worst_stage}** – this handoff should be investigated first.
 - **Backlog risk:** Intake exceeds clearance; the backlog is growing by roughly **{daily_deficit:,.0f}** applications per day.
-- **Uneven delivery:** State-level performance varies considerably ÔÇö target support to high-volume, low-conversion states.
+- **Uneven delivery:** State-level performance varies considerably – target support to high-volume, low-conversion states.
 - **Approval variability:** Feasibility and inspection approval rates differ across states and explain part of the outcome gap.
 
 Recommended next steps: Share these findings with delivery teams, run focused diagnostics in the top-priority states, and consider temporary capacity increases in the short term.

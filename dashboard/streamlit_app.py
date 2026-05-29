@@ -82,7 +82,6 @@ page_options = {
     "State comparison": "State Analysis",
     "District comparison": "District Analysis",
     "Trend over time": "Trends",
-        "Bottleneck Analysis": "Bottleneck Analysis",
     "About this dashboard": "About",
 }
 selected_page_label = st.sidebar.radio("Choose a page:", list(page_options.keys()))
@@ -199,15 +198,8 @@ except Exception as e:
     st.error(f"Error loading data: {str(e)}")
     st.stop()
 
-# Map the sidebar selection to an internal page key. If per-installation system size
-# data is not available, hide the Capacity page and show Bottleneck Analysis instead.
+# Map the sidebar selection to an internal page key.
 page = page_options[selected_page_label]
-if page == "Capacity Metrics":
-    if "system_size_kw" not in datewise.columns:
-        page = "Bottleneck Analysis"
-        st.sidebar.info(
-            "Per-installation system size data not available: showing Bottleneck Analysis instead."
-        )
 
 # ============================================================================
 # PAGE ROUTING
@@ -377,7 +369,7 @@ elif page == "State Analysis":
         """
     **What this view does:** Compare state performance on volume and conversion.
 
-    - Use the selector to choose a prioritisation metric: raw application or installation volume, or the conversion rate from application ÔåÆ installation.
+    - Use the selector to choose a prioritisation metric: raw application or installation volume, or the conversion rate from application → installation.
     - Lower conversion rates point to places where applications are not turning into completed installations. High volumes with low conversion are high-priority operational issues.
     - Use the charts to spot which states have high throughput and which lag on execution. Drill down using the District page for local diagnostics.
     """,
@@ -1094,12 +1086,12 @@ elif page == "About":
     and make the problem areas easy to spot.
 
     **What this dashboard covers:**
-    - **Time Period:** February 13, 2024 ÔÇô February 9, 2026
+    - **Time Period:** February 13, 2024 – February 9, 2026
     - **Geography:** 36 States/UTs, 792 Districts, 84 DISCOMs
     - **Records Reviewed:** 6,021,454 applications
 
     **Journey stages captured in this dataset:**
-    Application submission ÔåÆ Feasibility approval ÔåÆ Vendor selection ÔåÆ Installation completed ÔåÆ Project inspection by DISCOM ÔåÆ Subsidy redeem
+    Application submission → Feasibility approval → Vendor selection → Installation completed → Project inspection by DISCOM → Subsidy redeem
 
     *Note:* Consumer registration, agreement upload, and subsidy approval or disbursal are not captured in the source data.
 
@@ -1110,28 +1102,26 @@ elif page == "About":
     - Installed capacity: 8.56 million kW
 
     **What we checked:**
-    - cleaned the source files before analysis
-    - cross-checked the KPI totals against the cleaned data
-    - reviewed the geography level counts
-    - kept the dashboard focused on the main numbers first
-    - documented KPI definitions in docs/metric_glossary.md
+    - Cleaned the source files before analysis
+    - Cross-checked the KPI totals against the cleaned data
+    - Reviewed the geography level counts
+    - Kept the dashboard focused on the main numbers first
+    - Documented KPI definitions in docs/metric_glossary.md
 
     **What you can see here:**
     - **Overview:** the main numbers and the funnel summary
     - **State Analysis:** which states are doing well and which are lagging
     - **District Analysis:** the district level picture
     - **Trends:** how the program changes over time
-    - **Capacity Metrics:** how system size and segment mix compare
-    - **Bottleneck Analysis:** where the process slows down
 
     **Built with:**
     - Python 3.11, Streamlit, Pandas, and Plotly
-    - simple checks for data cleaning and validation
-    - interactive charts with hover details
-    - responsive layout for desktop and mobile
+    - Simple checks for data cleaning and validation
+    - Interactive charts with hover details
+    - Responsive layout for desktop and mobile
 
     **Version:** 1.0.0  
-    **Last Updated:** May 27, 2026  
+    **Last Updated:** May 29, 2026  
     **Status:** Production Ready
     """)
 
