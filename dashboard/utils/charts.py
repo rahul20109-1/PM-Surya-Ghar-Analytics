@@ -81,13 +81,13 @@ def create_adoption_trend(datewise_df, start_date=None, end_date=None):
     # Improve axis labels and hover formatting
     fig.update_traces(hovertemplate="%{y:,} <br>%{x|%Y-%m-%d}")
     fig.update_layout(
-        title="Applications and installations over time",
+        title="Cumulative applications submitted and installations completed",
         xaxis_title="Date",
-        yaxis_title="Cumulative applications / installations",
+        yaxis_title="Cumulative count",
         hovermode="x unified",
         height=500,
         template="plotly_white",
-        legend=dict(title="Series", x=0.01, y=0.99),
+        legend=dict(title="Metric series", x=0.01, y=0.99),
         margin=dict(l=0, r=0, t=30, b=0),
     )
 
@@ -133,13 +133,13 @@ def create_state_ranking_chart(state_data_df):
     fig.update_layout(
         title="Applications and installations by state",
         xaxis_title="State",
-        yaxis_title="Count (number of applications/installations)",
+        yaxis_title="Count of records",
         barmode="group",
         height=500,
         template="plotly_white",
         xaxis_tickangle=-45,
         margin=dict(b=100),
-        legend=dict(title="Metric", x=0.01, y=0.99),
+        legend=dict(title="Metric series", x=0.01, y=0.99),
     )
 
     return fig
@@ -210,11 +210,11 @@ def create_state_scatter_chart(state_data_df):
     fig.update_layout(
         title="State volume vs conversion",
         xaxis_title="Applications submitted",
-        yaxis_title="Application → Installation rate (%)",
+        yaxis_title="Application to installation rate (%)",
         height=500,
         template="plotly_white",
         margin=dict(l=20, r=20, t=40, b=20),
-        coloraxis_colorbar=dict(title="Conversion (%)"),
+        coloraxis_colorbar=dict(title="Conversion rate (%)"),
     )
 
     return fig

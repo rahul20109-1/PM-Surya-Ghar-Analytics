@@ -22,7 +22,7 @@ sys.path.insert(0, str(project_root))
 
 from dashboard.utils.data_loader import load_data, apply_date_range_filter
 from dashboard.utils.charts import filter_all_zero_rows
-from dashboard.utils.components import chart_caption
+from dashboard.utils.components import chart_caption, how_to_read_chart
 
 # Page configuration is set centrally in `dashboard/streamlit_app.py`.
 # Avoid calling `st.set_page_config` here to prevent duplicate page title
@@ -161,12 +161,31 @@ st.markdown("---")
 st.subheader("Stage breakdown")
 
 display_df = funnel_df.copy()
-display_df["Count"] = display_df["Count"].apply(lambda x: f"{int(x):,}")
-display_df["Loss Count"] = display_df["Loss Count"].apply(
+display_df = display_df.rename(
+    columns={
+        "Count": "Applications at stage (count)",
+        "Cumulative %": "Cumulative share from submission (%)",
+        "Stage Dropout %": "Drop-off from previous stage (%)",
+        "Loss Count": "Applications lost at handoff (count)",
+    }
+)
+display_df["Applications at stage (count)"] = display_df[
+    "Applications at stage (count)"
+].apply(lambda x: f"{int(x):,}")
+display_df["Applications lost at handoff (count)"] = display_df[
+    "Applications lost at handoff (count)"
+].apply(
     lambda x: f"{int(x):,}" if x > 0 else "-"
 )
 
 st.dataframe(display_df, width="stretch", hide_index=True)
+st.markdown("**How to read this table**")
+st.markdown(
+    "- Compare stage counts and drop-off percentages together: high count loss with high percentage loss indicates a priority handoff."
+)
+st.markdown(
+    "- Cumulative share shows what proportion of original applications survives through each stage."
+)
 
 # Funnel visualization
 col1, col2 = st.columns(2)
@@ -211,6 +230,13 @@ with col1:
             template="plotly_white",
         )
         st.plotly_chart(fig, width="stretch")
+        how_to_read_chart(
+            [
+                "Each funnel step represents the count of applications that reached that stage.",
+                "The shape narrows as applications drop out across the process.",
+                "Use steep narrowing points to identify operational handoffs that need intervention.",
+            ]
+        )
         chart_caption(
             "Funnel counts stage-by-stage drop-off from application submission to subsidy redeem",
             "",
@@ -250,6 +276,13 @@ with col2:
         )
         fig.update_xaxes(tickfont=dict(size=10))
         st.plotly_chart(fig, width="stretch")
+        how_to_read_chart(
+            [
+                "Bars show percentage drop relative to the immediately previous stage.",
+                "Higher bars indicate weaker handoff quality and larger proportional loss.",
+                "Prioritise stages where high percentage drop combines with high absolute volume.",
+            ]
+        )
         chart_caption(
             "Bars show the percent lost between adjacent funnel stages",
             "",
@@ -361,6 +394,13 @@ with col1:
             yaxis_title="Stage",
         )
         st.plotly_chart(fig, width="stretch")
+        how_to_read_chart(
+            [
+                "Each horizontal bar shows how many applications are currently waiting at that stage.",
+                "Longer bars represent larger operational backlogs.",
+                "Use this chart to prioritize stages for queue-clearing actions.",
+            ]
+        )
         chart_caption(
             "Pending counts identify the stage where applications accumulate",
             "",
@@ -395,6 +435,13 @@ with col2:
             yaxis_title="Stage",
         )
         st.plotly_chart(fig, width="stretch")
+        how_to_read_chart(
+            [
+                "This view normalizes backlog by stage volume using percentages.",
+                "A high waiting share means a larger fraction of incoming applications is stalled.",
+                "Compare this with absolute waiting counts to avoid over-prioritizing low-volume stages.",
+            ]
+        )
         chart_caption(
             "Waiting share shows where backlog is largest relative to volume entering the stage",
             "",
@@ -523,17 +570,23 @@ table_df = display_df[
 ].copy()
 table_df.columns = [
     "State",
-    "Applications",
-    "Installations",
-    "Subsidy Redeemed",
-    metric_name,
+    "Applications submitted (count)",
+    "Installations completed (count)",
+    "Subsidy redeemed (count)",
+    f"{metric_name} (%)",
 ]
-table_df["Applications"] = table_df["Applications"].apply(lambda x: f"{int(x):,}")
-table_df["Installations"] = table_df["Installations"].apply(lambda x: f"{int(x):,}")
-table_df["Subsidy Redeemed"] = table_df["Subsidy Redeemed"].apply(
+table_df["Applications submitted (count)"] = table_df[
+    "Applications submitted (count)"
+].apply(lambda x: f"{int(x):,}")
+table_df["Installations completed (count)"] = table_df[
+    "Installations completed (count)"
+].apply(lambda x: f"{int(x):,}")
+table_df["Subsidy redeemed (count)"] = table_df["Subsidy redeemed (count)"].apply(
     lambda x: f"{int(x):,}"
 )
-table_df[metric_name] = table_df[metric_name].apply(lambda x: f"{x:.1f}%")
+table_df[f"{metric_name} (%)"] = table_df[f"{metric_name} (%)"].apply(
+    lambda x: f"{x:.1f}%"
+)
 
 st.dataframe(table_df, width="stretch", hide_index=True)
 st.caption(
@@ -622,6 +675,13 @@ with col1:
         )
 
         st.plotly_chart(fig, width="stretch")
+        how_to_read_chart(
+            [
+                "Both lines are 7-day averages, which reduce day-to-day noise.",
+                "If the applications line stays above installations, queue pressure is building.",
+                "Converging lines indicate improving operational balance.",
+            ]
+        )
         chart_caption(
             "7-day averages smooth the daily throughput series",
             "",
@@ -752,7 +812,29 @@ with col2:
 
         st.plotly_chart(fig, width="stretch")
         st.subheader("Backlog clearance scenarios")
-        st.dataframe(pd.DataFrame(backlog_scenario_rows), width="stretch", hide_index=True)
+        how_to_read_chart(
+            [
+                "The line shows cumulative difference between applications submitted and installations completed.",
+                "An upward slope means backlog growth, while a flattening slope means improving clearance.",
+                "The annotation marks the latest backlog value in the selected period.",
+            ]
+        )
+        scenario_df = pd.DataFrame(backlog_scenario_rows).rename(
+            columns={
+                "Daily intake": "Daily applications submitted (count)",
+                "Daily installations": "Daily installations completed (count)",
+                "Daily deficit": "Daily backlog change (count)",
+                "Years to clear": "Estimated years to clear backlog",
+            }
+        )
+        st.dataframe(scenario_df, width="stretch", hide_index=True)
+        st.markdown("**How to read this table**")
+        st.markdown(
+            "- Compare scenarios by daily backlog change (count): negative or near-zero values indicate improved control of backlog growth."
+        )
+        st.markdown(
+            "- Estimated years to clear backlog is directional and assumes each scenario remains stable over time."
+        )
         st.caption(
             "Scenarios compare the current flow against a 25% capacity increase or a 25% intake reduction to show how quickly the backlog could be reduced."
         )
@@ -766,10 +848,10 @@ with col2:
         f"""
     <div class="insight-box">
     <strong>Main finding:</strong><br>
-    ÔÇó Applications received per day: <strong>{avg_daily_apps:,.0f}</strong><br>
-    ÔÇó Installations completed per day: <strong>{avg_daily_installs:,.0f}</strong><br>
-    ÔÇó Backlog grows by: <strong class="critical">{daily_deficit:,.0f} applications per day</strong><br>
-    ÔÇó Current total backlog: <strong class="critical">{int(latest_gap):,} applications</strong><br>
+    - Applications received per day: <strong>{avg_daily_apps:,.0f}</strong><br>
+    - Installations completed per day: <strong>{avg_daily_installs:,.0f}</strong><br>
+    - Backlog grows by: <strong class="critical">{daily_deficit:,.0f} applications per day</strong><br>
+    - Current total backlog: <strong class="critical">{int(latest_gap):,} applications</strong><br>
     <br>
     <strong>{clearance_line}</strong>
     </div>

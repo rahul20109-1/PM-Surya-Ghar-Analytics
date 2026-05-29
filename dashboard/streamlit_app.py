@@ -22,7 +22,12 @@ sys.path.insert(0, str(project_root))
 
 # Import utility modules
 from dashboard.utils.data_loader import load_data
-from dashboard.utils.components import kpi_card, create_conversion_funnel, chart_caption
+from dashboard.utils.components import (
+    kpi_card,
+    create_conversion_funnel,
+    chart_caption,
+    how_to_read_chart,
+)
 from dashboard.utils.charts import (
     create_adoption_trend,
     create_state_scatter_chart,
@@ -34,7 +39,7 @@ import runpy
 # Configure Streamlit
 st.set_page_config(
     page_title="PM Surya Ghar Analytics",
-    page_icon="ÔÿÇ´©Å",
+    page_icon=":sunny:",
     layout="wide",
     initial_sidebar_state="collapsed",
 )
@@ -321,6 +326,17 @@ if page == "Overview":
     else:
         fig = create_adoption_trend(filtered_datewise)
         st.plotly_chart(fig, use_container_width=True)
+        how_to_read_chart(
+            [
+                "Both lines are cumulative totals, so steeper slopes mean faster day-to-day additions.",
+                "The vertical gap between the two lines reflects how many applications have not yet converted to installations.",
+                "Use the date-range filter to compare recent momentum against longer-term performance.",
+            ]
+        )
+        chart_caption(
+            "Cumulative trend compares program intake and execution over the selected period",
+            "Source: datewise_clean.csv columns rptdate, applications, and installations.",
+        )
 
     st.markdown("---")
 
@@ -361,6 +377,17 @@ if page == "Overview":
         }
         fig = create_conversion_funnel(cleaned_funnel)
         st.plotly_chart(fig, use_container_width=True)
+        how_to_read_chart(
+            [
+                "Each funnel step shows the number of applications that have reached that stage.",
+                "Large drops between adjacent stages signal potential process bottlenecks.",
+                "Prioritise stage transitions with both high absolute loss and high percentage loss.",
+            ]
+        )
+        chart_caption(
+            "Funnel view shows where applications drop between operational stages",
+            "Source: state_master_clean.csv stage totals aggregated at national level.",
+        )
 
 elif page == "State Analysis":
     st.header("State comparison")
@@ -461,22 +488,22 @@ elif page == "State Analysis":
     ].copy()
     display_table.columns = [
         "State",
-        "Applications submitted",
-        "Installations completed",
-        "Application → Installation (%)",
-        "Installations per 1,000 applications",
+        "Applications submitted (count)",
+        "Installations completed (count)",
+        "Application to installation rate (%)",
+        "Installations per 1,000 applications (normalized)",
     ]
-    display_table["Applications submitted"] = display_table[
-        "Applications submitted"
+    display_table["Applications submitted (count)"] = display_table[
+        "Applications submitted (count)"
     ].apply(lambda x: f"{int(x):,}")
-    display_table["Installations completed"] = display_table[
-        "Installations completed"
+    display_table["Installations completed (count)"] = display_table[
+        "Installations completed (count)"
     ].apply(lambda x: f"{int(x):,}")
-    display_table["Application → Installation (%)"] = display_table[
-        "Application → Installation (%)"
+    display_table["Application to installation rate (%)"] = display_table[
+        "Application to installation rate (%)"
     ].apply(lambda x: f"{float(x):.1f}%")
-    display_table["Installations per 1,000 applications"] = display_table[
-        "Installations per 1,000 applications"
+    display_table["Installations per 1,000 applications (normalized)"] = display_table[
+        "Installations per 1,000 applications (normalized)"
     ].apply(lambda x: f"{float(x):.1f}")
 
     st.dataframe(display_table, width="stretch", hide_index=True)
@@ -498,6 +525,13 @@ elif page == "State Analysis":
             st.subheader("Applications and installations by state")
             fig = create_state_ranking_chart(state_data)
             st.plotly_chart(fig, width="stretch")
+            how_to_read_chart(
+                [
+                    "For each state, compare the applications bar with the installations bar.",
+                    "A large gap between the two bars indicates conversion or execution issues.",
+                    "Use this chart with the rate chart to separate scale effects from efficiency effects.",
+                ]
+            )
             chart_caption(
                 "Grouped bars compare applications submitted and installations completed",
                 "Source: kpis_state.csv columns applications and installations.",
@@ -506,6 +540,13 @@ elif page == "State Analysis":
             st.subheader("State volume vs conversion")
             fig = create_state_scatter_chart(state_data)
             st.plotly_chart(fig, width="stretch")
+            how_to_read_chart(
+                [
+                    "Each bubble is one state, positioned by application volume (x-axis) and conversion rate (y-axis).",
+                    "Higher bubbles indicate stronger conversion, while farther-right bubbles indicate larger volume.",
+                    "Larger bubbles represent higher subsidy redeemed amount and highlight high-impact states.",
+                ]
+            )
             chart_caption(
                 "Scatter highlights high-volume states and conversion outliers",
                 "Source: kpis_state.csv columns applications, conversion_rate_app_to_install_pct, and subsidy_redeemed_amount.",
@@ -530,6 +571,13 @@ elif page == "State Analysis":
         )
         fig.update_layout(height=600, showlegend=False)
         st.plotly_chart(fig, width="stretch")
+        how_to_read_chart(
+            [
+                "States are ranked by conversion rate from low to high.",
+                "Focus first on states with both low conversion and high application volume in the table.",
+                "Color intensity mirrors conversion rate, reinforcing the ranking order.",
+            ]
+        )
         chart_caption(
             "Horizontal bars rank states by application-to-installation rate",
             "Source: kpis_state.csv column conversion_rate_app_to_install_pct.",
@@ -539,7 +587,7 @@ elif page == "District Analysis":
     st.header("District comparison")
 
     st.write("""
-    Review district level results for the selected state.
+    Review district-level performance for the selected state, including volume, conversion, inspections, and subsidy progress.
     """)
 
     # State filter
@@ -622,35 +670,35 @@ elif page == "District Analysis":
     display_data.columns = [
         "State",
         "District",
-        "Applications submitted",
-        "Installations completed",
-        "Inspections approved",
-        "Subsidy redeemed",
+        "Applications submitted (count)",
+        "Installations completed (count)",
+        "Inspections approved (count)",
+        "Subsidy redeemed (count)",
     ]
 
-    display_data["Application to installation rate"] = display_data.apply(
+    display_data["Application to installation rate (%)"] = display_data.apply(
         lambda row: (
-            (row["Installations completed"] / row["Applications submitted"] * 100)
-            if row["Applications submitted"] > 0
+            (row["Installations completed (count)"] / row["Applications submitted (count)"] * 100)
+            if row["Applications submitted (count)"] > 0
             else 0
         ),
         axis=1,
     )
-    display_data["Installations per 1,000 applications"] = display_data.apply(
+    display_data["Installations per 1,000 applications (normalized)"] = display_data.apply(
         lambda row: (
-            (row["Installations completed"] / row["Applications submitted"] * 1000)
-            if row["Applications submitted"] > 0
+            (row["Installations completed (count)"] / row["Applications submitted (count)"] * 1000)
+            if row["Applications submitted (count)"] > 0
             else 0
         ),
         axis=1,
     )
 
     sort_column_map = {
-        "Applications submitted": "Applications submitted",
-        "Installations completed": "Installations completed",
-        "Application to installation rate": "Application to installation rate",
-        "Inspections approved": "Inspections approved",
-        "Subsidy redeemed": "Subsidy redeemed",
+        "Applications submitted": "Applications submitted (count)",
+        "Installations completed": "Installations completed (count)",
+        "Application to installation rate": "Application to installation rate (%)",
+        "Inspections approved": "Inspections approved (count)",
+        "Subsidy redeemed": "Subsidy redeemed (count)",
     }
     sort_column = sort_column_map[district_sort_by]
     ascending = district_view == "Bottom districts"
@@ -671,27 +719,34 @@ elif page == "District Analysis":
     end_index = start_index + rows_per_page
     page_data = sorted_display_data.iloc[start_index:end_index].copy()
 
-    page_data["Applications submitted"] = page_data["Applications submitted"].map(
+    page_data["Applications submitted (count)"] = page_data["Applications submitted (count)"].map(
         lambda value: f"{int(value):,}"
     )
-    page_data["Installations completed"] = page_data["Installations completed"].map(
+    page_data["Installations completed (count)"] = page_data["Installations completed (count)"].map(
         lambda value: f"{int(value):,}"
     )
-    page_data["Inspections approved"] = page_data["Inspections approved"].map(
+    page_data["Inspections approved (count)"] = page_data["Inspections approved (count)"].map(
         lambda value: f"{int(value):,}"
     )
-    page_data["Subsidy redeemed"] = page_data["Subsidy redeemed"].map(
+    page_data["Subsidy redeemed (count)"] = page_data["Subsidy redeemed (count)"].map(
         lambda value: f"{int(value):,}"
     )
-    page_data["Application to installation rate"] = page_data[
-        "Application to installation rate"
+    page_data["Application to installation rate (%)"] = page_data[
+        "Application to installation rate (%)"
     ].map(lambda value: f"{float(value):.1f}%")
-    page_data["Installations per 1,000 applications"] = page_data[
-        "Installations per 1,000 applications"
+    page_data["Installations per 1,000 applications (normalized)"] = page_data[
+        "Installations per 1,000 applications (normalized)"
     ].map(lambda value: f"{float(value):.1f}")
 
     st.caption(
         f"Showing rows {start_index + 1} to {min(end_index, total_rows)} of {total_rows}"
+    )
+    st.markdown("**How to read this table**")
+    st.markdown(
+        "- Use count columns for absolute workload and the normalized columns for fair comparison across districts with different scale."
+    )
+    st.markdown(
+        "- Sort by application-to-installation rate (%) to quickly find high-priority districts with execution gaps."
     )
     st.dataframe(page_data, width="stretch", hide_index=True)
     st.caption(
@@ -777,6 +832,13 @@ elif page == "Trends":
         )
 
         st.plotly_chart(fig, width="stretch")
+        how_to_read_chart(
+            [
+                "Both lines are running totals, so slope changes indicate acceleration or slowdown.",
+                "If the applications line grows faster than installations, execution backlog is increasing.",
+                "Use this view for long-term trajectory rather than short-term volatility.",
+            ]
+        )
         chart_caption(
             "Cumulative view shows the running total for applications and installations",
             "Source: datewise_clean.csv columns rptdate, applications, and installations.",
@@ -842,6 +904,13 @@ elif page == "Trends":
         )
 
         st.plotly_chart(fig, width="stretch")
+        how_to_read_chart(
+            [
+                "Solid lines are daily values, and dashed lines are 7-day moving averages.",
+                "Look at dashed lines to identify persistent trend shifts beyond daily noise.",
+                "Widening distance between application and installation averages suggests rising processing pressure.",
+            ]
+        )
         chart_caption(
             "Daily view adds 7-day averages to smooth day-to-day noise",
             "Source: datewise_clean.csv columns rptdate, applications, and installations.",
@@ -905,6 +974,13 @@ elif page == "Trends":
             yaxis_title="Average daily count",
         )
         st.plotly_chart(fig, width="stretch")
+        how_to_read_chart(
+            [
+                "Each point is the average daily volume for that weekday across the selected range.",
+                "Compare weekday peaks to plan staffing and operational schedules.",
+                "Persistent weekday gaps between applications and installations indicate timing-related process imbalance.",
+            ]
+        )
         chart_caption(
             "Weekday curve shows whether applications and installations cluster on certain days of the week",
             "Source: datewise_clean.csv columns rptdate, applications, and installations.",
@@ -985,7 +1061,15 @@ elif page == "Capacity Metrics":
                 names="Type",
                 color_discrete_sequence=["#1f77b4", "#ff7f0e"],
             )
+            fig.update_layout(legend_title_text="System category")
             st.plotly_chart(fig, width="stretch")
+            how_to_read_chart(
+                [
+                    "Each slice shows the share of completed installations by system category.",
+                    "Larger slices indicate where the scheme is currently concentrated.",
+                    "Use this split to communicate portfolio mix to non-technical stakeholders.",
+                ]
+            )
             chart_caption(
                 "Pie chart shows the residential and RWA mix",
                 "Source: kpis_national.csv columns residential_percentage and rwa_percentage.",
@@ -1022,8 +1106,21 @@ elif page == "Capacity Metrics":
                     color="Size",
                     title="System size counts",
                 )
-                fig.update_layout(showlegend=False, height=420)
+                fig.update_layout(
+                    showlegend=True,
+                    legend_title_text="System size bucket",
+                    height=420,
+                    xaxis_title="Installed system size bucket (kW)",
+                    yaxis_title="Number of installations",
+                )
                 st.plotly_chart(fig, width="stretch")
+                how_to_read_chart(
+                    [
+                        "Bars show how many installations fall into each system-size bucket.",
+                        "The tallest bar identifies the most common installed size range.",
+                        "Use the median size band metric to summarize the center of the distribution.",
+                    ]
+                )
 
             st.metric("Median size band", median_band)
             st.caption(
@@ -1056,8 +1153,21 @@ elif page == "Capacity Metrics":
                     color_discrete_sequence=["#2ca02c", "#d62728"],
                     title="System size counts",
                 )
-                fig.update_layout(showlegend=False, height=400)
+                fig.update_layout(
+                    showlegend=True,
+                    legend_title_text="System size bucket",
+                    height=400,
+                    xaxis_title="Installed system size bucket",
+                    yaxis_title="Number of installations",
+                )
                 st.plotly_chart(fig, width="stretch")
+                how_to_read_chart(
+                    [
+                        "This fallback chart splits installations into up to 10 kW and above 10 kW categories.",
+                        "Compare bar heights to understand concentration by broad system size segment.",
+                        "For finer analysis, provide case-level system_size_kw in cleaned data.",
+                    ]
+                )
 
             st.caption(
                 "Histogram-style bucket view based on the available system-size counts in the cleaned data. Finer per-installation buckets require a 'system_size_kw' column in the cleaned dataset."

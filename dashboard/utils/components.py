@@ -126,3 +126,19 @@ def chart_caption(label, source, note=None):
     if note:
         parts.append(note)
     st.caption(" ".join(parts))
+
+
+def how_to_read_chart(points):
+    """
+    Render a compact guide for interpreting a chart.
+
+    Args:
+        points (list[str]): 2-4 short interpretation points.
+    """
+
+    if not points:
+        return
+
+    st.markdown("**How to read this chart**")
+    for point in points:
+        st.markdown(f"- {point}")
