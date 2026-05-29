@@ -129,7 +129,7 @@ with col2:
     st.metric(
         "Reached final stage",
         f"{int(successful):,}",
-        delta=f"{success_rate:.1f}% of applications reached the subsidy redeem stage",
+        delta=None,
     )
 
 with col3:
@@ -137,7 +137,7 @@ with col3:
     st.metric(
         "Still in process",
         f"{int(total_pending):,}",
-        delta=f"{(total_pending/funnel_df['Count'].iloc[0]*100):.1f}% of applications have not reached the final stage",
+        delta=None,
     )
 
 with col4:
@@ -153,8 +153,15 @@ with col4:
     st.metric(
         "Largest drop-off stage",
         worst_stage,
-        delta=f"{worst_dropout:.1f}% drop from the previous stage",
+        delta=None,
     )
+
+st.caption(
+    "Summary: "
+    f"{success_rate:.1f}% reached subsidy redeem stage, "
+    f"{(total_pending / funnel_df['Count'].iloc[0] * 100):.1f}% remain in process, "
+    f"largest stage drop is {worst_dropout:.1f}% between {prev_stage} and {worst_stage}."
+)
 
 st.markdown("---")
 
