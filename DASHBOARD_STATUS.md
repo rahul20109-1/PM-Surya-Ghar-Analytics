@@ -1,6 +1,6 @@
 # Dashboard Status Report
 
-Date: May 27, 2026
+Date: May 29, 2026
 Status: Operational
 
 ## Operational State
@@ -19,12 +19,15 @@ Core views are implemented in the main app:
 - State Analysis
 - District Analysis
 - Trends
-- Capacity Metrics
 - About
 
 Advanced analysis page:
 
 - Bottleneck Analysis
+
+Additional note:
+
+- A Capacity Metrics route exists in the app code, but it is not currently exposed in the sidebar navigation.
 
 ## Runbook
 
@@ -73,8 +76,8 @@ Primary files required by dashboard loaders:
 ## Latest Dashboard Enhancements
 
 - Overview KPI cards are cumulative again and no longer show delta badges on the snapshot page.
-- The Overview funnel now has its own date-range selector and uses daily-grain counts from `datewise_clean.csv`.
- - The Trends page now includes a weekday seasonality curve. The daily installation lag proxy distribution was removed on 2026-05-28 to keep the dashboard limited to charts supported by case-level data.
-- State and district comparison tables now include normalized efficiency columns.
+- State Analysis includes a chart-mode toggle (grouped bars vs volume/conversion scatter) and a focused state multiselect.
+- District Analysis includes normalized efficiency columns, pagination controls, and filtered CSV export.
+- Trends includes date-range controls, 7-day overlays, and a weekday seasonality curve.
 - Bottleneck Analysis now includes backlog scenario planning, direct chart callouts, per-chart date controls, and a focused state comparison selector.
 - The dashboard links to the metric glossary so KPI terms are easier to trust and explain.

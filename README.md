@@ -54,7 +54,7 @@ The main KPI definitions, normalized metrics, and bottleneck formulas are docume
 - Built a reproducible analytics pipeline for 6M+ public-sector records across 36 states and 792 districts.
 - Cleaned, validated, and engineered KPI outputs before dashboarding the results in Streamlit.
 - Added bottleneck diagnostics, date-range filtering, district export, and state-level comparison views for faster analysis.
-- Added KPI deltas, normalized efficiency metrics, backlog scenarios, and a metric glossary to make the analysis easier to trust and explain.
+- Added normalized efficiency metrics, backlog scenarios, and a metric glossary to make the analysis easier to trust and explain.
 - Documented the validation process so the numbers can be checked and reused confidently.
 
 ## How It Works
@@ -77,9 +77,10 @@ The dashboard includes:
 - State Analysis: compare states by volume and conversion
 - District Analysis: drill into district level data
 - Trends: review movement over time
-- Capacity Metrics: compare system size and segment mix
 - About: short project summary
 - Bottleneck Analysis: see where the process slows down
+
+Note: A Capacity Metrics section exists in code, but it is not currently exposed in the main sidebar navigation.
 
 ## Technology Stack
 
