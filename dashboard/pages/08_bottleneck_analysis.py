@@ -64,13 +64,14 @@ st.markdown(
 st.header("Process bottlenecks: where applications stall")
 st.markdown(
     """
-This analysis highlights stages where applications are delayed, dropped, or accumulate in backlog. Use it to prioritise operational interventions and state-level support.
+This section isolates where applications are delayed, dropped, or accumulating in backlog.
+Use these findings to prioritize operational interventions, resource deployment, and state-level review.
 
-The visualisations below show where the program loses applications (drop-off), where applications are waiting (backlog), and which states exhibit the largest issues.
+The visuals below identify stage-level loss points, backlog concentration, and geographic hotspots requiring corrective action.
 """
 )
 st.caption(
-    "Data note: Stages shown reflect the steps captured in the dataset. Consumer registration, agreement upload, and subsidy disbursal are not recorded here."
+    "Data scope note: Stages shown reflect process steps available in the dataset. Consumer registration, agreement upload, and subsidy approval or disbursal are not recorded here."
 )
 
 st.markdown("---")
@@ -292,8 +293,8 @@ with col2:
 st.markdown(
     """
 <div class="insight-box">
-<strong>Key insight:</strong> The largest operational loss occurs between <strong>{}</strong> and <strong>{}</strong> – a {pct:.1f}% reduction from the prior stage. Approximately <strong>{loss:,}</strong> applications do not progress at this handoff.
-<br><em>Suggested next step:</em> Investigate handoff procedures, vendor capacity, and local queues in the affected states.
+<strong>Decision note:</strong> The largest operational loss occurs between <strong>{}</strong> and <strong>{}</strong> – a {pct:.1f}% reduction from the prior stage. Approximately <strong>{loss:,}</strong> applications do not progress at this handoff.
+<br><em>Suggested action:</em> Review handoff controls, vendor capacity, and local queue conditions in the affected geographies.
 </div>
 """.format(prev_stage, worst_stage, pct=worst_dropout, loss=int(worst_loss)),
     unsafe_allow_html=True,
@@ -459,10 +460,11 @@ st.header("3. State comparison")
 # Brief explanation and interpretation guidance for users
 st.markdown(
     """
-**What this table shows:** Compare states on three problem types: low application→installation conversion, high waiting share, and low installation completion.
+**Decision use:** Compare states across three operational risk patterns: low application-to-installation conversion, high waiting share, and low installation completion.
 
-- Use the selector to pick which issue to prioritise. Lower conversion rates indicate where applications are failing to reach installation. High waiting share signals backlog or hold-ups. Low installation completion suggests execution or capacity constraints after vendor selection.
-- Tip: Start with the top states in this list, then drill down into local workflow, vendor capacity, and inspection scheduling to find root causes.
+- Select the issue lens based on policy priority and intervention objective.
+- Low conversion indicates weak end-to-end execution, high waiting share indicates queue stress, and low installation completion indicates post-vendor execution constraints.
+- Start with the highest-risk states, then validate root causes through district and process-level diagnostics.
 """,
     unsafe_allow_html=True,
 )
@@ -590,7 +592,7 @@ table_df[f"{metric_name} (%)"] = table_df[f"{metric_name} (%)"].apply(
 
 st.dataframe(table_df, width="stretch", hide_index=True)
 st.caption(
-    "Tip: Click column headers to sort. Use this list to prioritise on-the-ground support and to pick states for focused diagnostics."
+    "Tip: Sort by any column to align action sequencing with policy priorities and operational risk."
 )
 # Source caption removed per UI guidance
 
@@ -836,7 +838,7 @@ with col2:
             "- Estimated years to clear backlog is directional and assumes each scenario remains stable over time."
         )
         st.caption(
-            "Scenarios compare the current flow against a 25% capacity increase or a 25% intake reduction to show how quickly the backlog could be reduced."
+            "Scenarios compare current flow with a 25% capacity increase and a 25% intake reduction to estimate potential backlog stabilization paths."
         )
         chart_caption(
             "Backlog line shows how the application gap accumulates over time",
@@ -847,7 +849,7 @@ with col2:
     st.markdown(
         f"""
     <div class="insight-box">
-    <strong>Main finding:</strong><br>
+    <strong>Decision summary:</strong><br>
     - Applications received per day: <strong>{avg_daily_apps:,.0f}</strong><br>
     - Installations completed per day: <strong>{avg_daily_installs:,.0f}</strong><br>
     - Backlog grows by: <strong class="critical">{daily_deficit:,.0f} applications per day</strong><br>
@@ -865,42 +867,42 @@ st.markdown("---")
 # SECTION 6: ACTIONABLE RECOMMENDATIONS
 # ============================================================================
 
-st.header("6. Recommended actions")
+st.header("6. Recommended interventions")
 
 recommendations = [
     {
         "priority": "High",
         "issue": f"Gap between {prev_stage} and {worst_stage}",
         "impact": f"{int(worst_loss):,} applications do not move forward here",
-        "action": "Review handoff controls, vendor capacity, and local delays.",
+        "action": "Review stage handoff controls, vendor capacity, and local process delays.",
         "timeline": "Immediate (1-2 weeks)",
     },
     {
         "priority": "High",
         "issue": "Backlog is growing",
         "impact": f"{int(latest_gap):,} applications are still waiting, and the backlog grows by {daily_deficit:,.0f} per day",
-        "action": "Increase processing capacity or slow intake until the system catches up.",
+        "action": "Increase processing capacity or moderate intake until throughput stabilizes.",
         "timeline": "Immediate (1-2 weeks)",
     },
     {
         "priority": "Medium",
         "issue": "Geographic Hotspots",
         "impact": f'{len(state_analysis_sorted[state_analysis_sorted["app_to_install_rate"] < 20])} states have an application to installation rate below 20%',
-        "action": "Move support to weaker states and compare them with better-performing states.",
+        "action": "Deploy targeted implementation support in weak states and benchmark against stronger peers.",
         "timeline": "Short-term (1-3 months)",
     },
     {
         "priority": "Medium",
         "issue": "Vendor selection variability",
         "impact": "Vendor selection rates and criteria vary across states; investigate vendor onboarding and selection rules.",
-        "action": "Review vendor selection policies and data quality; standardise where appropriate.",
+        "action": "Review vendor onboarding and selection controls; standardize where feasible.",
         "timeline": "Short-term (1-3 months)",
     },
     {
         "priority": "Medium",
         "issue": "Project inspection bottleneck",
         "impact": f'{int(state_master["installation"].sum() - state_master["inspection_approved"].sum()):,} installations are still waiting for project inspection approval',
-        "action": "Speed up inspection scheduling and add more inspection capacity where needed.",
+        "action": "Accelerate inspection scheduling and add inspection capacity in high-delay locations.",
         "timeline": "Medium-term (1-2 months)",
     },
 ]
@@ -922,15 +924,15 @@ st.markdown("---")
 
 st.markdown(
     f"""
-### Executive summary
+### Decision-maker summary
 
-Key takeaways for program managers and recruiters:
+Key takeaways for scheme leadership and implementation teams:
 
-- **Priority issue:** The largest operational loss is between **{prev_stage}** and **{worst_stage}** – this handoff should be investigated first.
-- **Backlog risk:** Intake exceeds clearance; the backlog is growing by roughly **{daily_deficit:,.0f}** applications per day.
-- **Uneven delivery:** State-level performance varies considerably – target support to high-volume, low-conversion states.
-- **Approval variability:** Feasibility and inspection approval rates differ across states and explain part of the outcome gap.
+- **Priority issue:** The largest operational loss is between **{prev_stage}** and **{worst_stage}** and should be addressed first.
+- **Backlog risk:** Intake currently exceeds clearance, with backlog increasing by roughly **{daily_deficit:,.0f}** applications per day.
+- **Delivery variation:** State-level performance differs materially; prioritize high-volume, low-conversion states.
+- **Process variation:** Feasibility and inspection outcomes vary across states and contribute to performance gaps.
 
-Recommended next steps: Share these findings with delivery teams, run focused diagnostics in the top-priority states, and consider temporary capacity increases in the short term.
+Recommended next steps: align intervention plans with top-priority states, run process diagnostics on critical handoffs, and implement short-term throughput support where backlog growth is highest.
 """
 )

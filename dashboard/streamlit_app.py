@@ -216,7 +216,8 @@ if page == "Overview":
     # ========================================================================
 
     st.write("""
-    Quick snapshot of program scale and operational progress. Use these numbers to understand program reach (volume), execution (installations and inspections), and financial progress (subsidy redeemed).
+    National decision snapshot of scheme performance. These indicators summarize program scale,
+    delivery execution, inspection flow, and subsidy progression to support prioritization and review.
     """)
 
     total_apps = int(kpi_national["total_applications"].values[0])
@@ -341,10 +342,10 @@ if page == "Overview":
     st.markdown("---")
 
     # Row 5: Conversion Funnel
-    st.subheader("How applications move through journey stages captured in the data")
+    st.subheader("Application progression across tracked operational stages")
     st.caption(
-        "Stages shown below reflect the scheme journey steps available in the source data. "
-        "Consumer registration, agreement upload, and subsidy approval or disbursal are not captured in this dataset."
+        "Stages shown below represent only process steps captured in the source data. "
+        "Consumer registration, agreement upload, and subsidy approval or disbursal are outside this dataset."
     )
 
     funnel_data = {
@@ -394,11 +395,12 @@ elif page == "State Analysis":
 
     st.markdown(
         """
-    **What this view does:** Compare state performance on volume and conversion.
+    **Decision use:** Compare state-level throughput and conversion to identify where intervention will have the highest impact.
 
-    - Use the selector to choose a prioritisation metric: raw application or installation volume, or the conversion rate from application → installation.
-    - Lower conversion rates point to places where applications are not turning into completed installations. High volumes with low conversion are high-priority operational issues.
-    - Use the charts to spot which states have high throughput and which lag on execution. Drill down using the District page for local diagnostics.
+    - Select a prioritization metric based on policy objective: volume coverage or conversion efficiency.
+    - Low conversion rates indicate execution gaps where applications are not reaching installation.
+    - High-volume, low-conversion states should be treated as priority intervention zones.
+    - Use District Comparison for localized follow-up and field-level diagnosis.
     """,
         unsafe_allow_html=True,
     )
@@ -587,7 +589,8 @@ elif page == "District Analysis":
     st.header("District comparison")
 
     st.write("""
-    Review district-level performance for the selected state, including volume, conversion, inspections, and subsidy progress.
+    District-level operational performance view for targeted implementation planning.
+    Use this page to identify districts requiring immediate execution support.
     """)
 
     # State filter
@@ -764,7 +767,8 @@ elif page == "Trends":
     st.header("Trend over time")
 
     st.write("""
-    Review how applications and installations change over time.
+    Time-series view of intake and execution. Use this section to assess momentum,
+    detect delivery pressure early, and track whether conversion is improving.
     """)
 
     st.markdown("**Date range**")
@@ -920,7 +924,8 @@ elif page == "Trends":
     st.markdown("---")
     st.subheader("Weekday seasonality curve")
     st.caption(
-        "This curve shows the average daily applications and installations for each weekday in the selected date range."
+        "Average daily applications and installations by weekday in the selected period. "
+        "Use this to align staffing, inspections, and support operations by day-of-week demand."
     )
 
     weekday_order = [
@@ -1009,7 +1014,8 @@ elif page == "Capacity Metrics":
     st.header("Capacity and system size")
 
     st.write("""
-    Review installed capacity, average system size, and the split between residential and RWA systems.
+    Capacity profile view summarizing installed capacity, system-size patterns,
+    and residential versus RWA mix for infrastructure and financing decisions.
     """)
 
     col1, col2, col3 = st.columns(3)
@@ -1191,9 +1197,9 @@ elif page == "About":
     st.markdown("""
     ### PM Surya Ghar Analytics
 
-    This dashboard shows how the PM Surya Ghar rooftop solar scheme is moving through each stage.
-    The aim is simple: make the data easy to read, show where applications move smoothly,
-    and make the problem areas easy to spot.
+    This dashboard provides a decision-support view of PM Surya Ghar implementation performance.
+    It is designed to help scheme stakeholders monitor scale, track execution quality,
+    and identify operational bottlenecks requiring timely action.
 
     **What this dashboard covers:**
     - **Time Period:** February 13, 2024 – February 9, 2026
@@ -1211,18 +1217,18 @@ elif page == "About":
     - Application to installation rate: 38.69%
     - Installed capacity: 8.56 million kW
 
-    **What we checked:**
-    - Cleaned the source files before analysis
-    - Cross-checked the KPI totals against the cleaned data
-    - Reviewed the geography level counts
-    - Kept the dashboard focused on the main numbers first
+    **Data assurance and validation:**
+    - Cleaned source files before analysis
+    - Cross-verified KPI totals against cleaned datasets
+    - Validated geography-level record counts
+    - Maintained consistent metric definitions across pages
     - Documented KPI definitions in docs/metric_glossary.md
 
-    **What you can see here:**
-    - **Overview:** the main numbers and the funnel summary
-    - **State Analysis:** which states are doing well and which are lagging
-    - **District Analysis:** the district level picture
-    - **Trends:** how the program changes over time
+    **Decision views available:**
+    - **Overview:** national performance snapshot and stage progression
+    - **State Analysis:** comparative state performance on volume and conversion
+    - **District Analysis:** district-level operational performance for targeted action
+    - **Trends:** time-based movement in intake and installations
 
     **Built with:**
     - Python 3.11, Streamlit, Pandas, and Plotly
@@ -1240,7 +1246,7 @@ elif page == "About":
     st.markdown(
         """
     <div style='text-align: center; color: #999; font-size: 0.9rem;'>
-    PM Surya Ghar Analytics Dashboard | Clear, simple insights from program data
+    PM Surya Ghar Analytics Dashboard | Decision-support insights for scheme delivery
     </div>
     """,
         unsafe_allow_html=True,
