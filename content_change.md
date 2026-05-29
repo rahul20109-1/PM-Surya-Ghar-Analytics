@@ -72,6 +72,12 @@ If you want, I can:
 - Added `docs/metric_glossary.md` so KPI definitions, normalized metrics, and bottleneck formulas are easy to reference.
 - Synchronized the repository status docs (`progress.txt`, `updateDocs.md`, `VERIFICATION_REPORT.md`, `DASHBOARD_STATUS.md`, `PROJECT_COMPLETION_SUMMARY.md`, `lessons.md`) so the next session can resume from the correct checkpoint.
 
+## Current-state clarification (2026-05-29)
+
+- The Batch 7 points above are historical change notes.
+- In the current app, Overview KPI cards do not show delta badges and the Overview funnel is not date-filtered.
+- Use `DASHBOARD_STATUS.md` and `README.md` for current behavior, and this file as historical change context.
+
 ---
 
 End of content_change.md

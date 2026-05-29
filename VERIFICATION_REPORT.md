@@ -2,7 +2,7 @@
 
 ## PM Surya Ghar Analytics - Metric Validation Summary
 
-Last Updated: May 28, 2026
+Last Updated: May 29, 2026
 
 ## 1. Objective
 
@@ -61,3 +61,5 @@ Dashboard notes (2026-05-28): Batch 4 added a bucketed system-size distribution 
 Dashboard notes (2026-05-28): Batch 5 added consistent chart captions and helper tooltips across the dashboard, including the bottleneck analysis page. The new notes keep source fields and chart intent explicit for users.
 
 Dashboard notes (2026-05-28): Batch 7 added KPI delta badges on the Overview, normalized metrics in state and district comparisons, backlog clearance scenarios, bottleneck chart callouts, and a metric glossary. The dashboard now reads more like a guided analysis product and less like a static report.
+
+Current-state note (2026-05-29): In the active dashboard code, Overview KPI cards render without delta badges and the funnel is not date-filtered. This report keeps Batch 7 as historical context, while current behavior is documented in `DASHBOARD_STATUS.md`.

@@ -32,6 +32,8 @@ The following documentation and small code updates were applied to keep project 
 - Kept the funnel date selector separate from the Overview snapshot so KPI cards stay cumulative.
 - Added a note that the daily-grain funnel only includes stages that are present in `datewise_clean.csv`.
 
+Note (2026-05-29): This section is historical. The active dashboard code currently renders a non-date-filtered Overview funnel.
+
 ## Recent Dashboard Activity (2026-05-28 - Trend Heatmap)
 
 - Added a weekly seasonality heatmap to the Trends page so weekday and week-level traffic patterns are easier to inspect.
@@ -73,6 +75,8 @@ The following documentation and small code updates were applied to keep project 
 - Added normalized efficiency metrics to the state and district tables so comparisons are less volume-biased.
 - Added backlog scenario planning and chart callouts on bottleneck analysis to make the page more decision-oriented.
 - Added `docs/metric_glossary.md` and linked it from the README and dashboard About page.
+
+Note (2026-05-29): The KPI delta badges were later removed from the active Overview page. This section records historical edits only.
 
 ## Recent Documentation Sync (Batch 7)
 
