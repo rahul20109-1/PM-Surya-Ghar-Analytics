@@ -731,57 +731,102 @@ with col2:
             )
 
         if backlog_latest_gap > 0 and backlog_daily_deficit != 0:
-            backlog_scenario_rows = [
-                {
-                    "Scenario": "Current pace",
-                    "Daily intake": f"{backlog_avg_daily_apps:,.0f}",
-                    "Daily installations": f"{backlog_avg_daily_installs:,.0f}",
-                    "Daily deficit": f"{backlog_daily_deficit:,.0f}",
-                    "Years to clear": f"{(backlog_latest_gap / abs(backlog_daily_deficit) / 365):.1f}" if backlog_daily_deficit < 0 else "Backlog grows",
-                },
-                {
-                    "Scenario": "+25% capacity",
-                    "Daily intake": f"{backlog_avg_daily_apps:,.0f}",
-                    "Daily installations": f"{backlog_avg_daily_installs * 1.25:,.0f}",
-                    "Daily deficit": f"{(backlog_avg_daily_apps - backlog_avg_daily_installs * 1.25):,.0f}",
-                    "Years to clear": f"{(backlog_latest_gap / abs(backlog_avg_daily_apps - backlog_avg_daily_installs * 1.25) / 365):.1f}"
-                    if (backlog_avg_daily_apps - backlog_avg_daily_installs * 1.25) < 0
-                    else "Backlog grows",
-                },
-                {
-                    "Scenario": "-25% intake",
-                    "Daily intake": f"{backlog_avg_daily_apps * 0.75:,.0f}",
-                    "Daily installations": f"{backlog_avg_daily_installs:,.0f}",
-                    "Daily deficit": f"{(backlog_avg_daily_apps * 0.75 - backlog_avg_daily_installs):,.0f}",
-                    "Years to clear": f"{(backlog_latest_gap / abs(backlog_avg_daily_apps * 0.75 - backlog_avg_daily_installs) / 365):.1f}"
-                    if (backlog_avg_daily_apps * 0.75 - backlog_avg_daily_installs) < 0
-                    else "Backlog grows",
-                },
+                    # -------------------------------
+        # Backlog clearance scenarios
+        # -------------------------------
+
+            break_even_multiplier = (
+                backlog_avg_daily_apps / backlog_avg_daily_installs
+                if backlog_avg_daily_installs > 0
+                else 1
+            )
+
+            backlog_scenario_rows = []
+
+            scenario_configs = [
+                ("Current pace", 1.0),
+                ("+50% capacity", 1.5),
+                ("Break-even capacity", break_even_multiplier),
+                ("+10% beyond break-even", break_even_multiplier * 1.10),
             ]
-        else:
-            backlog_scenario_rows = [
-                {
-                    "Scenario": "Current pace",
-                    "Daily intake": f"{backlog_avg_daily_apps:,.0f}",
-                    "Daily installations": f"{backlog_avg_daily_installs:,.0f}",
-                    "Daily deficit": f"{backlog_daily_deficit:,.0f}",
-                    "Years to clear": "Not applicable",
-                },
-                {
-                    "Scenario": "+25% capacity",
-                    "Daily intake": f"{backlog_avg_daily_apps:,.0f}",
-                    "Daily installations": f"{backlog_avg_daily_installs * 1.25:,.0f}",
-                    "Daily deficit": f"{(backlog_avg_daily_apps - backlog_avg_daily_installs * 1.25):,.0f}",
-                    "Years to clear": "Not applicable",
-                },
-                {
-                    "Scenario": "-25% intake",
-                    "Daily intake": f"{backlog_avg_daily_apps * 0.75:,.0f}",
-                    "Daily installations": f"{backlog_avg_daily_installs:,.0f}",
-                    "Daily deficit": f"{(backlog_avg_daily_apps * 0.75 - backlog_avg_daily_installs):,.0f}",
-                    "Years to clear": "Not applicable",
-                },
-            ]
+
+            for scenario_name, multiplier in scenario_configs:
+
+                installs = backlog_avg_daily_installs * multiplier
+                backlog_change = backlog_avg_daily_apps - installs
+
+                if backlog_latest_gap > 0 and backlog_change < 0:
+                    years_to_clear = (
+                        backlog_latest_gap
+                        / abs(backlog_change)
+                        / 365
+                    )
+                    years_text = f"{years_to_clear:.1f}"
+                elif backlog_change >= 0:
+                    years_text = "Backlog grows"
+                else:
+                    years_text = "Not applicable"
+
+                backlog_scenario_rows.append(
+                    {
+                        "Scenario": scenario_name,
+                        "Daily intake": f"{backlog_avg_daily_apps:,.0f}",
+                        "Daily installations": f"{installs:,.0f}",
+                        "Daily deficit": f"{backlog_change:,.0f}",
+                        "Years to clear": years_text,
+                    }
+                )
+        #     backlog_scenario_rows = [
+        #         {
+        #             "Scenario": "Current pace",
+        #             "Daily intake": f"{backlog_avg_daily_apps:,.0f}",
+        #             "Daily installations": f"{backlog_avg_daily_installs:,.0f}",
+        #             "Daily deficit": f"{backlog_daily_deficit:,.0f}",
+        #             "Years to clear": f"{(backlog_latest_gap / abs(backlog_daily_deficit) / 365):.1f}" if backlog_daily_deficit < 0 else "Backlog grows",
+        #         },
+        #         {
+        #             "Scenario": "+25% capacity",
+        #             "Daily intake": f"{backlog_avg_daily_apps:,.0f}",
+        #             "Daily installations": f"{backlog_avg_daily_installs * 1.25:,.0f}",
+        #             "Daily deficit": f"{(backlog_avg_daily_apps - backlog_avg_daily_installs * 1.25):,.0f}",
+        #             "Years to clear": f"{(backlog_latest_gap / abs(backlog_avg_daily_apps - backlog_avg_daily_installs * 1.25) / 365):.1f}"
+        #             if (backlog_avg_daily_apps - backlog_avg_daily_installs * 1.25) < 0
+        #             else "Backlog grows",
+        #         },
+        #         {
+        #             "Scenario": "-25% intake",
+        #             "Daily intake": f"{backlog_avg_daily_apps * 0.75:,.0f}",
+        #             "Daily installations": f"{backlog_avg_daily_installs:,.0f}",
+        #             "Daily deficit": f"{(backlog_avg_daily_apps * 0.75 - backlog_avg_daily_installs):,.0f}",
+        #             "Years to clear": f"{(backlog_latest_gap / abs(backlog_avg_daily_apps * 0.75 - backlog_avg_daily_installs) / 365):.1f}"
+        #             if (backlog_avg_daily_apps * 0.75 - backlog_avg_daily_installs) < 0
+        #             else "Backlog grows",
+        #         },
+        #     ]
+        # else:
+        #     backlog_scenario_rows = [
+        #         {
+        #             "Scenario": "Current pace",
+        #             "Daily intake": f"{backlog_avg_daily_apps:,.0f}",
+        #             "Daily installations": f"{backlog_avg_daily_installs:,.0f}",
+        #             "Daily deficit": f"{backlog_daily_deficit:,.0f}",
+        #             "Years to clear": "Not applicable",
+        #         },
+        #         {
+        #             "Scenario": "+25% capacity",
+        #             "Daily intake": f"{backlog_avg_daily_apps:,.0f}",
+        #             "Daily installations": f"{backlog_avg_daily_installs * 1.25:,.0f}",
+        #             "Daily deficit": f"{(backlog_avg_daily_apps - backlog_avg_daily_installs * 1.25):,.0f}",
+        #             "Years to clear": "Not applicable",
+        #         },
+        #         {
+        #             "Scenario": "-25% intake",
+        #             "Daily intake": f"{backlog_avg_daily_apps * 0.75:,.0f}",
+        #             "Daily installations": f"{backlog_avg_daily_installs:,.0f}",
+        #             "Daily deficit": f"{(backlog_avg_daily_apps * 0.75 - backlog_avg_daily_installs):,.0f}",
+        #             "Years to clear": "Not applicable",
+        #         },
+            # ]
 
         fig = go.Figure()
         fig.add_trace(
@@ -836,16 +881,30 @@ with col2:
                 "Years to clear": "Estimated years to clear backlog",
             }
         )
+        # scenario_df = pd.DataFrame(backlog_scenario_rows).rename(
+        #     columns={
+        #         "Daily intake": "Daily applications submitted (count)",
+        #         "Daily installations": "Daily installations completed (count)",
+        #         "Daily deficit": "Daily backlog change (count)",
+        #         "Years to clear": "Estimated years to clear backlog",
+        #     }
+        # )
         st.dataframe(scenario_df, width="stretch", hide_index=True)
         st.markdown("**How to read this table**")
         st.markdown(
-            "- Compare scenarios by daily backlog change (count): negative or near-zero values indicate improved control of backlog growth."
+            "- Positive backlog change values indicate backlog growth. Negative values indicate backlog reduction."
         )
+        # st.markdown(
+        #     "- Compare scenarios by daily backlog change (count): negative or near-zero values indicate improved control of backlog growth."
+        # )
         st.markdown(
             "- Estimated years to clear backlog is directional and assumes each scenario remains stable over time."
         )
+        # st.caption(
+        #     "Scenarios compare current flow with a 25% capacity increase and a 25% intake reduction to estimate potential backlog stabilization paths."
+        # )
         st.caption(
-            "Scenarios compare current flow with a 25% capacity increase and a 25% intake reduction to estimate potential backlog stabilization paths."
+            "Scenarios compare the current operating rate with progressively higher installation capacity levels. Break-even capacity represents the point where installations match new applications and backlog stops growing."
         )
         chart_caption(
             "Backlog line shows how the application gap accumulates over time",
