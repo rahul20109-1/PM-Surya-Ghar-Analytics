@@ -647,12 +647,27 @@ with col1:
         daily_deficit = avg_daily_apps - avg_daily_installs
         latest_gap = throughput_analysis["cumulative_gap"].iloc[-1]
 
+        # if daily_deficit > 0:
+        #     years_to_clear = latest_gap / daily_deficit / 365
+        #     clearance_line = f"At the current rate, it will take about {years_to_clear:.1f} years to clear the backlog."
+        # else:
+        #     clearance_line = "At the current rate, backlog is not growing; clearance timing cannot be estimated."
         if daily_deficit > 0:
-            years_to_clear = latest_gap / daily_deficit / 365
-            clearance_line = f"At the current rate, it will take about {years_to_clear:.1f} years to clear the backlog."
-        else:
-            clearance_line = "At the current rate, backlog is not growing; clearance timing cannot be estimated."
+            clearance_line = (
+                "At the current rate, the backlog continues to grow and will not be cleared."
+            )
 
+        elif daily_deficit == 0:
+            clearance_line = (
+                "At the current rate, the backlog remains stable and is not expected to clear."
+            )
+
+        else:
+            years_to_clear = latest_gap / abs(daily_deficit) / 365
+            clearance_line = (
+                f"At the current rate, the backlog could be cleared in approximately "
+                f"{years_to_clear:.1f} years."
+            )
         fig = go.Figure()
         fig.add_trace(
             go.Scatter(
@@ -720,16 +735,34 @@ with col2:
         backlog_avg_daily_installs = backlog_analysis["installations"].mean()
         backlog_daily_deficit = backlog_avg_daily_apps - backlog_avg_daily_installs
 
+        # if backlog_daily_deficit > 0:
+        #     backlog_years_to_clear = backlog_latest_gap / backlog_daily_deficit / 365
+        #     backlog_clearance_line = (
+        #         f"At the current rate, it will take about {backlog_years_to_clear:.1f} years to clear the backlog."
+        #     )
+        # else:
+        #     backlog_clearance_line = (
+        #         "At the current rate, backlog is not growing; clearance timing cannot be estimated."
+        #     )
         if backlog_daily_deficit > 0:
-            backlog_years_to_clear = backlog_latest_gap / backlog_daily_deficit / 365
             backlog_clearance_line = (
-                f"At the current rate, it will take about {backlog_years_to_clear:.1f} years to clear the backlog."
-            )
-        else:
-            backlog_clearance_line = (
-                "At the current rate, backlog is not growing; clearance timing cannot be estimated."
+                "At the current rate, the backlog continues to grow and will not be cleared."
             )
 
+        elif backlog_daily_deficit == 0:
+            backlog_clearance_line = (
+                "At the current rate, the backlog remains stable and is not expected to clear."
+            )
+
+        else:
+            backlog_years_to_clear = (
+                backlog_latest_gap / abs(backlog_daily_deficit) / 365
+            )
+
+            backlog_clearance_line = (
+                f"At the current rate, the backlog could be cleared in approximately "
+                f"{backlog_years_to_clear:.1f} years."
+            )
         if backlog_latest_gap > 0 and backlog_daily_deficit != 0:
                     # -------------------------------
         # Backlog clearance scenarios
@@ -928,7 +961,8 @@ with col2:
     - Backlog grows by: <strong class="critical">{daily_deficit:,.0f} applications per day</strong><br>
     - Current total backlog: <strong class="critical">{int(latest_gap):,} applications</strong><br>
     <br>
-    <strong>{clearance_line}</strong>
+    <strong>Backlog outlook:</strong><br>
+    {clearance_line}
     </div>
     """,
         unsafe_allow_html=True,
