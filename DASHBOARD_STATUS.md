@@ -76,9 +76,10 @@ Primary files required by dashboard loaders:
 ## Latest Dashboard Enhancements
 
 - Chart titles, axis labels, legend labels, and table headings were tightened so the dashboard explains the metric in the visual itself.
+- Source captions were removed from graphs and tables so the presentation reads more cleanly.
 - Overview KPI cards are cumulative again and no longer show delta badges on the snapshot page.
 - State Analysis includes a chart-mode toggle (grouped bars vs volume/conversion scatter) and a focused state multiselect.
 - District Analysis includes normalized efficiency columns, pagination controls, and filtered CSV export.
 - Trends includes date-range controls, 7-day overlays, and a weekday seasonality curve.
-- Bottleneck Analysis now includes backlog scenario planning, direct chart callouts, per-chart date controls, and a focused state comparison selector.
+- Bottleneck Analysis now uses more executive-style summary language, backlog scenario planning, direct callouts, per-chart date controls, and a focused state comparison selector.
 - The dashboard links to the metric glossary so KPI terms are easier to trust and explain.

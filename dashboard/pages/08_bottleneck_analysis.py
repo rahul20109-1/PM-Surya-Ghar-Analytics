@@ -64,10 +64,10 @@ st.markdown(
 st.header("Process bottlenecks: where applications stall")
 st.markdown(
     """
-This section isolates where applications are delayed, dropped, or accumulating in backlog.
-Use these findings to prioritize operational interventions, resource deployment, and state-level review.
+This page synthesizes the process diagnostics we can extract from the cleaned scheme data.
+It shows where applications are lost, where they accumulate in backlog, and which states exhibit the most pronounced operational friction.
 
-The visuals below identify stage-level loss points, backlog concentration, and geographic hotspots requiring corrective action.
+Use the section-by-section analysis below to understand the full funnel, compare state-level performance, and judge how backlog pressure is evolving over time.
 """
 )
 st.caption(
@@ -247,7 +247,7 @@ with col1:
         )
         chart_caption(
             "Funnel counts show how many applications reach each tracked stage",
-            "Source: state_master_clean.csv stage totals aggregated at national level.",
+            "",
         )
 
 with col2:
@@ -300,8 +300,8 @@ with col2:
 st.markdown(
     """
 <div class="insight-box">
-<strong>Decision note:</strong> The largest operational loss occurs between <strong>{}</strong> and <strong>{}</strong> – a {pct:.1f}% reduction from the prior stage. Approximately <strong>{loss:,}</strong> applications do not progress at this handoff.
-<br><em>Suggested action:</em> Review handoff controls, vendor capacity, and local queue conditions in the affected geographies.
+<strong>Key insight:</strong> The largest operational loss occurs between <strong>{}</strong> and <strong>{}</strong>, where the process sheds <strong>{pct:.1f}%</strong> of volume from the prior stage. That translates to roughly <strong>{loss:,}</strong> applications not advancing at this handoff.
+<br><em>Implication:</em> This is the clearest pressure point in the funnel and should be treated as the first intervention target.
 </div>
 """.format(prev_stage, worst_stage, pct=worst_dropout, loss=int(worst_loss)),
     unsafe_allow_html=True,
@@ -693,7 +693,7 @@ with col1:
         )
         chart_caption(
             "7-day averages smooth the daily throughput series",
-            "Source: datewise_clean.csv columns rptdate, applications, and installations.",
+            "",
             "The selected date range controls the window shown here.",
         )
 
@@ -849,7 +849,7 @@ with col2:
         )
         chart_caption(
             "Backlog line shows how the application gap accumulates over time",
-            "Source: datewise_clean.csv columns rptdate, applications, and installations.",
+            "",
             "Filtered to the selected date range.",
         )
 
@@ -871,10 +871,10 @@ with col2:
 st.markdown("---")
 
 # ============================================================================
-# SECTION 6: ACTIONABLE RECOMMENDATIONS
+# SECTION 5: ACTIONABLE RECOMMENDATIONS
 # ============================================================================
 
-st.header("6. Recommended interventions")
+st.header("5. Recommended interventions")
 
 recommendations = [
     {
@@ -918,7 +918,7 @@ for i, rec in enumerate(recommendations, 1):
     st.markdown(
         f"""
     <div style='background-color: #f8f9fa; border-left: 4px solid #ff7f0e; padding: 15px; margin: 15px 0; border-radius: 5px;'>
-    <strong>{rec['priority']} Priority #{i}: {rec['issue']}</strong><br>
+    <strong>{rec['priority']} Priority Action #{i}: {rec['issue']}</strong><br>
     <strong>Impact:</strong> {rec['impact']}<br>
     <strong>Action:</strong> {rec['action']}<br>
     <strong>Timeline:</strong> {rec['timeline']}
@@ -931,15 +931,12 @@ st.markdown("---")
 
 st.markdown(
     f"""
-### Decision-maker summary
+### Executive summary
 
-Key takeaways for scheme leadership and implementation teams:
+The analysis points to a clear operational bottleneck between **{prev_stage}** and **{worst_stage}**, where the largest volume of applications falls out of the process.
+Backlog pressure is still building, with intake exceeding clearance by roughly **{daily_deficit:,.0f}** applications per day.
 
-- **Priority issue:** The largest operational loss is between **{prev_stage}** and **{worst_stage}** and should be addressed first.
-- **Backlog risk:** Intake currently exceeds clearance, with backlog increasing by roughly **{daily_deficit:,.0f}** applications per day.
-- **Delivery variation:** State-level performance differs materially; prioritize high-volume, low-conversion states.
-- **Process variation:** Feasibility and inspection outcomes vary across states and contribute to performance gaps.
-
-Recommended next steps: align intervention plans with top-priority states, run process diagnostics on critical handoffs, and implement short-term throughput support where backlog growth is highest.
+State performance is uneven, which means the same process weakness is not being experienced uniformly across geographies.
+The practical response is to prioritise the highest-volume weak states, tighten the handoff at the largest loss point, and add short-term throughput support where the backlog is most exposed.
 """
 )

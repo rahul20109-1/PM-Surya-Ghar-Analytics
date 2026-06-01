@@ -336,7 +336,7 @@ if page == "Overview":
         )
         chart_caption(
             "Cumulative trend compares program intake and execution over the selected period",
-            "Source: datewise_clean.csv columns rptdate, applications, and installations.",
+            "",
             "The chart shows running totals for the selected date range.",
         )
 
@@ -345,7 +345,7 @@ if page == "Overview":
     # Row 5: Conversion Funnel
     st.subheader("Application progression across tracked operational stages")
     st.caption(
-        "Stages shown below represent only process steps captured in the source data: application submission, feasibility approval, vendor selection, installation completed, project inspection by DISCOM, and subsidy redeem."
+        "Stages shown below represent only process steps captured in the cleaned and validated data: application submission, feasibility approval, vendor selection, installation completed, project inspection by DISCOM, and subsidy redeem."
     )
 
     funnel_data = {
@@ -387,7 +387,7 @@ if page == "Overview":
         )
         chart_caption(
             "Funnel view shows where applications drop between operational stages",
-            "Source: state_master_clean.csv stage totals aggregated at national level.",
+            "",
         )
 
 elif page == "State Analysis":
@@ -509,7 +509,6 @@ elif page == "State Analysis":
     ].apply(lambda x: f"{float(x):.1f}")
 
     st.dataframe(display_table, width="stretch", hide_index=True)
-    st.caption("Source: kpis_state.csv. The table is sorted and filtered to the selected states or top states for the chosen metric.")
     st.caption("Normalized columns help compare efficiency, not just raw volume. Installations per 1,000 applications is a size-adjusted delivery rate.")
 
     # Charts
@@ -536,7 +535,7 @@ elif page == "State Analysis":
             )
             chart_caption(
                 "Grouped bars compare applications submitted and installations completed",
-                "Source: kpis_state.csv columns applications and installations.",
+                "",
             )
         else:
             st.subheader("State volume versus conversion rate")
@@ -551,7 +550,7 @@ elif page == "State Analysis":
             )
             chart_caption(
                 "Scatter highlights high-volume states and conversion outliers",
-                "Source: kpis_state.csv columns applications, conversion_rate_app_to_install_pct, and subsidy_redeemed_amount.",
+                "",
             )
 
     with col2:
@@ -582,7 +581,7 @@ elif page == "State Analysis":
         )
         chart_caption(
             "Horizontal bars rank states by application-to-installation conversion rate",
-            "Source: kpis_state.csv column conversion_rate_app_to_install_pct.",
+            "",
         )
 
 elif page == "District Analysis":
@@ -753,7 +752,7 @@ elif page == "District Analysis":
     )
     st.dataframe(page_data, width="stretch", hide_index=True)
     st.caption(
-        "Source: district_clean.csv. The download button exports the full filtered, sorted result set.")
+        "The download button exports the full filtered, sorted result set.")
 
     csv_data = sorted_display_data.to_csv(index=False).encode("utf-8")
     st.download_button(
@@ -845,7 +844,7 @@ elif page == "Trends":
         )
         chart_caption(
             "Cumulative view shows the running total for applications and installations",
-            "Source: datewise_clean.csv columns rptdate, applications, and installations.",
+            "",
             "Filtered to the selected date range.",
         )
 
@@ -917,7 +916,7 @@ elif page == "Trends":
         )
         chart_caption(
             "Daily view adds 7-day averages to smooth day-to-day noise",
-            "Source: datewise_clean.csv columns rptdate, applications, and installations.",
+            "",
             "The dashed lines show the rolling average overlay.",
         )
 
@@ -988,7 +987,7 @@ elif page == "Trends":
         )
         chart_caption(
             "Weekday curve shows whether applications and installations cluster on certain days of the week",
-            "Source: datewise_clean.csv columns rptdate, applications, and installations.",
+            "",
             "Filtered to the selected date range.",
         )
 
@@ -1078,7 +1077,7 @@ elif page == "Capacity Metrics":
             )
             chart_caption(
                 "Pie chart shows the residential and RWA mix",
-                "Source: kpis_national.csv columns residential_percentage and rwa_percentage.",
+                "",
             )
 
     with col2:
@@ -1130,7 +1129,7 @@ elif page == "Capacity Metrics":
 
             st.metric("Median size band", median_band)
             st.caption(
-                "Source: per-installation system size column 'system_size_kw' in the cleaned data."
+                "The chart uses the per-installation system size column when available."
             )
         else:
             # Fallback to available aggregate buckets
@@ -1180,7 +1179,7 @@ elif page == "Capacity Metrics":
             )
             st.metric("Median size band", median_band)
             st.caption(
-                "Source: datewise_clean.csv columns upto_10_kw and above_10_kw. The median is shown as the bucket containing the midpoint, not a per-installation median.")
+                "The median is shown as the bucket containing the midpoint, not a per-installation median.")
 
 elif page == "Bottleneck Analysis":
     # Execute the Bottleneck Analysis page as a standalone script so its Streamlit

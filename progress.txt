@@ -1,7 +1,7 @@
 PM SURYA GHAR ANALYTICS - PROJECT STATUS
 Last Updated: June 1, 2026
 Overall Status: COMPLETE
-Last Update: 2026-06-01 — Dashboard labels and captions were clarified so charts and tables explain their data directly, and the supporting status docs were refreshed.
+Last Update: 2026-06-01 — Dashboard labels, captions, and bottleneck narrative were refined so the visuals and commentary explain the analysis directly, without source callouts in the charts.
 
 COMPLETED
 - Foundation and environment setup
@@ -49,6 +49,8 @@ RECENT ACTIVITY (2026-05-29):
 
 RECENT ACTIVITY (2026-06-01):
 - Clarified chart titles, axis labels, legend labels, and table headings across Overview, State Comparison, District Comparison, Trends, Capacity Metrics, and Bottleneck Analysis so each visual explains what it shows without relying on nearby prose.
+- Removed source callouts from the dashboard graphs and tables so the visuals read more cleanly for a portfolio viewer.
+- Reworked the bottleneck page summary and recommendation language to sound more executive-facing and analytical.
 - Updated dashboard status notes to reflect the wording cleanup and keep the portfolio-facing docs aligned with the current UI.
 
 WHAT I AM IMPLEMENTING?

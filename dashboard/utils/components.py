@@ -118,11 +118,11 @@ def chart_caption(label, source, note=None):
 
     Args:
         label (str): Plain-language chart description.
-        source (str): Source data or calculation note.
+        source (str): Retained for backward compatibility.
         note (str | None): Optional extra context.
     """
 
-    parts = [f"{label}.", source]
+    parts = [f"{label}."]
     if note:
         parts.append(note)
     st.caption(" ".join(parts))
