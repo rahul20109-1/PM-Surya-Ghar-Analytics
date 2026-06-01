@@ -755,6 +755,10 @@ with col2:
                 installs = backlog_avg_daily_installs * multiplier
                 backlog_change = backlog_avg_daily_apps - installs
 
+                # remove floating point noise
+                if abs(backlog_change) < 1:
+                    backlog_change = 0
+
                 if backlog_latest_gap > 0 and backlog_change < 0:
                     years_to_clear = (
                         backlog_latest_gap
@@ -762,7 +766,10 @@ with col2:
                         / 365
                     )
                     years_text = f"{years_to_clear:.1f}"
-                elif backlog_change >= 0:
+                elif backlog_change == 0:
+                    years_text = "Backlog stable"
+
+                elif backlog_change > 0:
                     years_text = "Backlog grows"
                 else:
                     years_text = "Not applicable"
