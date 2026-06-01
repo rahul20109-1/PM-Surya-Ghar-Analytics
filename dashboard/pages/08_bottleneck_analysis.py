@@ -737,25 +737,25 @@ with col2:
                     "Daily intake": f"{backlog_avg_daily_apps:,.0f}",
                     "Daily installations": f"{backlog_avg_daily_installs:,.0f}",
                     "Daily deficit": f"{backlog_daily_deficit:,.0f}",
-                    "Years to clear": f"{(backlog_latest_gap / backlog_daily_deficit / 365):.1f}" if backlog_daily_deficit > 0 else "Not growing",
+                    "Years to clear": f"{(backlog_latest_gap / abs(backlog_daily_deficit) / 365):.1f}" if backlog_daily_deficit < 0 else "Backlog grows",
                 },
                 {
                     "Scenario": "+25% capacity",
                     "Daily intake": f"{backlog_avg_daily_apps:,.0f}",
                     "Daily installations": f"{backlog_avg_daily_installs * 1.25:,.0f}",
                     "Daily deficit": f"{(backlog_avg_daily_apps - backlog_avg_daily_installs * 1.25):,.0f}",
-                    "Years to clear": f"{(backlog_latest_gap / (backlog_avg_daily_apps - backlog_avg_daily_installs * 1.25) / 365):.1f}"
-                    if (backlog_avg_daily_apps - backlog_avg_daily_installs * 1.25) > 0
-                    else "No backlog growth",
+                    "Years to clear": f"{(backlog_latest_gap / abs(backlog_avg_daily_apps - backlog_avg_daily_installs * 1.25) / 365):.1f}"
+                    if (backlog_avg_daily_apps - backlog_avg_daily_installs * 1.25) < 0
+                    else "Backlog grows",
                 },
                 {
                     "Scenario": "-25% intake",
                     "Daily intake": f"{backlog_avg_daily_apps * 0.75:,.0f}",
                     "Daily installations": f"{backlog_avg_daily_installs:,.0f}",
                     "Daily deficit": f"{(backlog_avg_daily_apps * 0.75 - backlog_avg_daily_installs):,.0f}",
-                    "Years to clear": f"{(backlog_latest_gap / (backlog_avg_daily_apps * 0.75 - backlog_avg_daily_installs) / 365):.1f}"
-                    if (backlog_avg_daily_apps * 0.75 - backlog_avg_daily_installs) > 0
-                    else "No backlog growth",
+                    "Years to clear": f"{(backlog_latest_gap / abs(backlog_avg_daily_apps * 0.75 - backlog_avg_daily_installs) / 365):.1f}"
+                    if (backlog_avg_daily_apps * 0.75 - backlog_avg_daily_installs) < 0
+                    else "Backlog grows",
                 },
             ]
         else:
