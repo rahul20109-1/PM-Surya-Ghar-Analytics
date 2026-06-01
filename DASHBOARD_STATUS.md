@@ -1,6 +1,6 @@
 # Dashboard Status Report
 
-Date: May 29, 2026
+Date: June 1, 2026
 Status: Operational
 
 ## Operational State
@@ -75,6 +75,7 @@ Primary files required by dashboard loaders:
 
 ## Latest Dashboard Enhancements
 
+- Chart titles, axis labels, legend labels, and table headings were tightened so the dashboard explains the metric in the visual itself.
 - Overview KPI cards are cumulative again and no longer show delta badges on the snapshot page.
 - State Analysis includes a chart-mode toggle (grouped bars vs volume/conversion scatter) and a focused state multiselect.
 - District Analysis includes normalized efficiency columns, pagination controls, and filtered CSV export.

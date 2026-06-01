@@ -1,7 +1,7 @@
 PM SURYA GHAR ANALYTICS - PROJECT STATUS
-Last Updated: May 29, 2026
+Last Updated: June 1, 2026
 Overall Status: COMPLETE
-Last Update: 2026-05-29 — Documentation synchronized with current dashboard navigation, KPI artifacts, and recent UX/data-validation behavior.
+Last Update: 2026-06-01 — Dashboard labels and captions were clarified so charts and tables explain their data directly, and the supporting status docs were refreshed.
 
 COMPLETED
 - Foundation and environment setup
@@ -47,11 +47,15 @@ RECENT ACTIVITY (2026-05-29):
 - Documentation sync (2026-05-29): Corrected stale portfolio claims (district count and page coverage) and aligned status docs to current sidebar navigation.
 - Content fixes (2026-05-29): Fixed mojibake characters (→, –) throughout dashboard pages; removed references to non-exposed pages (Capacity Metrics, Bottleneck Analysis) from About section; updated "What we checked" capitalization; updated Last Updated date to May 29, 2026.
 
+RECENT ACTIVITY (2026-06-01):
+- Clarified chart titles, axis labels, legend labels, and table headings across Overview, State Comparison, District Comparison, Trends, Capacity Metrics, and Bottleneck Analysis so each visual explains what it shows without relying on nearby prose.
+- Updated dashboard status notes to reflect the wording cleanup and keep the portfolio-facing docs aligned with the current UI.
+
 WHAT I AM IMPLEMENTING?
 - None (idle)
 
 NEXT TO IMPLEMENT
-- Add any remaining explanatory captions for edge-case chart behavior.
+- Optional public deployment and portfolio packaging.
 
 NOTE: The session agent stores the current implementation state in `/memories/session/implementation_state.md` and will update `WHAT I AM IMPLEMENTING?` at the start of each task.
  - Recent UX fixes (2026-05-28): Colocated backlog scenarios beside backlog chart, tightened Overview date-range placement near KPI deltas, and reframed approval-rate wording to "processing ratio". Code and docs updated accordingly.

@@ -81,13 +81,13 @@ def create_adoption_trend(datewise_df, start_date=None, end_date=None):
     # Improve axis labels and hover formatting
     fig.update_traces(hovertemplate="%{y:,} <br>%{x|%Y-%m-%d}")
     fig.update_layout(
-        title="Cumulative applications submitted and installations completed",
-        xaxis_title="Date",
-        yaxis_title="Cumulative count",
+        title="Cumulative applications submitted and installations completed over time",
+        xaxis_title="Report date",
+        yaxis_title="Cumulative applications / installations",
         hovermode="x unified",
         height=500,
         template="plotly_white",
-        legend=dict(title="Metric series", x=0.01, y=0.99),
+        legend=dict(title="Metric", x=0.01, y=0.99),
         margin=dict(l=0, r=0, t=30, b=0),
     )
 
@@ -131,15 +131,15 @@ def create_state_ranking_chart(state_data_df):
 
     fig.update_traces(hovertemplate="%{y:,} ")
     fig.update_layout(
-        title="Applications and installations by state",
+        title="Applications submitted and installations completed by state",
         xaxis_title="State",
-        yaxis_title="Count of records",
+        yaxis_title="Applications / installations (count)",
         barmode="group",
         height=500,
         template="plotly_white",
         xaxis_tickangle=-45,
         margin=dict(b=100),
-        legend=dict(title="Metric series", x=0.01, y=0.99),
+        legend=dict(title="Metric", x=0.01, y=0.99),
     )
 
     return fig
@@ -208,7 +208,7 @@ def create_state_scatter_chart(state_data_df):
         )
 
     fig.update_layout(
-        title="State volume vs conversion",
+        title="State volume versus application-to-installation conversion",
         xaxis_title="Applications submitted",
         yaxis_title="Application to installation rate (%)",
         height=500,
@@ -252,7 +252,7 @@ def create_conversion_rate_chart(state_data_df):
 
     fig.update_traces(hovertemplate="%{x:.1f}%")
     fig.update_layout(
-        title="Application → Installation rate by state",
+        title="Application-to-installation conversion rate by state",
         xaxis_title="Conversion rate (%)",
         yaxis_title="State",
         height=600,
@@ -293,7 +293,7 @@ def create_district_heatmap(district_data_df):
         state_summary,
         x="state",
         y="conversion_rate",
-        title="Installation rate by state",
+        title="Application-to-installation conversion rate by state",
         labels={
             "conversion_rate": "Application to installation rate (%)",
             "state": "State",

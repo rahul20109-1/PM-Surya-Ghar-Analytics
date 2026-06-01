@@ -78,6 +78,12 @@ If you want, I can:
 - In the current app, Overview KPI cards do not show delta badges and the Overview funnel is not date-filtered.
 - Use `DASHBOARD_STATUS.md` and `README.md` for current behavior, and this file as historical change context.
 
+## Current-state update (2026-06-01)
+
+- Clarified chart titles, axis labels, legends, and table headings across the dashboard so each visual states what metric it is showing without depending on nearby prose.
+- Updated the main dashboard and bottleneck page captions to name the source columns or stage totals more explicitly.
+- Refreshed `progress.txt` and `DASHBOARD_STATUS.md` so the repository status matches the current UI wording.
+
 ---
 
 End of content_change.md

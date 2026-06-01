@@ -71,7 +71,7 @@ The visuals below identify stage-level loss points, backlog concentration, and g
 """
 )
 st.caption(
-    "Data scope note: Stages shown reflect process steps available in the dataset. Consumer registration, agreement upload, and subsidy approval or disbursal are not recorded here."
+    "Data scope note: Stages shown reflect process steps available in the dataset: application submission, vendor selection, installation completed, project inspection by DISCOM, and subsidy redeem."
 )
 
 st.markdown("---")
@@ -166,7 +166,7 @@ st.caption(
 st.markdown("---")
 
 # Display funnel table
-st.subheader("Stage breakdown")
+st.subheader("Stage breakdown table")
 
 display_df = funnel_df.copy()
 display_df = display_df.rename(
@@ -199,7 +199,7 @@ st.markdown(
 col1, col2 = st.columns(2)
 
 with col1:
-    st.subheader("Stage flow chart")
+    st.subheader("Stage funnel chart")
 
     funnel_chart_df = filter_all_zero_rows(
         funnel_df[["Stage", "Count", "Cumulative %"]].copy(), ["Count"]
@@ -233,7 +233,7 @@ with col1:
 
         fig.update_traces(hovertemplate="%{x:,} applications – %{y}")
         fig.update_layout(
-            title="Stage flow (counts & cumulative%)",
+            title="Stage funnel counts and cumulative share from submission",
             height=520,
             template="plotly_white",
         )
@@ -246,12 +246,12 @@ with col1:
             ]
         )
         chart_caption(
-            "Funnel counts stage-by-stage drop-off from application submission to subsidy redeem",
-            "",
+            "Funnel counts show how many applications reach each tracked stage",
+            "Source: state_master_clean.csv stage totals aggregated at national level.",
         )
 
 with col2:
-    st.subheader("Drop-off rate by stage")
+    st.subheader("Drop-off rate between stages")
 
     # Remove first stage (no prior stage)
     dropout_data = funnel_df.iloc[1:][["Stage", "Stage Dropout %"]].copy()
@@ -548,7 +548,7 @@ selected_focus_states = st.multiselect(
 if issue_type == "Lowest application to installation rate":
     display_df = state_analysis_sorted.head(top_n)
     metric_col = "app_to_install_rate"
-    metric_name = "Application to installation rate"
+    metric_name = "Application-to-installation conversion rate"
 elif issue_type == "Highest waiting share":
     state_analysis["pending_pct"] = (
         (state_analysis["applications"] - state_analysis["subsidy_redeemed"])
@@ -568,7 +568,7 @@ if selected_focus_states:
     display_df = display_df.sort_values(metric_col)
 
 if selected_focus_states:
-    st.subheader("Statewise comparison")
+    st.subheader("Selected states comparison")
     st.caption(f"Focused comparison for {len(selected_focus_states)} selected state(s).")
 else:
     st.subheader(f"Top {top_n} states by selected issue")
@@ -617,7 +617,7 @@ st.header("4. Processing speed over time")
 col1, col2 = st.columns(2)
 
 with col1:
-    st.subheader("4.1 Applications and installations over time")
+    st.subheader("4.1 7-day average applications and installations over time")
     st.markdown("**Date range**")
     throughput_datewise, throughput_start_date, throughput_end_date = apply_date_range_filter(
         datewise, "bottleneck_throughput"
@@ -678,9 +678,9 @@ with col1:
             height=400,
             hovermode="x unified",
             template="plotly_white",
-            yaxis_title="Daily count (7-day average)",
-            xaxis_title="Date",
-            legend=dict(title="Series", x=0.01, y=0.99),
+            yaxis_title="Daily applications / installations (7-day average)",
+            xaxis_title="Report date",
+            legend=dict(title="Metric", x=0.01, y=0.99),
         )
 
         st.plotly_chart(fig, width="stretch")
@@ -693,7 +693,7 @@ with col1:
         )
         chart_caption(
             "7-day averages smooth the daily throughput series",
-            "",
+            "Source: datewise_clean.csv columns rptdate, applications, and installations.",
             "The selected date range controls the window shown here.",
         )
 
@@ -800,8 +800,8 @@ with col2:
             hovermode="x",
             template="plotly_white",
             yaxis_title="Cumulative pending applications",
-            xaxis_title="Date",
-            legend=dict(title="Series", x=0.01, y=0.99),
+            xaxis_title="Report date",
+            legend=dict(title="Metric", x=0.01, y=0.99),
         )
 
         latest_backlog = backlog_analysis["cumulative_gap"].iloc[-1]
@@ -849,7 +849,7 @@ with col2:
         )
         chart_caption(
             "Backlog line shows how the application gap accumulates over time",
-            "",
+            "Source: datewise_clean.csv columns rptdate, applications, and installations.",
             "Filtered to the selected date range.",
         )
 

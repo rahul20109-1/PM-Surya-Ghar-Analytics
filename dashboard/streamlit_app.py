@@ -314,7 +314,7 @@ if page == "Overview":
     st.markdown("---")
 
     # Row 3: Trend
-    st.subheader("Applications and installations over time")
+    st.subheader("Cumulative applications and installations over time")
     st.markdown("**Date range**")
     filtered_datewise, start_date, end_date = apply_date_range_filter(
         datewise, "overview"
@@ -337,6 +337,7 @@ if page == "Overview":
         chart_caption(
             "Cumulative trend compares program intake and execution over the selected period",
             "Source: datewise_clean.csv columns rptdate, applications, and installations.",
+            "The chart shows running totals for the selected date range.",
         )
 
     st.markdown("---")
@@ -344,8 +345,7 @@ if page == "Overview":
     # Row 5: Conversion Funnel
     st.subheader("Application progression across tracked operational stages")
     st.caption(
-        "Stages shown below represent only process steps captured in the source data. "
-        "Consumer registration, agreement upload, and subsidy approval or disbursal are outside this dataset."
+        "Stages shown below represent only process steps captured in the source data: application submission, feasibility approval, vendor selection, installation completed, project inspection by DISCOM, and subsidy redeem."
     )
 
     funnel_data = {
@@ -414,7 +414,7 @@ elif page == "State Analysis":
             [
                 "Applications submitted",
                 "Installations completed",
-                "Application to installation rate",
+                "Application-to-installation conversion rate",
             ],
             help="Choose whether to rank by volume or efficiency.",
         )
@@ -471,7 +471,7 @@ elif page == "State Analysis":
 
     # Display table: show a different heading when specific states are selected
     if selected_states:
-        st.subheader("Statewise comparison")
+        st.subheader("Selected states comparison")
         st.caption(
             f"Focused selection active — displaying {len(selected_states)} selected state(s)."
         )
@@ -492,7 +492,7 @@ elif page == "State Analysis":
         "State",
         "Applications submitted (count)",
         "Installations completed (count)",
-        "Application to installation rate (%)",
+            "Application-to-installation conversion rate (%)",
         "Installations per 1,000 applications (normalized)",
     ]
     display_table["Applications submitted (count)"] = display_table[
@@ -501,15 +501,15 @@ elif page == "State Analysis":
     display_table["Installations completed (count)"] = display_table[
         "Installations completed (count)"
     ].apply(lambda x: f"{int(x):,}")
-    display_table["Application to installation rate (%)"] = display_table[
-        "Application to installation rate (%)"
+    display_table["Application-to-installation conversion rate (%)"] = display_table[
+        "Application-to-installation conversion rate (%)"
     ].apply(lambda x: f"{float(x):.1f}%")
     display_table["Installations per 1,000 applications (normalized)"] = display_table[
         "Installations per 1,000 applications (normalized)"
     ].apply(lambda x: f"{float(x):.1f}")
 
     st.dataframe(display_table, width="stretch", hide_index=True)
-    st.caption("Source: kpis_state.csv. The table is sorted and filtered to the top states for the selected metric.")
+    st.caption("Source: kpis_state.csv. The table is sorted and filtered to the selected states or top states for the chosen metric.")
     st.caption("Normalized columns help compare efficiency, not just raw volume. Installations per 1,000 applications is a size-adjusted delivery rate.")
 
     # Charts
@@ -524,7 +524,7 @@ elif page == "State Analysis":
             help="Switch between absolute volume comparison and the volume-versus-conversion scatter.",
         )
         if state_chart_mode == "Grouped bars":
-            st.subheader("Applications and installations by state")
+            st.subheader("Applications submitted and installations completed by state")
             fig = create_state_ranking_chart(state_data)
             st.plotly_chart(fig, width="stretch")
             how_to_read_chart(
@@ -539,7 +539,7 @@ elif page == "State Analysis":
                 "Source: kpis_state.csv columns applications and installations.",
             )
         else:
-            st.subheader("State volume vs conversion")
+            st.subheader("State volume versus conversion rate")
             fig = create_state_scatter_chart(state_data)
             st.plotly_chart(fig, width="stretch")
             how_to_read_chart(
@@ -555,7 +555,7 @@ elif page == "State Analysis":
             )
 
     with col2:
-        st.subheader("Application to installation rate by state")
+        st.subheader("Application-to-installation conversion rate by state")
         fig = px.bar(
             state_data.sort_values(
                 "conversion_rate_app_to_install_pct", ascending=True
@@ -565,7 +565,7 @@ elif page == "State Analysis":
             orientation="h",
             title="",
             labels={
-                "conversion_rate_app_to_install_pct": "Application to installation rate (%)",
+                "conversion_rate_app_to_install_pct": "Application-to-installation conversion rate (%)",
                 "state": "State",
             },
             color="conversion_rate_app_to_install_pct",
@@ -581,7 +581,7 @@ elif page == "State Analysis":
             ]
         )
         chart_caption(
-            "Horizontal bars rank states by application-to-installation rate",
+            "Horizontal bars rank states by application-to-installation conversion rate",
             "Source: kpis_state.csv column conversion_rate_app_to_install_pct.",
         )
 
@@ -622,10 +622,10 @@ elif page == "District Analysis":
         apps = filtered_data["application_status"].sum()
         insts = filtered_data["installation"].sum()
         conv_rate = (insts / apps * 100) if apps > 0 else 0
-        st.metric("Application to installation rate", f"{conv_rate:.1f}%")
+        st.metric("Application-to-installation conversion rate", f"{conv_rate:.1f}%")
 
     # District table
-    st.subheader("District-level table")
+    st.subheader("District performance table")
 
     table_col1, table_col2, table_col3 = st.columns([2, 1, 1])
 
@@ -635,7 +635,7 @@ elif page == "District Analysis":
             [
                 "Applications submitted",
                 "Installations completed",
-                "Application to installation rate",
+                "Application-to-installation conversion rate",
                 "Inspections approved",
                 "Subsidy redeemed",
             ],
@@ -679,7 +679,7 @@ elif page == "District Analysis":
         "Subsidy redeemed (count)",
     ]
 
-    display_data["Application to installation rate (%)"] = display_data.apply(
+    display_data["Application-to-installation conversion rate (%)"] = display_data.apply(
         lambda row: (
             (row["Installations completed (count)"] / row["Applications submitted (count)"] * 100)
             if row["Applications submitted (count)"] > 0
@@ -699,7 +699,7 @@ elif page == "District Analysis":
     sort_column_map = {
         "Applications submitted": "Applications submitted (count)",
         "Installations completed": "Installations completed (count)",
-        "Application to installation rate": "Application to installation rate (%)",
+        "Application-to-installation conversion rate": "Application-to-installation conversion rate (%)",
         "Inspections approved": "Inspections approved (count)",
         "Subsidy redeemed": "Subsidy redeemed (count)",
     }
@@ -734,8 +734,8 @@ elif page == "District Analysis":
     page_data["Subsidy redeemed (count)"] = page_data["Subsidy redeemed (count)"].map(
         lambda value: f"{int(value):,}"
     )
-    page_data["Application to installation rate (%)"] = page_data[
-        "Application to installation rate (%)"
+    page_data["Application-to-installation conversion rate (%)"] = page_data[
+        "Application-to-installation conversion rate (%)"
     ].map(lambda value: f"{float(value):.1f}%")
     page_data["Installations per 1,000 applications (normalized)"] = page_data[
         "Installations per 1,000 applications (normalized)"
@@ -749,7 +749,7 @@ elif page == "District Analysis":
         "- Use count columns for absolute workload and the normalized columns for fair comparison across districts with different scale."
     )
     st.markdown(
-        "- Sort by application-to-installation rate (%) to quickly find high-priority districts with execution gaps."
+        "- Sort by application-to-installation conversion rate (%) to quickly find high-priority districts with execution gaps."
     )
     st.dataframe(page_data, width="stretch", hide_index=True)
     st.caption(
@@ -799,7 +799,7 @@ elif page == "Trends":
     chart_type = st.radio("Choose a view:", ["Cumulative", "Daily"], horizontal=True)
 
     if chart_type == "Cumulative":
-        st.subheader("Cumulative applications and installations")
+        st.subheader("Cumulative applications and installations over the selected period")
 
         import plotly.graph_objects as go
         from plotly.subplots import make_subplots
@@ -827,9 +827,9 @@ elif page == "Trends":
         )
 
         fig.update_layout(
-            title="Cumulative program totals",
-            xaxis_title="Date",
-            yaxis_title="Cumulative count",
+            title="Cumulative applications and installations over time",
+            xaxis_title="Report date",
+            yaxis_title="Cumulative applications / installations",
             hovermode="x unified",
             height=600,
             template="plotly_white",
@@ -850,7 +850,7 @@ elif page == "Trends":
         )
 
     else:
-        st.subheader("Daily applications and installations")
+        st.subheader("Daily applications and installations with 7-day averages")
 
         import plotly.graph_objects as go
 
@@ -899,9 +899,9 @@ elif page == "Trends":
         )
 
         fig.update_layout(
-            title="Daily program activity",
-            xaxis_title="Date",
-            yaxis_title="Daily count",
+            title="Daily applications and installations with 7-day averages",
+            xaxis_title="Report date",
+            yaxis_title="Daily applications / installations",
             hovermode="x unified",
             height=600,
             template="plotly_white",
@@ -976,7 +976,7 @@ elif page == "Trends":
             template="plotly_white",
             hovermode="x unified",
             xaxis_title="Weekday",
-            yaxis_title="Average daily count",
+            yaxis_title="Average daily applications / installations",
         )
         st.plotly_chart(fig, width="stretch")
         how_to_read_chart(
@@ -1044,7 +1044,7 @@ elif page == "Capacity Metrics":
     col1, col2 = st.columns(2)
 
     with col1:
-        st.subheader("Residential and RWA share")
+        st.subheader("Residential and RWA share of installed capacity")
 
         adoption_data = {
             "Type": ["Residential systems", "RWA systems"],
@@ -1082,7 +1082,7 @@ elif page == "Capacity Metrics":
             )
 
     with col2:
-        st.subheader("System size distribution")
+        st.subheader("System size distribution by kW bucket")
 
         # Date range filter for capacity view
         st.markdown("**Date range (Capacity view)**")
@@ -1110,7 +1110,7 @@ elif page == "Capacity Metrics":
                     x="Size",
                     y="Count",
                     color="Size",
-                    title="System size counts",
+                    title="System size counts by kW bucket",
                 )
                 fig.update_layout(
                     showlegend=True,
@@ -1157,7 +1157,7 @@ elif page == "Capacity Metrics":
                     y="Count",
                     color="Size",
                     color_discrete_sequence=["#2ca02c", "#d62728"],
-                    title="System size counts",
+                    title="System size counts by kW bucket",
                 )
                 fig.update_layout(
                     showlegend=True,
